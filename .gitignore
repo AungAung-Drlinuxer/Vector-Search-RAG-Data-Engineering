@@ -1,0 +1,40 @@
+# Secrets — never commit
+.env
+.env.*
+*.key
+*.pem
+secrets.yml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Ingestion / index artefacts (created when a lesson or a real run writes them)
+corpus/
+chunks/
+embeddings/
+index/
+*.npy
+*.faiss
+*.hnsw
+*.parquet
+*.jsonl
+*.sqlite
+*.db
+postgres-data/
+
+# Logs and reports
+logs/
+reports/
+results/*.json
+
+# Notebook / editor noise
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
