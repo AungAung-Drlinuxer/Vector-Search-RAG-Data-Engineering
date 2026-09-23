@@ -198,8 +198,8 @@ CREATE TABLE chunks (
 -- Cosine distance search for the top 5 nearest chunks.
 SELECT id, body
 FROM chunks
-ORDER BY emb <=> '[0.1, 0.2, 0.3, ...]'::vector
-LIMIT 5;
+ORDER BY emb <=> $1::vector      -- the bound parameter must hold exactly 768 numbers
+LIMIT 5;                         -- a '[...]' literal with fewer fails: expected 768 dimensions
 ```
 
 ---

@@ -83,8 +83,8 @@ CREATE TABLE chunks (
 CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops);
 
 SELECT content FROM chunks
-ORDER BY embedding <=> '[0.1, 0.2, ...]'  -- query vector
-LIMIT 5;
+ORDER BY embedding <=> $1::vector   -- dimension must match the column: 768 numbers
+LIMIT 5;                            -- a short '[...]' literal raises "expected 768 dimensions"
 ```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
@@ -250,7 +250,7 @@ CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops);
 SELECT content
 FROM chunks
 WHERE metadata @> '{"source": "manual"}'
-ORDER BY embedding <=> '[0.1, 0.2, ...]'
+ORDER BY embedding <=> $1::vector   -- 768 numbers, matching the column
 LIMIT 5;
 ```
 
@@ -328,7 +328,7 @@ CREATE INDEX ON chunks USING hnsw (
 -- check that the index is actually used
 EXPLAIN ANALYZE
 SELECT content FROM chunks
-ORDER BY embedding <=> '[0.1, 0.2, ...]'
+ORDER BY embedding <=> $1::vector   -- 768 numbers, matching the column
 LIMIT 5;
 ```
 
