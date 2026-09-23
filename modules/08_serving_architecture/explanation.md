@@ -8,7 +8,7 @@ pgvector နဲ့ဆိုရင် `WHERE` clause နဲ့ vector distance �
 
 ### ဘာကြောင့် လဲ
 
-RAG မှာ ဘယ် content ကို ဘယ်အချင်းချင်း ပြနိုင်/မပြနိုင်လဲ ဆိုတဲ့ အချက်က အရေးအကြီးဆုံး အချက်တွေထဲ မပါဝင်လို့ မရပါ။ Document တွေကို department, tenant, သို့ project အလိုက် ခွဲထားလို့ document တွေ တစ်ယူနစ်တည်းသာ ပြတဲ့ system တစ်ခုမှာ user တစ်ယောက်က သူ့ကို မပိုင်တဲ့ document တွေကို retrieval လမ်းကနေ ဖော်ပေးလိုက်ရင် ဒါက security violation တစ်ခု ဖြစ်ပြီး အလွန်အမင်း ဆိုးရွားပါတယ်။ LLM ကတော့ ပေးထားတဲ့ context အားလုံးကို ယုံကြည်စွာ အသုံးပြုသွားမှာ မို့၊ retrieval layer မှာ အလွန်ခေါင်းမာစွာ စစ်ရတယ်။
+RAG မှာ ဘယ် content ကို ဘယ်သူ ဘယ်ဟာကို ကြည့်ခွင့်ရှိလဲ ဆိုတဲ့ အချက်က အရေးအကြီးဆုံး အချက်တွေထဲ မပါဝင်လို့ မရပါ။ Document တွေကို department, tenant, သို့ project အလိုက် ခွဲထားလို့ document တွေကို user/tenant တစ်ခုတည်းသာ ပြတဲ့ system တစ်ခုမှာ user တစ်ယောက်က သူ့ကို မပိုင်တဲ့ document တွေကို retrieval လမ်းကနေ ဖော်ပေးလိုက်ရင် ဒါက security violation တစ်ခု ဖြစ်ပြီး အလွန်အမင်း ဆိုးရွားပါတယ်။ LLM ကတော့ ပေးထားတဲ့ context အားလုံးကို ယုံကြည်စွာ အသုံးပြုသွားမှာ မို့၊ retrieval layer မှာ အလွန်ခိုင်မာစွာ စစ်ရတယ်။
 
 Filter က performance အတွက်ပါ အရေးကြီးတယ်။ သက်ဆိုင်တဲ့ document တွေပဲ search space ထဲ ပါစေရင် index ရှာတဲ့အချိန် ပိုတိုသွားပြီး result ရဲ့ အရည်အသွေးပါ တက်သွားတယ်။
 
@@ -34,7 +34,7 @@ LIMIT 10;
 
 ### ဥပမာ
 
-ဒီ ဥပမာ မှာ filter + ACL စစ်တဲ့ logic အတွေ့အကြုံ အလွန်ခေါင်းမာစွာ စစ်ထားတဲ့ သေးငယ်တဲ့ version ကို Python ဖြင့် ပြထားတယ်။ document တစ်ခုစီမှာ tags နှင့် owner ပါဝင်ပြီး၊ request မှာ သက်ဆိုင်တဲ့ document တွေပဲ ရမယ်။
+ဒီ ဥပမာ မှာ filter + ACL စစ်တဲ့ logic အတွေ့အကြုံ အလွန်ခိုင်မာစွာ စစ်ထားတဲ့ သေးငယ်တဲ့ version ကို Python ဖြင့် ပြထားတယ်။ document တစ်ခုစီမှာ tags နှင့် owner ပါဝင်ပြီး၊ request မှာ သက်ဆိုင်တဲ့ document တွေပဲ ရမယ်။
 
 ```python
 # Simplified retrieval request handler: filter + ACL in one pass
@@ -72,9 +72,9 @@ print("bob, finance:", retrieve("bob", "finance"))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-အလုပ်လုပ်ချင်တဲ့ RAG system အများစုက document တွေကို user/tenant အလိုက် ခွဲရတယ်။ SaaS တစ်ခုမှာ tenant တစ်ခုရဲ့ document တွေ အခြား tenant တစ်ခုကို ရောက်သွားတာက စီးပွားရေးအရ အဆင့်အတန်း ကျဆုံးစေတဲ့ အမှားဖြစ်တယ်။ ဒါကို application မှာ ပြန်စစ်ပြီးမှ ပြန်ရှာနည်း (post-filter) နဲ့ ရှာပြီးမှ ဖယ်နည်း နှစ်မျိုးလုံးရှိပေမဲ့၊ မှားယွင်းတဲ့ result တွေ အရင်ဖော်ပြပြီးမှ ဖယ်တာမျိုးက filter တွေ တင်းကျပ်လာတဲ့အခါ top-k အားလုံး ပျက်သွားနိုင်တယ်။
+အလုပ်လုပ်ချင်တဲ့ RAG system အများစုက document တွေကို user/tenant အလိုက် ခွဲရတယ်။ SaaS တစ်ခုမှာ tenant တစ်ခုရဲ့ document တွေ အခြား tenant တစ်ခုကို ရောက်သွားတာက စီးပွားရေးအရ အဆင့်အတန်း ကျဆုံးစေတဲ့ အမှားဖြစ်တယ်။ ဒါကို ရှာပြီးမှ ဖယ်နည်း (post-filter) နဲ့ စစ်ပြီးမှ ရှာနည်း (pre-filter) ဆိုပြီး နှစ်မျိုးရှိပေမဲ့၊ post-filter မှာ filter တွေ တင်းကျပ်လာတဲ့အခါ top-k အားလုံး ပျက်သွားနိုင်တယ်။
 
-ဒါကြောင့် ACL ကို "in-filter" အဖြစ် query ထဲ ထည့်ထားတဲ့ ဒီဇိုင်းက အလွန်ခေါင်းမာပြီး မှန်ကန်တာမို့ production system တွေအတွက် အကြံပြုထားတဲ့ ပုံစံဖြစ်တယ်။
+ဒါကြောင့် ACL ကို "in-filter" အဖြစ် query ထဲ ထည့်ထားတဲ့ ဒီဇိုင်းက အလွန်ခိုင်မာပြီး မှန်ကန်တာမို့ production system တွေအတွက် အကြံပြုထားတဲ့ ပုံစံဖြစ်တယ်။
 
 ## အနှစ်ချုပ်
 
@@ -101,7 +101,7 @@ Result cache က random tail latency ကို ဖယ်ပေးတယ်။ Ve
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-1. Embedding cache — key က query text ရဲ့ hash (ဥပမာ SHA-256) နှင့် model version တွဲဖြစ်တယ်။ Model လို့ကရာလို့ model ပြောင်လိုက်ရင် cache key ပါ ပြောင်းသွားစေရတယ်။
+1. Embedding cache — key က query text ရဲ့ hash (ဥပမာ SHA-256) နှင့် model version ပူးတွဲပါဝင်တယ်။ Model ပြောင်းလိုက်ရင် cache key ပါ ပြောင်းသွားစေရတယ်။
 2. Value က float vector အဖြစ် serialize လုပ်ပြီး (binary သို့ base64) Redis စတဲ့ store မှာ TTL နှင့်အတူ သိမ်းတယ်။
 3. Result cache — key က query hash + filter params + index version ဖြစ်ရတယ်။ Index မှာ document အသစ်ထည့်လိုက်ရင် index version တက်သွားပြီး အဖြေဟောင်းတွေ အလိုအလျောက် အသုံးမဝင်တော့ပါစေရ။
 4. Read path — cache lookup → miss ဖြစ်ရင် embedding တွက်ပြီး search ပြီး result ကို ပြန်သိမ်း။ Hit ဖြစ်ရင် တန်းပြန်ပေး။
@@ -109,7 +109,7 @@ Result cache က random tail latency ကို ဖယ်ပေးတယ်။ Ve
 
 ### ဥပမာ
 
-FAQ bot တစ်ခုမှာ user တွေက "ရုံးချိန် ဘယ်လောက်လဲ" လို့ နေ့စဉ် အကြိမ် ၃၀ဝ လောက် မေးတယ်ဆိုပါဆို။ Embedding cache ရှိရင် တစ်ခါပဲ တွက်ရပြီး ကျန်တာက lookup ကျပောင်း၊ result cache ရှိရင်တော့ vector search တောင် မလုပ်ရတော့ဘူး — response က မီလီစက္ကန့်အနည်းငယ် အတွင်း ပြန်ထွက်တယ်။
+FAQ bot တစ်ခုမှာ user တွေက "ရုံးချိန် ဘယ်လောက်လဲ" လို့ နေ့စဉ် အကြိမ် ၃၀ဝ လောက် မေးတယ်ဆိုပါဆို။ Embedding cache ရှိရင် တစ်ခါပဲ တွက်ရပြီး ကျန်တာက lookup ပဲ၊ result cache ရှိရင်တော့ vector search တောင် မလုပ်ရတော့ဘူး — response က မီလီစက္ကန့်အနည်းငယ် အတွင်း ပြန်ထွက်တယ်။
 
 Document upload လုပ်တဲ့ event ကို ကြားရင် result cache version ကို တစ်ဆင့် တက်စေပြီး သက်ဆိုင်တဲ့ query တွေ အသစ်ရှာစေတဲ့ စနစ် တွေ့ရလေ့ရှိတယ်။
 
@@ -117,7 +117,7 @@ Document upload လုပ်တဲ့ event ကို ကြားရင် resu
 
 Production RAG တစ်ခုရဲ့ serving stack က p50 မှာ မြန်နေတဲ့အခါပဲ cache တွေက အများအားဖြင့် နောက်ကွယ်က အကြောင်းရင်းဖြစ်နေလေ့ရှိတယ်။ Query distribution က long-tail မို့ အကြိမ်များတဲ့ query အနည်းငယ်က traffic အများကြီးကို ကိုင်တာမို့ hit rate က အံ့အားသင့်လောက်အောင် မြင့်တတ်တယ်။
 
-ဒါပေမဲ့ cache က တစ်ဖက်မှာ အလွန်ခေါင်းမာဆိုးတဲ့ correctness trap ဖြစ်တယ် — model ပြောင်းလို့ cache မရှင်းရင် ရောနှောတဲ့ embedding တွေနဲ့ search quality တိမ်သွားတယ်။ ဒါကြောင့် cache key မှာ model version နှင့် index version ထည့်တာက သတိရသင့်တဲ့ design discipline တစ်ခုဖြစ်တယ်။
+ဒါပေမဲ့ cache က တစ်ဖက်မှာ အလွန်ခက်ခဲဆိုးတဲ့ correctness trap ဖြစ်တယ် — model ပြောင်းလို့ cache မရှင်းရင် ရောနှောတဲ့ embedding တွေနဲ့ search quality တိမ်သွားတယ်။ ဒါကြောင့် cache key မှာ model version နှင့် index version ထည့်တာက သတိရသင့်တဲ့ design discipline တစ်ခုဖြစ်တယ်။
 
 ## အနှစ်ချုပ်
 
@@ -132,7 +132,7 @@ Production RAG တစ်ခုရဲ့ serving stack က p50 မှာ မြ�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Concurrency က တစ်ပြိုင်တည်ချင်း request အများကြီးကို စနစ်တစ်ခုက ကိုင်နိုင်စွမ်းဆိုတဲ့ အချက်ပါ။ Vector search serving မှာ request တစ်ခုစီက database connection တစ်ခုကို အသုံးပြုရလို့၊ connection pool ဆိုတာ အလွန်ခေါင်းမာဆို ဖွင့်ထားတဲ့ connection တွေကို ပြန်လည် အသုံးပြုခြင်းစနစ်ပါ — ဖွင့်/ပိတ် ကုန်ကျမှုကို ဖယ်ပေးတယ်။
+Concurrency က တစ်ပြိုင်တည်း request အများကြီးကို စနစ်တစ်ခုက ကိုင်နိုင်စွမ်းဆိုတဲ့ အချက်ပါ။ Vector search serving မှာ request တစ်ခုစီက database connection တစ်ခုကို အသုံးပြုရလို့၊ connection pool ဆိုတာ ကြိုတင် ဖွင့်ထားတဲ့ connection တွေကို ပြန်လည် အသုံးပြုခြင်းစနစ်ပါ — ဖွင့်/ပိတ် ကုန်ကျမှုကို ဖယ်ပေးတယ်။
 
 pgvector သုံးတဲ့ case မှာ pool က Postgres connection တွေအတွက် ဖြစ်ပြီး၊ Qdrant/Milvus စတာတွေမှာတော့ HTTP client သို့ gRPC channel တွေကို ပြန်လည်အသုံးပြုတဲ့ pool ဖြစ်တယ်။
 
@@ -140,7 +140,7 @@ pgvector သုံးတဲ့ case မှာ pool က Postgres connection တ�
 
 Postgres မှာ process per connection မို့ connection တစ်ခုက memory အနည်းငယ်စီ စားတယ်၊ နှင့် connection အရေအတွက်က `max_connections` နဲ့ ကန့်သတ်ခံရတယ်။ Request တစ်ခုချင်း connection အသစ် ဖွင့်နေရရင် handshake + auth ကျပေါင်းနဲ့ latency တက်ပြီး database ဘက်ကလည်း ဖိအားခံရတယ်။
 
-Pool ရှိရင် connection တွေကို ကြိုဖွင့်ထားပြီး request တွေက queue ကနေ ယူသုံး၊ သုံးပြီးရင် ပြန်ချထားတဲ့ ပုံစံမို့ ကုန်ကျမှု အပိုင်းကြီး ရှင်းသွားတယ်။ Pool က connection အရေအတွက်ကို အနှိမ့်အမြင့် ကန့်သတ်ပေးလို့ database ကို overload မဖြစ်စေဘူး။
+Pool ရှိရင် connection တွေကို ကြိုဖွင့်ထားပြီး request တွေက queue ကနေ ယူသုံး၊ သုံးပြီးရင် ပြန်ချထားတဲ့ ပုံစံမို့ ကုန်ကျမှု အပိုင်းကြီး ရှင်းသွားတယ်။ Pool က connection အရေအတွက်ကို အနိမ့်ဆုံး/အမြင့်ဆုံး ကန့်သတ်ပေးလို့ database ကို overload မဖြစ်စေဘူး။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
@@ -152,19 +152,19 @@ Pool ရှိရင် connection တွေကို ကြိုဖွင့�
 
 ### ဥပမာ
 
-Async FastAPI app တစ်ခုမှာ request တွေက event loop ပေါ်မှာ ပြိုင်တည်း လည်ပတ်နေတယ်ဆိုပါစို့။ Pool size 10 ထားရင် vector search တွေက database ဘက်မှာ တစ်ပြိုင်တည်း အများဆုံး 10 ခုပဲ လည်နေမယ်၊ ကျန်တာက pool queue မှာ စောင့်မယ်။ Pool ကို ခဏအသုံးပြုချိန်တစ်ခုလျှင် 50 ms ဆိုရင် request 10 ခုက 50 ms အတွင်း အလုံးအမြစ် ကိုင်နိုင်တယ် — ဒါက Little's law (throughput = concurrency / latency) အရ တွက်ထားတာပါ၊ တိုင်းထားတဲ့ ဂဏန်းမဟုတ်ဘူး။
+Async FastAPI app တစ်ခုမှာ request တွေက event loop ပေါ်မှာ ပြိုင်တည်း လည်ပတ်နေတယ်ဆိုပါစို့။ Pool size 10 ထားရင် vector search တွေက database ဘက်မှာ တစ်ပြိုင်တည်း အများဆုံး 10 ခုပဲ လည်နေမယ်၊ ကျန်တာက pool queue မှာ စောင့်မယ်။ Pool ကို ခဏအသုံးပြုချိန်တစ်ခုလျှင် 50 ms ဆိုရင် request 10 ခုက 50 ms အတွင်း အားလုံး ကိုင်နိုင်တယ် — ဒါက Little's law (throughput = concurrency / latency) အရ တွက်ထားတာပါ၊ တိုင်းထားတဲ့ ဂဏန်းမဟုတ်ဘူး။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
 RAG serving မှာ အမှားအများဆုံး production incident တွေက pool setting နဲ့ ဆိုင်တတ်တယ် — pool ကို ကြီးစေလိုက်ရင် Postgres ရဲ့ `max_connections` ကို ကျော်ပြီး "too many connections" error ထွက်တယ်၊ ပြတ်ပြတ်သွားရင် latency က queue ကြောင့် ပေါက်သွားတယ်။ Worker အရေအတွက် နှင့် pool size တွေကို တစ်ပြိုင်တည်း ကြည့်ပြီး ချိန်ရတဲ့ အလုပ်ဖြစ်တယ်။
 
-Serverless / auto-scaling ပတ်ဝန်းကျင်မှာတော့ pool တစ်ခုကို instance အလုံးအမြစ် ဖွင့်လို့ ဖြစ်လာတဲ့ total connection အရေအတွက်ကို PgBouncer စတဲ့ pooler တစ်ထပ် ကြားထည့်ပြီး ကာကွယ်လေ့ရှိတယ်။
+Serverless / auto-scaling ပတ်ဝန်းကျင်မှာတော့ pool တစ်ခုကို instance အားလုံး ဖွင့်လို့ ဖြစ်လာတဲ့ total connection အရေအတွက်ကို PgBouncer စတဲ့ pooler တစ်ထပ် ကြားထည့်ပြီး ကာကွယ်လေ့ရှိတယ်။
 
 ## အနှစ်ချုပ်
 
 - Connection pool က database connection ဖွင့်/ပိတ် ကုန်ကျမှုကို ဖယ်ပေးပြီး database ကို overload ကနေ ကာကွယ်တယ်။
 - Postgres က process-per-connection မို့ connection အရေအတွက်က ကန့်သတ်ခံရတဲ့ အရင်းအမြစ်ဖြစ်တယ်။
-- Pool က connection အရေအတွက် အနှိမ့်အမြင့်၊ queue timeout၊ rollback စတဲ့ စည်းမျဉ်းတွေနဲ့ ထိန်းရတယ်။
+- Pool က connection အရေအတွက် အနိမ့်ဆုံး/အမြင့်ဆုံး၊ queue timeout၊ rollback စတဲ့ စည်းမျဉ်းတွေနဲ့ ထိန်းရတယ်။
 - Throughput ကို Little's law အရ concurrency / latency နဲ့ ချိန်ဆက်ပြီး pool size ခန့်မှန်းလို့ရတယ်။
 - အသုံးများတဲ့ incident နှစ်ခုက — pool ကြီးလို့ `max_connections` ကျော်တာ၊ ပြတ်လို့ queue latency ပေါက်တာပါ။
 - PgBouncer တို့ ကြားခံ pooler တစ်ခုက အသုံးပြုသူ များတဲ့ system တွေအတွက် လိုအပ်လေ့ရှိတယ်။
@@ -179,7 +179,7 @@ pgvector က relational data နှင့် vector တွေကို တစ်
 
 ### ဘာကြောင့် လဲ
 
-Stack တစ်ခုလုံးကို database နှစ်မျိုး ထိန်းရတာက operational burden ရှိတယ် — backup, monitoring, upgrade, security patch နှစ်ဆုံး၊ data sync နှစ်ဆုံး။ Document တွေက မတိမ်းမယိမ်းရှိပြီးသား Postgres ရှိတဲ့ system မှာ pgvector ထည့်လိုက်တာက ရှုပ်ထွေးမှု အလွန်ခေါင်းနည်းစေတယ်။
+Stack တစ်ခုလုံးကို database နှစ်မျိုး ထိန်းရတာက operational burden ရှိတယ် — backup, monitoring, upgrade, security patch နှစ်ဆ၊ data sync နှစ်ဆ။ Document တွေက မတိမ်းမယိမ်းရှိပြီးသား Postgres ရှိတဲ့ system မှာ pgvector ထည့်လိုက်တာက ရှုပ်ထွေးမှု အလွန်နည်းစေတယ်။
 
 ဒါပေမဲ့ vector အရေအတွက် ကုဋေဂဏန်းအထိ တက်လာရင်၊ သို့ heavy filtering + ANN တွဲပြီး မြန်မြန် လိုအပ်လာရင် dedicated engine တွေက သူတို့ အားသန်ရာမှာ ပိုကောင်းတယ်။ ဒါကြောင့် "ဒီ tool က အကောင်းဆုံးလား" မဟုတ်ဘဲ "ကျွန်တော်တို့ရဲ့ scale နှင့် team အတွက် ဘယ်ဟာ သင့်တော်လဲ" လို့ မေးရတယ်။
 
@@ -193,13 +193,13 @@ Stack တစ်ခုလုံးကို database နှစ်မျိုး 
 
 ### ဥပမာ
 
-Internal knowledge base တစ်ခုအတွက် document တွေ ၃ သိန်း လောက်ရှိပြီး Postgres မှာ အားလုံး ပြီးပြီးသား၊ team က Postgres admin နားလည်တယ်ဆို pgvector က သင့်လျှာသုံး ရွေးချယ်စရာ ဖြစ်နိုင်တယ် — backup တစ်လမ်းတည်း၊ transaction တစ်လမ်းတည်း။
+Internal knowledge base တစ်ခုအတွက် document တွေ ၃ သိန်း လောက်ရှိပြီး Postgres မှာ အားလုံး ပြီးပြီးသား၊ team က Postgres admin နားလည်တယ်ဆို pgvector က သင့်လျော်တဲ့ ရွေးချယ်စရာ ဖြစ်နိုင်တယ် — backup တစ်လမ်းတည်း၊ transaction တစ်လမ်းတည်း။
 
 ဒါတော့၊ multi-tenant SaaS မှာ tenant သောင်းချီပြီး vector ကုဋာအထိ၊ metadata filter တွေ တင်းကျပ်ပြီး per-tenant isolation လိုအပ်တဲ့ case မှာ Qdrant သို့ Milvus တို့က payload filter နှင့ collection-based multi-tenancy အတွက် ပိုသင့်တော်နိုင်တယ်။ ဒါတွေက design feature အရ ပြောတာဖြစ်ပြီး — benchmark ဂဏန်းတွေက workload ပေါ် မူတည်လို့ သူ့ project schedule အတွက်ပဲ တိုင်းရတယ်။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-ရွေးချယ်မှုလွဲရင် နှစ်နက်မှ ပြန်ပြောင်းရတဲ့ architectural decision တစ်ခုဖြစ်တယ်။ Database နှစ်ခု ဖြစ်လာရင် "Postgres မှာ source of truth၊ vector store မှာ index" ဆိုတဲ့ sync ပြဿနာ ပေါ်လာပြီး consistency စောင့်ရတဲ့ code တွေ ရှုပ်လာတယ်။
+ရွေးချယ်မှုလွဲရင် နောက်မှ ပြန်ပြောင်းရခက်တဲ့ architectural decision တစ်ခုဖြစ်တယ်။ Database နှစ်ခု ဖြစ်လာရင် "Postgres မှာ source of truth၊ vector store မှာ index" ဆိုတဲ့ sync ပြဿနာ ပေါ်လာပြီး consistency စောင့်ရတဲ့ code တွေ ရှုပ်လာတယ်။
 
 ဒါတော့ over-engineering လည်း ရှိတယ် — million အနည်းငယ်အတွက် distributed vector cluster ထောင်ထားတာက maintenance ကုန်ကျစရိတ်က ရမှုမရှိ စွမ်းဆောင်ရည်အတွက် အမြဲပေးနေရတယ်။ Course ရဲ့ နောက် subtopic မှာ ပြောမယ့် hybrid architecture က ဒီ ရွေးချယ်မှုရဲ့ middle ground ဖြစ်တယ်။
 
@@ -231,8 +231,8 @@ Document content တွေက relational data နှင့် တွဲပြီ
 1. Write path — Postgres မှာ document နှင့် metadata ကို transaction ထဲ သိမ်းတယ်။ Commit ဖြစ်ပြီးရင် event (ဥပမာ outbox row သို့ queue message) ထွက်တယ်။
 2. Worker က event ကို ကြားပြီး embedding တွက်၊ vector store ထဲ upsert လုပ်တယ် — payload မှာ vector နှင့် Postgres doc id ပါတယ်။
 3. Delete path — Postgres မှာ ဖျက်ပြီးရင် vector store ထဲ သက်ဆိုင်တဲ့ point id ကို delete လုပ်တယ်။ Out-of-order event တွေကို version သို့ timestamp နဲ့ ကာကွယ်ရတယ်။
-4. Read path — Retrieval API က query vector ကို ရှာပြီး doc id တွေ ရရင် Postgres ကနေ content, ACL စစ်ပြီး အချုပ်အနှောက် ဖြည့်ပေးတယ် ( ACL ကိ် vector store payload မှာ ထည့်ပြီး filter နဲ့ တွဲနိုင်တယ် )။
-5. Rebuild path — vector store တစ်ခုလုံး ပျက်ရင် Postgres ကနေ document အားလုံးကို ပြန်ထုတ်ပြီး reindex လုပ်နိုင်တယ် — ဒါကိ်တဲ့ architecture ဖြစ်တာမို့ လွန်းလွန်း စိတ်မပျက်ရဘူး။
+4. Read path — Retrieval API က query vector ကို ရှာပြီး doc id တွေ ရရင် Postgres ကနေ content, ACL စစ်ပြီး အချက်အလက် ဖြည့်ပေးတယ် ( ACL ကို vector store payload မှာ ထည့်ပြီး filter နဲ့ တွဲနိုင်တယ် )။
+5. Rebuild path — vector store တစ်ခုလုံး ပျက်ရင် Postgres ကနေ document အားလုံးကို ပြန်ထုတ်ပြီး reindex လုပ်နိုင်တယ် — ဒါက architecture ဖြစ်တာမို့ လွန်းလွန်း စိတ်မပျက်ရဘူး။
 
 ```sql
 -- Outbox pattern: write doc and event in one transaction
@@ -276,15 +276,15 @@ print("final:", {k: v[0] for k, v in VECTOR_STORE.items()})
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Scale ကို million ကနေ ကုဋာတင်တက်သွားတဲ့အခါ pgvector တစ်ခုတည်းနဲ့ မလုံလောက်တော့ပေမဲ့၊ Postgres ကို ဖျက်ပြီး ကူးပြောင်းဖို့ကလည်း မဖြစ်နိုင်တော့ဘူး။ ဒီအချိန်မှာ hybrid model က migration အရသာအရသာ ခံရတဲ့ လမ်းဖြစ်လာတယ် — Postgres အားလုံး အတိုင်းထားပြီး vector search အပိုင်းကိုပဲ dedicated engine ကို ရွှေ့တယ်။
+Scale ကို million ကနေ ကုဋာတင်တက်သွားတဲ့အခါ pgvector တစ်ခုတည်းနဲ့ မလုံလောက်တော့ပေမဲ့၊ Postgres ကို ဖျက်ပြီး ကူးပြောင်းဖို့ကလည်း မဖြစ်နိုင်တော့ဘူး။ ဒီအချိန်မှာ hybrid model က migration ကို အဆင့်ဆင့် ခံနိုင်တဲ့ လမ်းဖြစ်လာတယ် — Postgres အားလုံး အတိုင်းထားပြီး vector search အပိုင်းကိုပဲ dedicated engine ကို ရွှေ့တယ်။
 
-အဓိက စိန်ခေါ်မှုက consistency ပါ — event တွေက အစီအစဉ်မတည့် ရောက်တတ်လို့ version စစ်ခြင်း၊ failed upsert တွေ retry ခြင်း၊ vector store ထဲ "Postgres မှာ မရှိတော့တဲ့" doc ကျန်နေခြင်း စတာတွေကိ် operational discipline နဲ့ ကိုင်ရတယ်။ Course ရဲ့ နောက် module တွေမှာ ဒီ sync pipeline ကို ဖန်တီးပြီး streaming ingestion နဲ့ တွဲပြပါမယ်။
+အဓိက စိန်ခေါ်မှုက consistency ပါ — event တွေက အစီအစဉ်မတည့် ရောက်တတ်လို့ version စစ်ခြင်း၊ failed upsert တွေ retry ခြင်း၊ vector store ထဲ "Postgres မှာ မရှိတော့တဲ့" doc ကျန်နေခြင်း စတာတွေကို operational discipline နဲ့ ကိုင်ရတယ်။ Course ရဲ့ နောက် module တွေမှာ ဒီ sync pipeline ကို ဖန်တီးပြီး streaming ingestion နဲ့ တွဲပြပါမယ်။
 
 ## အနှစ်ချုပ်
 
 - Hybrid architecture မှာ Postgres က source of truth ဖြစ်ပြီး vector store က derived index သာ ဖြစ်တယ်။
 - Vector store ထဲ content မထည့်ပဲ vector နှင့် doc pointer လောက်ပဲ ထားလို့ရတယ်။
-- Outbox pattern က document write နှင့် sync event ကို transaction တစ်ခုတည်းထဲ မှောင်းပေးတယ်။
+- Outbox pattern က document write နှင့် sync event ကို transaction တစ်ခုတည်းထဲ ပေါင်းပေးတယ်။
 - Event ordering ကို version နဲ့ ကာကွယ်ပြီး stale event တွေကို skip ရတယ်။
 - Vector store တစ်ခုလုံး ပျက်သွားလည်း Postgres ကနေ အလုံးအမြစ် rebuild လုပ်နိုင်တယ်။
-- pgvector ကနေ dedicated store ကို migration လုပ်ရင် ဒီ model က incremental အရသာခံနိုင်တဲ့ လမ်းဖြစ်တယ်။
+- pgvector ကနေ dedicated store ကို migration လုပ်ရင် ဒီ model က incremental ဖြစ်တဲ့ ခံနိုင်တဲ့ လမ်းဖြစ်တယ်။

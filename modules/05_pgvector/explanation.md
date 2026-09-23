@@ -14,7 +14,7 @@ Distance operator ဆိုတာကတော့ vector နှစ်ခုကြ
 
 ### ဘာကြောင့် လဲ
 
-PostgreSQL ကိုယူစား data store သပ်သပ် မထောင်ချင်ဘူးဆိုရင် pgvector က အဆင်ပြေဆုံးပါ။ RAG pipeline မှာ document chunk, metadata, embedding အားလုံးကို database တစ်ခုတည်းထဲ ထားလို့ရလို့ application ကို ရိုးရိုးစင်းစင်း ဖန်တီးနိုင်ပါတယ်။
+PostgreSQL အပြင် data store သပ်သပ် မထောင်ချင်ဘူးဆိုရင် pgvector က အဆင်ပြေဆုံးပါ။ RAG pipeline မှာ document chunk, metadata, embedding အားလုံးကို database တစ်ခုတည်းထဲ ထားလို့ရလို့ application ကို ရိုးရိုးစင်းစင်း ဖန်တီးနိုင်ပါတယ်။
 
 operator တွေကို သိဖို့ မရှိမဖြစ် လိုအပ်တာက index ဆောက်တဲ့အခါ `vector_cosine_ops` လိုမျိုး operator class ရွေးရပြီး၊ query ရေးတဲ့အခါလည်း အဲဒီ class နဲ့ ကိုက်ညီတဲ့ operator ပဲ သုံးမှ index ကအလုပ်လုပ်မှာ ဖြစ်လို့ပါ။ မတူတဲ့ operator နဲ့ query လုပ်ရင် sequential scan ကျသွားပြီး အရမ်းနှေးသွားမှာပါ။
 
@@ -39,10 +39,12 @@ CREATE TABLE chunks (
   embedding vector(1536)
 );
 
-SELECT id, content, embedding <=> '[0.11, 0.23, ...]' AS dist
+SELECT id, content, embedding <=> $1::vector AS dist
 FROM chunks
-ORDER BY embedding <=> '[0.11, 0.23, ...]'
+ORDER BY embedding <=> $1::vector
 LIMIT 5;
+
+*(`$1` ကို ပေးတဲ့ parameter ဖြစ်ပြီး **1536** ခုလုံး ပါရပါမယ် — `vector(1536)` column နဲ့ တူမှ လက်ခံတယ်။ အတိုချုံး `'[0.11, 0.23, ...]'` လို literal ရေးရင် `expected 1536 dimensions` error တက်တယ်။)*
 ```
 
 Distance operator တွေကို pure Python နဲ့ အသေးစား ပြန်တွက်ကြည့်ရင် ဒီလိုဖြစ်ပါတယ်။
@@ -75,7 +77,7 @@ print("cosine_dist =", round(1 - cosine_sim(a, b), 4))
 
 RAG pipeline တစ်ခုကို production မှာ တင်မယ်ဆိုရင် embedding သိမ်းတဲ့နေရာ ရွေးချယ်စရာက အရေးကြီးပါတယ်။ pgvector ကို ရွေးရင် metadata filtering, transaction, backup, replication — ဒီအကုန်လုံးကို PostgreSQL ရဲ့ ပုံစံအတိုင်း ရလို့ operation ဘက်က ပိုလွယ်ပါတယ်။
 
-Operator class နဲ့ query operator မကိုက်တာက ဘယ်အခါမှာမှ ဖြစ်ပါနဲ့။ Index ရှိပါလျက်နဲ့ query တွေ ရုတ်တရက် နှေးသွားရင် ပထမဆုံး စစ်ကြည့်စရာက query ထဲမှာသုံးတဲ့ operator နဲ့ index ရဲ့ operator class က ကိုက်လား မကိုက်လားဆိုတာပါ။ ဒါကအလွန်ရှားတဲ့ debugging mistake တစ်ခုပါ။
+Operator class နဲ့ query operator မကိုက်တာက မကြာခဏ ဖြစ်တတ်တဲ့ လွဲမှားမှုတစ်ခုပါ။ Index ရှိပါလျက်နဲ့ query တွေ ရုတ်တရက် နှေးသွားရင် ပထမဆုံး စစ်ကြည့်စရာက query ထဲမှာသုံးတဲ့ operator နဲ့ index ရဲ့ operator class က ကိုက်လား မကိုက်လားဆိုတာပါ။ ဒါက အဖြစ်များတဲ့ debugging လွဲမှားချက်တစ်ခုပါ။
 
 ## အနှစ်ချုပ်
 
@@ -97,16 +99,16 @@ pgvector မှာ approximate nearest neighbor (ANN) index နှစ်မျ�
 
 ### ဘာကြောင့် လဲ
 
-Exact search က vector စုံကိန်းနဲ့ တွက်ရလို့ data သန်းနီပါးရှိလာရင် ခံနိုင်ရည် မရှိတော့ပါဘူး။ ANN index က အနည်းငယ် accuracy စွန့်လှူပြီး speed ကို ရယူပေးပါတယ် — ဒါက ဒီ module ရဲ့ နက်နဲရာ အချက်ပါ။
+Exact search က vector အားလုံးနဲ့ တစ်ခုချင်း တွက်ရလို့ data သန်းနီးပါးရှိလာရင် ခံနိုင်ရည် မရှိတော့ပါဘူး။ ANN index က အနည်းငယ် accuracy စွန့်လှူပြီး speed ကို ရယူပေးပါတယ် — ဒါက ဒီ module ရဲ့ နက်နဲတဲ့ အချက်ပါ။
 
-Parameter တွေကို သိရခြင်း အကြောင်းရင်းက သူတို့က trade-off ကို တိုက်ရိုက်ထိန်းပါလို့ပါ။ `m` ကြီးရင် graph တွေက ပိုတွန့်သွားပြီး recall တက်ပေမယ့် build အချိန်နဲ့ memory က တစ်ပြိုင်တည်း တက်သွားပါတယ်။ `lists` ကြီးရင် cluster တွေ သေးသွားပြီး probe တစ်ခုစီက ပိုမြန်ပေမယ့် သင့်တော်တဲ့ cluster ကို မှားနိုင်တဲ့အခွင့်အလမ်း တိုးသွားပါတယ်။
+Parameter တွေကို သိထားဖို့ လိုတဲ့ အကြောင်းရင်းက သူတို့က trade-off ကို တိုက်ရိုက်ထိန်းပါလို့ပါ။ `m` ကြီးရင် graph က ပိုချိတ်ဆက်ထူထပ်လာပြီး recall တက်ပေမယ့် build အချိန်နဲ့ memory က တစ်ပြိုင်တည်း တက်သွားပါတယ်။ `lists` ကြီးရင် cluster တွေ သေးသွားပြီး probe တစ်ခုစီက ပိုမြန်ပေမယ့် သင့်တော်တဲ့ cluster ကို မှားနိုင်တဲ့အခွင့်အလမ်း တိုးသွားပါတယ်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
 1. HNSW index ကို `CREATE INDEX ... USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64)` ဆိုတဲ့ပုံစံနဲ့ ဆောက်ပါ။
 2. pgvector documentation အရ `m` ရဲ့ default က 16 ဖြစ်ပြီး `ef_construction` ရဲ့ default က 64 ပါ။
-3. IVFFlat index ကို `CREATE INDEX ... USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)` ဆိုပြီး ဆောက်ပါ — `lists` အတွက် documentation မှ suggest လုပ်တာက table row အရေအတွက်ရဲ့ square root လောက်ကနေ စတင်ပါ။
-4. IVFFlat အတွက် သီးသန့်အချက် — data အနည်းငယ် သိပ်သပ် ထည့်ပြီးမှ index ဆောက်ပါ၊ ဘာကြောင့်လဲဆိုတော့ cluster center တွေက ရှိပြီးသား data ပေါ်မှာ အခြေခံ တွက်ရလို့ပါ။
+3. IVFFlat index ကို `CREATE INDEX ... USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)` ဆိုပြီး ဆောက်ပါ — `lists` အတွက် pgvector documentation က row 1M အထိ `rows / 1000`၊ 1M အထက်မှာ `sqrt(rows)` ကို စတင်စရာအဖြစ် ညွှန်ပါတယ်။
+4. IVFFlat အတွက် သီးသန့်အချက် — data အနည်းငယ် ဖြည့်ထည့်ပြီးမှ index ဆောက်ပါ၊ ဘာကြောင့်လဲဆိုတော့ cluster center တွေက ရှိပြီးသား data ပေါ်မှာ အခြေခံ တွက်ရလို့ပါ။
 5. Query မှာ HNSW အတွက် `SET hnsw.ef_search = 40;` ဆိုတဲ့ runtime knob ရှိပါတယ် — ကြီးရင် recall တက်ပြီး query ပိုနှေးပါတယ်။
 
 ### ဥပမာ
@@ -130,9 +132,9 @@ SET ivfflat.probes = 10;
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Data အရွယ်အစား အလိုက် အသင့်တော်ဆုံး index က ပြောင်းသွားပါတယ်။ စလောက်လောက် အချက်အလက် များများရှိတဲ့ production system တွေမှာ HNSW က query latency ပိုတည်ငြလို့ အသုံးများပါတယ်၊ IVFFlat ကတော့ build မြန်ပြီး memory သက်သာလို့ အလုပ်ခေါက်ပြီး batch ingestion အတွက် ဆွဲဆွဲပါ။
+Data အရွယ်အစား အလိုက် အသင့်တော်ဆုံး index က ပြောင်းသွားပါတယ်။ စလောက်လောက် အချက်အလက် များများရှိတဲ့ production system တွေမှာ HNSW က query latency ပိုတည်ငြိမ်လို့ အသုံးများပါတယ်၊ IVFFlat ကတော့ build မြန်ပြီး memory သက်သာလို့ အလုပ်များတဲ့ batch ingestion အတွက် သင့်တော်ပါတယ်။
 
-Parameter တွေကို မျက်စိမှိတ် မသတ်မထားရပါနဲ့ — `m` နဲ့ `ef_construction` ကြီးတိုင်း recall တက်တာ မဟုတ်ပါဘူး၊ build ချိန်က အရင်နာပြီး နောက်မှ ရမှာပါ။ Dataset အစစ်ပေါ်မှာ k-recall တိုင်းပြီး ကိုယ့် SLA နဲ့ ညှိကြည့်တာက တစ်ခုတည်းသော မှန်ကန်တဲ့ လမ်းပါ။
+Parameter တွေကို မျက်စိမှိတ် မသတ်မထားရပါနဲ့ — `m` နဲ့ `ef_construction` ကြီးတိုင်း recall တက်တာ မဟုတ်ပါဘူး၊ build ကုန်ကျစရိတ်ကို အရင်ပေးရပြီး အကျိုးအမြတ်က နောက်မှ ရမှာပါ။ Dataset အစစ်ပေါ်မှာ k-recall တိုင်းပြီး ကိုယ့် SLA နဲ့ ညှိကြည့်တာက တစ်ခုတည်းသော မှန်ကန်တဲ့ လမ်းပါ။
 
 ## အနှစ်ချုပ်
 
@@ -157,7 +159,7 @@ GIN index ဆိုတာ jsonb column ထဲက key/value တွေကို �
 
 Vector database သပ်သပ် သုံးရင် metadata filter အတွက် နောက်ထပ် စနစ်တစ်ခု တပ်ဆင်ရတတ်ပါတယ်။ pgvector ကို သုံးရင်ကတော့ filter တွေက SQL ရဲ့ WHERE clause ထဲကနေ တိုက်ရိုက် လုပ်လို့ရလို့ pipeline ရှုထောင့်က ရိုးသွားပါတယ်။
 
-Post-filter ချုန်းချင်း ဖြစ်နိုင်တာကလည်း အရေးကြီးပါ — vector index က top-k ကို ရှာပြီးမှ metadata filter ချက်ရင် ကျန်တဲ့ အရေအတွက်က k ထက် နည်းသွားနိုင်ပါတယ်။ SQL-side filtering က index scan နဲ့ filter ကို တစ်ပြိုင်တည်း ဖြတ်ပေးနိုင်တဲ့ အခွင့်အရေး ရပါတယ်။
+Post-filter ဖြစ်နိုင်တာကလည်း အရေးကြီးပါ — vector index က top-k ကို ရှာပြီးမှ metadata filter ချက်ရင် ကျန်တဲ့ အရေအတွက်က k ထက် နည်းသွားနိုင်ပါတယ်။ SQL-side filtering က index scan နဲ့ filter ကို တစ်ပြိုင်တည်း ဖြတ်ပေးနိုင်တဲ့ အခွင့်အရေး ရပါတယ်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
@@ -178,17 +180,17 @@ SELECT id, content
 FROM chunks
 WHERE metadata @> '{"department": "hr"}'
   AND metadata->>'page' IS NOT NULL
-ORDER BY embedding <=> '[0.11, 0.23, ...]'
+ORDER BY embedding <=> $1::vector
 LIMIT 5;
 ```
 
-pgvector documentation မှာ ဒါမျိုး filtering query တွေကို slow ဖြစ်စနေတာကို ဖြေရှင်းဖို့ iterative index scan ဆိုတဲ့ feature လည်း ဖော်ပြထားပါတယ် — filter က strict ဖြစ်လာရင် index က result အရေအတွက် ဖြည့်ပြန့်ပေးပါတယ်။
+pgvector documentation မှာ ဒါမျိုး filtering query တွေကို slow ဖြစ်စနေတာကို ဖြေရှင်းဖို့ iterative index scan ဆိုတဲ့ feature လည်း ဖော်ပြထားပါတယ် — filter က strict ဖြစ်လာရင် index က result အရေအတွက် ဖြည့်ပေးပါတယ်။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-RAG quality က search ရလာတဲ့ chunk တွေ အနက်ရှိုင်းနိုင်တဲ့အရာ အပေါ်မှာ မူတည်ပါတယ်။ "ဒီ question က finance department အတွက်ပဲ" ဆိုတဲ့ filter တစ်ခု ထည့်ရုံနဲ့ မဆီလျော်တဲ့ answer တွေကို အရင်ဆီးပစ်လို့ရပါတယ်။
+RAG quality က search ရလာတဲ့ chunk တွေ ဘယ်လောက်သင့်လျော်လဲဆိုတာ အပေါ်မှာ မူတည်ပါတယ်။ "ဒီ question က finance department အတွက်ပဲ" ဆိုတဲ့ filter တစ်ခု ထည့်ရုံနဲ့ မဆီလျော်တဲ့ answer တွေကို အရင်ဆီးပစ်လို့ရပါတယ်။
 
-jsonb က schema-flexible ဖြစ်လို့ metadata structure အမျိုးမျိုး ပြောင်းစားလို့ရပါတယ် — column အသစ် မထည့်ရဘဲ နောက်ပိုင်း key အသစ်ထည့်လို့ရလို့ data model က နှေးနှေးကြီး ရှုံ့နိုင်ပါတယ်။ ဒါပေမယ့် query လုပ်တဲ့ key တွေကို GIN index နဲ့ အာရုံစိုက်ပေးဖို့ မမေ့ပါနဲ့။
+jsonb က schema-flexible ဖြစ်လို့ metadata structure အမျိုးမျိုး ပြောင်းလဲလို့ရပါတယ် — column အသစ် မထည့်ရဘဲ နောက်ပိုင်း key အသစ်ထည့်လို့ရလို့ data model က လွယ်ကူစွာ ချဲ့ထွင်နိုင်ပါတယ်။ ဒါပေမယ့် query လုပ်တဲ့ key တွေကို GIN index နဲ့ အာရုံစိုက်ပေးဖို့ မမေ့ပါနဲ့။
 
 ## အနှစ်ချုပ်
 
@@ -212,14 +214,14 @@ Parallel build ဆိုတာက index ဆောက်တဲ့အလုပ်�
 
 HNSW build က graph edge တွေကို memory ထဲမှာ ခဏတာ သိမ်းထားရလို့ memory မလုံရင် disk ပေါ် ရောက်သွားပြီး build ချိန်က ကျယ်သွားပါတယ်။ pgvector documentation မှာ build တဲ့အချိန် `maintenance_work_mem` ကို တိုးရင် သိသိသာသာ လျှော့ပါတယ်လို့ မှတ်ချက်ထားပါတယ် — တိကျတဲ့ factor က dataset အပေါ် မူတည်လို့ ကိုယ်တိုင် တိုင်းကြည့်ဖို့ လိုပါတယ်။
 
-EXPLAIN ကို မဖတ်တက်ရင် index က အလုပ်လုပ်မလုပ် မသိရပါဘူး။ Query နှေးတဲ့အခါ ဘာကြောင့်နှေးလဲဆိုတာက plan ထဲမှာ ရေးထားတတ်လို့ ဒီ skill က data engineer တိုင်းရဲ့ လက်ဆုပ်ထဲ ရှိသင့်တဲ့ အရာပါ။
+EXPLAIN ကို မဖတ်တက်ရင် index က အလုပ်လုပ်မလုပ် မသိရပါဘူး။ Query နှေးတဲ့အခါ ဘာကြောင့်နှေးလဲဆိုတာက plan ထဲမှာ ရေးထားတတ်လို့ ဒီ skill က data engineer တိုင်းရဲ့ လက်စွဲအနေနဲ့ ရှိသင့်တဲ့ အရာပါ။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
 1. Build မလုပ်ခင် `SET maintenance_work_mem = '512MB';` လိုမျိုး ခဏတာ တိုးပေးပါ — server restart မလိုပါဘူး၊ session တစ်ခုအတွက်ပဲ အသက်ဝင်ပါတယ်။
 2. `SET max_parallel_maintenance_workers = 4;` နဲ့ parallel worker ရေကို ချိန်ပါ — pgvector documentation အရ parallel build က index ဆောက်တဲ့အချိန်ကို လျှော့ပေးပါတယ်။
 3. Query ကို `EXPLAIN (ANALYZE, BUFFERS) SELECT ...` နဲ့ run လုပ်ပါ။
-4. Plan ထဲမှာ `Index Scan using ... "vector_cosine_ops"` ဆိုတာ တွေ့ရင် index ကို အသုံးချတာပါ၊ `Seq Scan on chunks` ဆိုတာ တွေ့ရင် index က ကျောပြီး တစ်လျှောက်လုံး ဖြတ်နေတာပါ။
+4. Plan ထဲမှာ index နာမည်ကိုသာ ပြပါတယ် (ဥပမာ `Index Scan using chunks_embedding_idx`) — operator class နာမည်ကို မပြပါ။ `Index Scan` တွေ့ရင် index ကို အသုံးချနေတာပါ၊ `Seq Scan on chunks` တွေ့ရင် index ကို မသုံးဘဲ table တစ်လျှောက်လုံး ဖြတ်နေတာပါ။
 5. Recall တိုင်းချင်ရင် exact search ရလဒ်နဲ့ index search ရလဒ်ကို ယှဉ်ပြီး k ထဲက ဘယ်နှံ့ကျန်တယ်ဆိုတာ တွက်ပါ။
 
 ### ဥပမာ
@@ -235,11 +237,11 @@ WITH (m = 16, ef_construction = 200);
 
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT id FROM chunks
-ORDER BY embedding <=> '[0.11, 0.23, ...]'
+ORDER BY embedding <=> $1::vector
 LIMIT 5;
 ```
 
-Build လုပ်တဲ့ အခြေအနေကို ပုံဆွဲကြည့်တဲ့အခါ worker အရေနဲ့ ခန့်မှန်းချိန် ဘယ်လို ဆက်နွယ်လဲဆိုတာကို သင်ခန်းစာသဘောနဲ့ ဒီလို ပြနေနိုင်ပါတယ်။
+Build လုပ်တဲ့ အခြေအနေကို ပုံဆွဲကြည့်တဲ့အခါ worker အရေအတွက်နဲ့ ခန့်မှန်းချိန် ဘယ်လို ဆက်နွယ်လဲဆိုတာကို သင်ခန်းစာသဘောနဲ့ ဒီလို ပြသနိုင်ပါတယ်။
 
 ```python
 # Toy model: illustrative only, not a benchmark claim.
@@ -261,9 +263,9 @@ for workers in (1, 2, 4, 8):
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Index build က data ingestion pipeline ရဲ့ ဘယ်နေရာမှာမဆို ပိတ်မှတ်ချက် ဖြစ်နေတတ်ပါတယ် — chunk သန်းနီးပါး ထည့်ပြီးမှ HNSW ဆောက်ရင် default memory နဲ့ဆိုရင် အချိန်ကြာလွန်းတတ်ပါတယ်။ `maintenance_work_mem` တိုးပေးရုံနဲ့ pipeline တစ်ခုလုံး ပြန်လည်နေရာပေးလို့ရတတ်ပါတယ်။
+Index build က data ingestion pipeline ရဲ့ ဘယ်နေရာမှာမဆို ပိတ်မှတ်ချက် ဖြစ်နေတတ်ပါတယ် — chunk သန်းနီးပါး ထည့်ပြီးမှ HNSW ဆောက်ရင် default memory နဲ့ဆိုရင် အချိန်ကြာလွန်းတတ်ပါတယ်။ `maintenance_work_mem` တိုးပေးရုံနဲ့ pipeline တစ်ခုလုံး ပြန်လည် အရှိန်မြှင့်နိုင်တတ်ပါတယ်။
 
-EXPLAIN ဖတ်တတ်တာက production debugging ရဲ့ အခြေခံပါ။ "Query နှေးနေတယ်" လို့ report လာရင် ပထမတစ်ဆင့်က plan ချရတာပါ — index မသုံးရင် operator class ကိုက်လား၊ data ရှိလား၊ statistic ဟောင်းနေလားဆိုတာတွေကို plan နဲ့ statistics ထဲမှာ အစဉ်လိုက် ဖော်ပေးနိုင်ပါတယ်။ Memory တိုးရင် တိုးသလောက် အသုံးမချပါနဲ့ — server မှာ အခြား session တွေလည်း ရှိနေတတ်လို့ ခဏတာ `SET` နဲ့ ချိန်တာက သင့်တော်ဆုံးပါ။
+EXPLAIN ဖတ်တတ်တာက production debugging ရဲ့ အခြေခံပါ။ "Query နှေးနေတယ်" လို့ report လာရင် ပထမတစ်ဆင့်က plan ချရတာပါ — index မသုံးရင် operator class ကိုက်လား၊ data ရှိလား၊ statistic ဟောင်းနေလားဆိုတာတွေကို plan နဲ့ statistics ထဲမှာ အစဉ်လိုက် ဖော်ပြနိုင်ပါတယ်။ Memory တိုးရင် တိုးသလောက် အသုံးမချပါနဲ့ — server မှာ အခြား session တွေလည်း ရှိနေတတ်လို့ ခဏတာ `SET` နဲ့ ချိန်တာက သင့်တော်ဆုံးပါ။
 
 ## အနှစ်ချုပ်
 
