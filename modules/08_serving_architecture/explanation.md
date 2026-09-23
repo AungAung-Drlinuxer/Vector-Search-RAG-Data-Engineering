@@ -8,7 +8,7 @@ pgvector နဲ့ဆိုရင် `WHERE` clause နဲ့ vector distance �
 
 ### ဘာကြောင့် လဲ
 
-RAG မှာ ဘယ် content ကို ဘယ်သူ ဘယ်ဟာကို ကြည့်ခွင့်ရှိလဲ ဆိုတဲ့ အချက်က အရေးအကြီးဆုံး အချက်တွေထဲ မပါဝင်လို့ မရပါ။ Document တွေကို department, tenant, သို့ project အလိုက် ခွဲထားလို့ document တွေကို user/tenant တစ်ခုတည်းသာ ပြတဲ့ system တစ်ခုမှာ user တစ်ယောက်က သူ့ကို မပိုင်တဲ့ document တွေကို retrieval လမ်းကနေ ဖော်ပေးလိုက်ရင် ဒါက security violation တစ်ခု ဖြစ်ပြီး အလွန်အမင်း ဆိုးရွားပါတယ်။ LLM ကတော့ ပေးထားတဲ့ context အားလုံးကို ယုံကြည်စွာ အသုံးပြုသွားမှာ မို့၊ retrieval layer မှာ အလွန်ခိုင်မာစွာ စစ်ရတယ်။
+RAG မှာ ဘယ် content ကို ဘယ်သူ ဘယ်ဟာကို ကြည့်ခွင့်ရှိလဲ ဆိုတဲ့ အချက်က အရေးအကြီးဆုံး အချက်တွေထဲ တစ်ခုပါ။ Document တွေကို department, tenant, သို့ project အလိုက် ခွဲထားလို့ document တွေကို user/tenant တစ်ခုတည်းသာ ပြတဲ့ system တစ်ခုမှာ user တစ်ယောက်က သူ့ကို မပိုင်တဲ့ document တွေကို retrieval လမ်းကနေ ဖော်ပေးလိုက်ရင် ဒါက security violation တစ်ခု ဖြစ်ပြီး အလွန်အမင်း ဆိုးရွားပါတယ်။ LLM ကတော့ ပေးထားတဲ့ context အားလုံးကို ယုံကြည်စွာ အသုံးပြုသွားမှာ မို့၊ retrieval layer မှာ အလွန်ခိုင်မာစွာ စစ်ရတယ်။
 
 Filter က performance အတွက်ပါ အရေးကြီးတယ်။ သက်ဆိုင်တဲ့ document တွေပဲ search space ထဲ ပါစေရင် index ရှာတဲ့အချိန် ပိုတိုသွားပြီး result ရဲ့ အရည်အသွေးပါ တက်သွားတယ်။
 
@@ -72,7 +72,7 @@ print("bob, finance:", retrieve("bob", "finance"))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-အလုပ်လုပ်ချင်တဲ့ RAG system အများစုက document တွေကို user/tenant အလိုက် ခွဲရတယ်။ SaaS တစ်ခုမှာ tenant တစ်ခုရဲ့ document တွေ အခြား tenant တစ်ခုကို ရောက်သွားတာက စီးပွားရေးအရ အဆင့်အတန်း ကျဆုံးစေတဲ့ အမှားဖြစ်တယ်။ ဒါကို ရှာပြီးမှ ဖယ်နည်း (post-filter) နဲ့ စစ်ပြီးမှ ရှာနည်း (pre-filter) ဆိုပြီး နှစ်မျိုးရှိပေမဲ့၊ post-filter မှာ filter တွေ တင်းကျပ်လာတဲ့အခါ top-k အားလုံး ပျက်သွားနိုင်တယ်။
+အလုပ်လုပ်နေတဲ့ RAG system အများစုက document တွေကို user/tenant အလိုက် ခွဲရတယ်။ SaaS တစ်ခုမှာ tenant တစ်ခုရဲ့ document တွေ အခြား tenant တစ်ခုကို ရောက်သွားတာက စီးပွားရေးအရ အဆင့်အတန်း ကျဆုံးစေတဲ့ အမှားဖြစ်တယ်။ ဒါကို ရှာပြီးမှ ဖယ်နည်း (post-filter) နဲ့ စစ်ပြီးမှ ရှာနည်း (pre-filter) ဆိုပြီး နှစ်မျိုးရှိပေမဲ့၊ post-filter မှာ filter တွေ တင်းကျပ်လာတဲ့အခါ top-k အားလုံး ပျက်သွားနိုင်တယ်။
 
 ဒါကြောင့် ACL ကို "in-filter" အဖြစ် query ထဲ ထည့်ထားတဲ့ ဒီဇိုင်းက အလွန်ခိုင်မာပြီး မှန်ကန်တာမို့ production system တွေအတွက် အကြံပြုထားတဲ့ ပုံစံဖြစ်တယ်။
 
@@ -181,11 +181,11 @@ pgvector က relational data နှင့် vector တွေကို တစ်
 
 Stack တစ်ခုလုံးကို database နှစ်မျိုး ထိန်းရတာက operational burden ရှိတယ် — backup, monitoring, upgrade, security patch နှစ်ဆ၊ data sync နှစ်ဆ။ Document တွေက မတိမ်းမယိမ်းရှိပြီးသား Postgres ရှိတဲ့ system မှာ pgvector ထည့်လိုက်တာက ရှုပ်ထွေးမှု အလွန်နည်းစေတယ်။
 
-ဒါပေမဲ့ vector အရေအတွက် ကုဋေဂဏန်းအထိ တက်လာရင်၊ သို့ heavy filtering + ANN တွဲပြီး မြန်မြန် လိုအပ်လာရင် dedicated engine တွေက သူတို့ အားသန်ရာမှာ ပိုကောင်းတယ်။ ဒါကြောင့် "ဒီ tool က အကောင်းဆုံးလား" မဟုတ်ဘဲ "ကျွန်တော်တို့ရဲ့ scale နှင့် team အတွက် ဘယ်ဟာ သင့်တော်လဲ" လို့ မေးရတယ်။
+ဒါပေမဲ့ vector အရေအတွက် သန်းချီအထိ တက်လာရင်၊ သို့ heavy filtering + ANN တွဲပြီး မြန်မြန် လိုအပ်လာရင် dedicated engine တွေက သူတို့ အားသန်ရာမှာ ပိုကောင်းတယ်။ ဒါကြောင့် "ဒီ tool က အကောင်းဆုံးလား" မဟုတ်ဘဲ "ကျွန်တော်တို့ရဲ့ scale နှင့် team အတွက် ဘယ်ဟာ သင့်တော်လဲ" လို့ မေးရတယ်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-1. Data volume စစ်ပါ — million အနည်းငယ်အထိ vector တွေအတွက် pgvector (HNSW index နှင့်) က လုံလောက်တတ်တယ်။ ကုဋာအထိ သွားရင် distributed engine တွေ စဉ်းစားတယ်။
+1. Data volume စစ်ပါ — million အနည်းငယ်အထိ vector တွေအတွက် pgvector (HNSW index နှင့်) က လုံလောက်တတ်တယ်။ သန်းချီအထိ သွားရင် distributed engine တွေ စဉ်းစားတယ်။
 2. Filter behavior စစ်ပါ — pgvector မှာ filter က Postgres execution plan ထဲ ပါပြီး HNSW နှင့် `ef_search` (pgvector မှာ `hnsw.ef_search`) parameter တွေနဲ့ recall/speed ချိန်ရတယ်။ Dedicated engine တွေက filterable HNSW စတဲ့ နည်းပိုင်းရှုပ်ထွေးတဲ့ index တွေ သီးသန့်ပါတယ်။
 3. Operational capacity စစ်ပါ — Postgres admin အသုံးပြုနိုင်သူ team ရှိလား၊ Kubernetes ပေါ် stateful service တွေ ထိန်းနိုင်လား။
 4. Feature စစ်ပါ — hybrid search (sparse + dense)၊ multi-tenancy၊ built-in embedding integration တွေ လိုအပ်လား။
@@ -195,7 +195,7 @@ Stack တစ်ခုလုံးကို database နှစ်မျိုး 
 
 Internal knowledge base တစ်ခုအတွက် document တွေ ၃ သိန်း လောက်ရှိပြီး Postgres မှာ အားလုံး ပြီးပြီးသား၊ team က Postgres admin နားလည်တယ်ဆို pgvector က သင့်လျော်တဲ့ ရွေးချယ်စရာ ဖြစ်နိုင်တယ် — backup တစ်လမ်းတည်း၊ transaction တစ်လမ်းတည်း။
 
-ဒါတော့၊ multi-tenant SaaS မှာ tenant သောင်းချီပြီး vector ကုဋာအထိ၊ metadata filter တွေ တင်းကျပ်ပြီး per-tenant isolation လိုအပ်တဲ့ case မှာ Qdrant သို့ Milvus တို့က payload filter နှင့ collection-based multi-tenancy အတွက် ပိုသင့်တော်နိုင်တယ်။ ဒါတွေက design feature အရ ပြောတာဖြစ်ပြီး — benchmark ဂဏန်းတွေက workload ပေါ် မူတည်လို့ သူ့ project schedule အတွက်ပဲ တိုင်းရတယ်။
+ဒါတော့၊ multi-tenant SaaS မှာ tenant သောင်းချီပြီး vector သန်းချီအထိ၊ metadata filter တွေ တင်းကျပ်ပြီး per-tenant isolation လိုအပ်တဲ့ case မှာ Qdrant သို့ Milvus တို့က payload filter နှင့ collection-based multi-tenancy အတွက် ပိုသင့်တော်နိုင်တယ်။ ဒါတွေက design feature အရ ပြောတာဖြစ်ပြီး — benchmark ဂဏန်းတွေက workload ပေါ် မူတည်လို့ သူ့ project schedule အတွက်ပဲ တိုင်းရတယ်။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
@@ -276,7 +276,7 @@ print("final:", {k: v[0] for k, v in VECTOR_STORE.items()})
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Scale ကို million ကနေ ကုဋာတင်တက်သွားတဲ့အခါ pgvector တစ်ခုတည်းနဲ့ မလုံလောက်တော့ပေမဲ့၊ Postgres ကို ဖျက်ပြီး ကူးပြောင်းဖို့ကလည်း မဖြစ်နိုင်တော့ဘူး။ ဒီအချိန်မှာ hybrid model က migration ကို အဆင့်ဆင့် ခံနိုင်တဲ့ လမ်းဖြစ်လာတယ် — Postgres အားလုံး အတိုင်းထားပြီး vector search အပိုင်းကိုပဲ dedicated engine ကို ရွှေ့တယ်။
+Scale ကို million ကနေ ကုဋေချီအထိ တက်သွားတဲ့အခါ pgvector တစ်ခုတည်းနဲ့ မလုံလောက်တော့ပေမဲ့၊ Postgres ကို ဖျက်ပြီး ကူးပြောင်းဖို့ကလည်း မဖြစ်နိုင်တော့ဘူး။ ဒီအချိန်မှာ hybrid model က migration ကို အဆင့်ဆင့် ခံနိုင်တဲ့ လမ်းဖြစ်လာတယ် — Postgres အားလုံး အတိုင်းထားပြီး vector search အပိုင်းကိုပဲ dedicated engine ကို ရွှေ့တယ်။
 
 အဓိက စိန်ခေါ်မှုက consistency ပါ — event တွေက အစီအစဉ်မတည့် ရောက်တတ်လို့ version စစ်ခြင်း၊ failed upsert တွေ retry ခြင်း၊ vector store ထဲ "Postgres မှာ မရှိတော့တဲ့" doc ကျန်နေခြင်း စတာတွေကို operational discipline နဲ့ ကိုင်ရတယ်။ Course ရဲ့ နောက် module တွေမှာ ဒီ sync pipeline ကို ဖန်တီးပြီး streaming ingestion နဲ့ တွဲပြပါမယ်။
 
@@ -286,5 +286,5 @@ Scale ကို million ကနေ ကုဋာတင်တက်သွားတ�
 - Vector store ထဲ content မထည့်ပဲ vector နှင့် doc pointer လောက်ပဲ ထားလို့ရတယ်။
 - Outbox pattern က document write နှင့် sync event ကို transaction တစ်ခုတည်းထဲ ပေါင်းပေးတယ်။
 - Event ordering ကို version နဲ့ ကာကွယ်ပြီး stale event တွေကို skip ရတယ်။
-- Vector store တစ်ခုလုံး ပျက်သွားလည်း Postgres ကနေ အလုံးအမြစ် rebuild လုပ်နိုင်တယ်။
+- Vector store တစ်ခုလုံး ပျက်သွားလည်း Postgres ကနေ အစအဆုံး rebuild လုပ်နိုင်တယ်။
 - pgvector ကနေ dedicated store ကို migration လုပ်ရင် ဒီ model က incremental ဖြစ်တဲ့ ခံနိုင်တဲ့ လမ်းဖြစ်တယ်။

@@ -116,7 +116,7 @@ Golden set (query → မှန်တဲ့ chunk အမှတ် ဆိုတ�
 
 ## M11 — `11_scale_performance/` — Scale နှင့် Performance
 
-Quantization (ကိန်းဂဏန်းကို ကုန်ခန့်အောင် ချုံ့ခြင်း) အခြေခံကို သင်ပါတယ် — scalar/binary quantization နဲ့ product quantization (PQ)။ Memory နဲ့ recall ရဲ့ အပေးအယူ၊ dimension ဖြတ်ခြင်း၊ sharding/partitioning မဟာဗျူဟာ၊ index rebuild နှင့် write throughput တွေ ပါပါတယ်။ Memory တွက်ချက်မှုတွေကို ယူဆချက် သတ်မှတ်ပြီး formula နဲ့ ပြပါမယ်။
+Quantization (ကိန်းဂဏန်းတန်ဖိုးတွေကို ချုံ့ခြင်း) အခြေခံကို သင်ပါတယ် — scalar/binary quantization နဲ့ product quantization (PQ)။ Memory နဲ့ recall ရဲ့ အပေးအယူ၊ dimension ဖြတ်ခြင်း၊ sharding/partitioning မဟာဗျူဟာ၊ index rebuild နှင့် write throughput တွေ ပါပါတယ်။ Memory တွက်ချက်မှုတွေကို ယူဆချက် သတ်မှတ်ပြီး formula နဲ့ ပြပါမယ်။
 
 ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — Quantization option တစ်ခုစီအတွက် memory ခန့်မှန်းချက် တွက်နိုင်ရမယ်။ ကိုယ့် dataset အတွက် သင့်တော်တဲ့ sharding မဟာဗျူဟာ ရွေးနိုင်ရမယ်။
 

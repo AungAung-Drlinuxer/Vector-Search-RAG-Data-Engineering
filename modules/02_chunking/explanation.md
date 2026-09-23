@@ -238,7 +238,7 @@ print("context sent to model:", parents[parent_id])
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 Heading ထိန်းထားရင် chunk တစ်ခုက ဘယ် section ကနေလာတယ်ဆိုတာ သိသွားတယ်။
-ဥပမာ — “ကုန်ပိုင်း” heading အောက်က “၅၀%” ဆိုတာက လျှော့စျေး ဆိုတာ သိရတယ်။
+ဥပမာ — “ကုန်စျေးနှုန်း” heading အောက်က “၅၀%” ဆိုတာက လျှော့စျေး ဆိုတာ သိရတယ်။
 Small-to-big က LlamaIndex မှာ တရားဝင်ထောက်ခံတဲ့ pattern တစ်ခုဖြစ်ပြီး retrieval precision နဲ့ context completeness နှစ်ခုလုံး ရစေတယ်။
 
 ## ၅။ Chunk metadata ဒီဇိုင်း — source၊ section၊ page၊ permission
