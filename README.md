@@ -78,3 +78,33 @@ Module တွေကို အစီအစဉ်အတိုင်း တစ်�
 ## သတိပြုရန်
 
 ဒီ course ထဲက number တွေအားလုံးက ၂ မျိုးထဲမှ တစ်မျိုး ဖြစ်ပါတယ် — (က) သင်ခန်းစာထဲက ဖော်ပြထားတဲ့ formula နဲ့ တွက်ထုတ်ထားတာ၊ (ခ) module scope ထဲက နာမည်တပ်ထားတဲ့ တရားဝင် documentation ကနေ ကောက်နုတ်ထားတာပါ။ Recall value၊ latency၊ QPS၊ memory size တို့ကို မတင်းကား ဖန်တီးထားခြင်း မရှိပါ။ Index ရဲ့ recall နဲ့ behaviour က corpus အရွယ်အစား၊ parameter တန်ဖိုးတွေနဲ့ engine version အပေါ် မူတည်ပါတယ်။ ဒါကြောင့် ကိုယ်ပိုင်ဒေတာပေါ်မှာ ကိုယ်တိုင် တိုင်းတာဖို့ လိုပါတယ်။ LLM call တွေက runtime မှာ တကယ် မဖြစ်ပါ — scripted deterministic stand-in သာ သုံးထားပါတယ်။
+
+## ဒီ course ကို ဘယ်လို သုံးမလဲ
+
+- အစဉ်လိုက် ဖတ်ပါ — M1–M3 (data ဘက်) ကို အရင်၊ ပြီးမှ M4–M5 (index)၊ နောက် M6–M8 (retrieval အရည်အသွေး) ဆက်ပါ။
+- Module တိုင်းရဲ့ lab ကို ကိုယ်တိုင် run ပြီး result ကို စာရွက်ပေါ် ချရေးပါ — pipeline အဆင့်တိုင်းရဲ့ ဂဏန်းကို မြင်အောင် လုပ်ပါ။
+- Database မလိုပါ — lab အားလုံး standard library နဲ့သာ run ပါတယ်။ SQL နမူနာများကို ကိုယ့် Postgres မှာ စမ်းချင်ရင် သီးသန့် စမ်းပါ။
+- M10 (evaluation) ရောက်တဲ့အခါ ကိုယ့် corpus အတွက် golden set လေး (query ၂၀–၅၀ ခု) ကို ရေးထားရင် နောက်ဆုံး module များ အလွန် အကျိုးရှိပါတယ်။
+
+## ဘယ်လို မေးခွန်းတွေကို ဖြေပေးလဲ
+
+- ကိုယ့် corpus အတွက် chunk အရွယ် ဘယ်လောက် ထားရမလဲ။
+- Embedding model တစ်ခုကနေ တစ်ခု ပြောင်းရင် index ကို ဘယ်လို migrate လုပ်မလဲ။
+- HNSW ရဲ့ `m`၊ `ef_construction`၊ `ef_search` ကို ဘယ်လို ရွေးမလဲ။
+- Vector search နဲ့ keyword search ကို ဘယ်လို ပေါင်းမလဲ (RRF ရဲ့ သင်္ချာ အပါ)။
+- Storage၊ index memory နဲ့ QPS ကို ဘယ်လို ကြိုတွက်မလဲ။
+- Permission (ACL) ကို retrieval query ထဲ ဘယ်လို ထည့်မလဲ။
+
+## လုပ်ငန်းသုံး စစ်ဆေးစာရင်း
+
+- Chunk တိုင်းမှာ source၊ section၊ page၊ permission metadata ပါပါသလား။
+- Ingestion ကို ပြန် run လုပ်ရင် duplicate မဖြစ်အောင် idempotent ဖြစ်ပါသလား။
+- Eval set နဲ့ recall@k ကို CI gate အဖြစ် ထားပြီးပါသလား။
+- PII ကို embedding မတွက်ခင် စစ်ပြီးပါသလား။
+- Embedding model version ကို index၊ cache နဲ့ metadata မှာ မှတ်ထားပါသလား။
+
+## ဒီ course နဲ့ ကိုက်ညီတဲ့ တာဝန်
+
+- Retrieval/pipeline engineer — ingestion၊ chunking၊ index ကို ပိုင်ပြီး အရည်အသွေးကို တိုင်းတာသူ။
+- AI application engineer — retrieval API ကို ဒီဇိုင်းပြီး generation အလွှာနဲ့ တွဲသူ။
+- Data platform engineer — vector store ၏ storage၊ backup၊ tenancy၊ governance ကို စီမံသူ။
