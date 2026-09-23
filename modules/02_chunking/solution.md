@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Fixed-size chunking ကို လက်တွေ့စမ်းကြည့်ပါ
 
-Fixed-size chunking ဆိုတာ စာသားကို စာလုံးအရေအတွက အတိအထနဲ့ ဖြတ်တာပါ။ ဒီ code မှာ ကိုယ်တိုင်ရေးထားတဲ့ စာသားကို ၅၀ စာလုံးစီနဲ့ ဖြတ်ပြထားတာပါ။ chunk တိုင်းရဲ့ အရွေအတိအထကို len() နဲ့ စစ်ကြည့်လို့ ရပါတယ်နော်။
+Fixed-size chunking ဆိုတာ စာသားကို စာလုံးအရေအတွက် အတိအကျနဲ့ ဖြတ်တာပါ။ ဒီ code မှာ ကိုယ်တိုင်ရေးထားတဲ့ စာသားကို ၅၀ စာလုံးစီနဲ့ ဖြတ်ပြထားတာပါ။ chunk တိုင်းရဲ့ အရွယ်အတိအကျကို len() နဲ့ စစ်ကြည့်လို့ ရပါတယ်နော်။
 
 ```python
 # Fixed-size chunking: split text into chunks of exactly 50 words each.
@@ -84,7 +84,7 @@ for idx, c in enumerate(with_overlap):
 
 ## လေ့ကျင့်ခန်း ၃ — Recursive text splitting အလုပ်လုပ်ပုံ ပြန်ရေးပါ
 
-Recursive splitter က separator စာရင်းကို အဆင့်ဆင်းပြီး ဝါကျနယ်နိမိတ်ကို ဖြတ်တောင်း ထိန်းပေးတဲ့ နည်းပါ။ separator တစ်ခုမကျော်ရင် နောက်တစ်ခုဆီ ဆင်းသွားတဲ့ logic ကို ဒီ function မှာ မြင်နိုင်ပါတယ်နော်။
+Recursive splitter က separator စာရင်းကို အဆင့်ဆင်းပြီး ဝါကျနယ်နိမိတ်ကို ဖြတ်တောက် ထိန်းပေးတဲ့ နည်းပါ။ separator တစ်ခုမကျော်ရင် နောက်တစ်ခုဆီ ဆင်းသွားတဲ့ logic ကို ဒီ function မှာ မြင်နိုင်ပါတယ်နော်။
 
 ```python
 # Reimplementation of recursive text splitting (LangChain-style, simplified).
@@ -158,7 +158,7 @@ for entry in log:
 
 ## လေ့ကျင့်ခန်း ၄ — Token-based chunking နဲ့ ဂဏန်းခြင်း
 
-Token နဲ့ စာလုံးရဲ့ ကွာခြားချက်ကို simple tokenizer တစ်ခုနဲ့ တွက်ပြပြီး၊ chunk အရေအတွကကို formula `1 + ceil((total - chunk) / (chunk - overlap))` နဲ့ တွက်ပါတယ်။ 10,000 tokens၊ chunk 512၊ overlap 64 ဆိုရင် 20 chunks ရတာကို ကိုယ်တိုင် အတည်ပြုနိုင်ပါတယ်နော်။
+Token နဲ့ စာလုံးရဲ့ ကွာခြားချက်ကို simple tokenizer တစ်ခုနဲ့ တွက်ပြပြီး၊ chunk အရေအတွက်ကို formula `1 + ceil((total - chunk) / (chunk - overlap))` နဲ့ တွက်ပါတယ်။ 10,000 tokens၊ chunk 512၊ overlap 64 ဆိုရင် 20 chunks ရတာကို ကိုယ်တိုင် အတည်ပြုနိုင်ပါတယ်နော်။
 
 ```python
 # Token counting and chunk-count arithmetic (stdlib only, deterministic stand-in tokenizer).

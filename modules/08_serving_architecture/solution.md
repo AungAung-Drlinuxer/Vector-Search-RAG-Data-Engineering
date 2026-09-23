@@ -150,7 +150,7 @@ print("entries =", len(cache._store))
 
 ## လေ့ကျင့်ခန်း ၄ — Pool နဲ့ concurrency simulation
 
-pool size 3 နဲ့ acquire ၃ ခါ အရင် အောင်မြင်ပြီး စတုတ္ထအကြိမ်က release မခင်း စောင့်ရမယ်နော်။ connection တွေက dummy object တွေပါ — real system မှာ Postgres connection တွေပါ။
+pool size 3 နဲ့ acquire ၃ ခါ အရင် အောင်မြင်ပြီး စတုတ္ထအကြိမ်က release မလုပ်မချင်း စောင့်ရမယ်နော်။ connection တွေက dummy object တွေပါ — real system မှာ Postgres connection တွေပါ။
 
 ```python
 # Connection pool with blocking acquire via queue.Queue
@@ -201,7 +201,7 @@ print("got after release:", c4)
 # got after release: conn-2
 ```
 
-**အဓိကအယူဆ** — pool က connection ပြန်လည်အသုံးပြုခြင်းနဲ့ အလွန်အကျွံ ဖွင့်မခံ့စေတာကြောင့် bounded resource တွေကို စနစ်တကျ ထိန်းပေးပါတယ်။
+**အဓိကအယူဆ** — pool က connection ပြန်လည်အသုံးပြုခြင်းနဲ့ အလွန်အကျွံ ဖွင့်မခံရစေတာကြောင့် bounded resource တွေကို စနစ်တကျ ထိန်းပေးပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — pgvector SQL ရေးပါ (အလုပ်မလုပ်ပါဘူး၊ ဖတ်ဖို့ပါ)
 

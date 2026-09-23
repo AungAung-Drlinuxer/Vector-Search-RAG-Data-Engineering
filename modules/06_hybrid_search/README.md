@@ -15,10 +15,10 @@ Vector search နဲ့ keyword search နှစ်ခုကို RRF နည်
 ## သင်ခန်းစာများ
 
 - **L1 — Full-Text Search အခြေခံ**: `to_tsvector`၊ `to_tsquery`၊ `plainto_tsquery` တွေရဲ့ ကွာခြားချက်။
-- **L2 — Ranking နဲGIN/GiST Index**: `ts_rank` အလုပ်လုပ်ပုံ၊ `tsvector` index မျိုးကွဲများ။
+- **L2 — Ranking နဲ့ GIN/GiST Index**: `ts_rank` အလုပ်လုပ်ပုံ၊ `tsvector` index မျိုးကွဲများ။
 - **L3 — Trigram Similarity**: `similarity()` နဲ့ fuzzy matching (စာလုံးမှားယွင်းမှုကို ခံနိုင်တဲ့ ရှာဖွေမှု)။
 - **L4 — Weighted Sum နဲ့ ပေါင်းခြင်း**: cosine score နဲ့ BM25-style score ကို အလေးချိန် ပေးပေါင်းပုံ။
-- **L5 — Score Normalization ပြဿနာ**: scale မတူတဲ့ score တွေက ဘယ်လို ရလဒ် ပျက်လုပ်လဲ။
+- **L5 — Score Normalization ပြဿနာ**: scale မတူတဲ့ score တွေက ဘယ်လို ရလဒ် ပျက်စေလဲ။
 - **L6 — Reciprocal Rank Fusion (RRF)**: rank-based fusion ရဲ့ သင်္ချာ၊ parameter k ရဲ့ သက်ရောက်မှု။
 - **L7 — Hybrid Pipeline တစ်ခုလုံး**: query ကို နှစ်လမ်းဖြန့်ပြီး RRF နဲ့ ပေါင်းတဲ့ အဆင့်ဆင့် နမူနာ။
 
@@ -26,7 +26,7 @@ Vector search နဲ့ keyword search နှစ်ခုကို RRF နည်
 
 - M1 (vector space basics) နဲ့ M2 (cosine similarity) သင်ခန်းစာတွေ ဖတ်ပြီးဖြစ်ရမယ်။
 - M3 (HNSW-style graph search) က အိုင်ဒီယာ နားလည်ထားရမယ်။
-- Python 3 ရှိရုံပါပါတယ် — external library ဘာမှ မလိုပါဘူး။
+- Python 3 ရှိရုံပါတယ် — external library ဘာမှ မလိုပါဘူး။
 - PostgreSQL pgvector SQL တွေကို ဖတ်ရုံပါ — ဒီ module က SQL ကို run မခိုင်းပါဘူး။
 
 ## ဘယ်အချိန်မှာ အသုံးဝင်လဲ

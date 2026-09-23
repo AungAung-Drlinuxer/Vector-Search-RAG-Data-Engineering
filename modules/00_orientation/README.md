@@ -27,12 +27,12 @@
 - Python အခြေခံ — function ရေးတတ်ရင် လုံလောက်ပါတယ်။
 - List, dict, loop သုံးနိုင်ရမယ်။
 - SQL အခြေခံ (PostgreSQL) က အထောက်အကူ ရှိပေမယ့် မဖြစ်မနေ မလိုပါဘူး။
-- ဒီ course က offline standard-library Python ပဲ သုံးပါတယ်။ ဒိတ်ဘေ့စ် မချိတ်ပါဘူးနော်။
+- ဒီ course က offline standard-library Python ပဲ သုံးပါတယ်။ ဒေတာဘေ့စ် မချိတ်ပါဘူးနော်။
 
 ## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
 
 - ကုမ္ပဏီရဲ့ document တွေကို LLM နဲ့ ဖြေရမယ့် စနစ် ဆောက်ချင်ရင်။
-- RAG project ကို စစီမံခန့်ခွဲမယ့် data engineer ဖြစ်ချင်ရင်။
+- RAG project ကို စီမံခန့်ခွဲမယ့် data engineer ဖြစ်ချင်ရင်။
 - ဘယ် search အမျိုးအစား ရွေးရမလဲ ဆုံးဖြတ်ရမယ့် နေရာမှာ ရှိနေရင်။
 
 ## ကိုးကား

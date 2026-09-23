@@ -24,7 +24,7 @@ Main content text ကိုတော့ ကျန်ရစ်ရတယ်။
 
 ## လေ့ကျင့်ခန်း ၃ — Unicode normalization လုပ်တယ်
 
-Burmese text နှစ်ကြေင်းကို `unicodedata.normalize` နဲ့ နှိုင်းယှဉ်ပါတယ်။
+Burmese text နှစ်ကြောင်းကို `unicodedata.normalize` နဲ့ နှိုင်းယှဉ်ပါတယ်။
 NFC form က composed form ဖြစ်တာကြောင့် တူညီမှု စစ်ဖို့ သုံးတာပါ။
 Normalize မလုပ်ခင် မတူနိုင်တဲ့ string တွေကို ပြပါတယ်။
 
@@ -66,8 +66,8 @@ Batch တစ်ခုကို နှစ်ခါ ပြေးလိုက်ရ
 ဒါက idempotency (ထပ်ပြေးလည်း ရလဒ်မပြောင်း) ပါ။
 
 **Hints:** SQL upsert က `INSERT ... ON CONFLICT (doc_id) DO UPDATE SET ...` ပါတယ်။
-pgvector target ဖြစ်နေလို့ `RETURNING` နဲ့ သင့်ရင်းကို ချိတ်မပြပါနှင့် — comment နဲ့ ရှင်းပြပါတယ်။
+pgvector target ဖြစ်နေလို့ `RETURNING` နဲ့ သက်ဆိုင်ရာကို ချိတ်မပြပါနှင့် — comment နဲ့ ရှင်းပြပါတယ်။
 DAG scheduling အကြောင်းက https://airflow.apache.org/docs/ မှာ ရှိတာပါ၊ prose နဲ့ ရှင်းပါတယ်။
 
 **Expected behavior:** Batch တစ်ခုကို အရင်ပြေးတုန်းက state ရရတယ်။
-Batch ကို ဒုတိယအကြိမ် ထပ်ပြောလိုက်တော့ ဘာမှ ပြောင်းရမ်းသွားတာမရှိပါနှင့်။
+Batch ကို ဒုတိယအကြိမ် ထပ်ပြောလိုက်တော့ ဘာမှ ပြောင်းလဲသွားတာမရှိပါနှင့်။

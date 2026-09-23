@@ -120,7 +120,7 @@ print(DDL.strip(), RLS.strip(), QUERY.strip(), sep="\n---\n")
 # LIMIT 3;
 ```
 
-**အဓိကအယူဆ** — RLS policy ကိ် database ထဲမှာ တည်ဆောက်ထားရင် user က သူမကိုယ်ပိုင်တဲ့ row တွေကိုပဲ query ထဲ မြင်ရတယ်၊ ဒါက ACL ကို application ထက် အောက်ခြီမှာ သေချာစေတဲ့ နည်းလမ်းပါတယ်နော်။
+**အဓိကအယူဆ** — RLS policy ကို database ထဲမှာ တည်ဆောက်ထားရင် user က သူမကိုယ်ပိုင်တဲ့ row တွေကိုပဲ query ထဲ မြင်ရတယ်၊ ဒါက ACL ကို application ထက် အောက်ခြေမှာ သေချာစေတဲ့ နည်းလမ်းပါတယ်နော်။
 
 ## လေ့ကျင့်ခန်း ၄ — Multi-tenant isolation နည်းလမ်းနှစ်မျိုး နှိုင်းယှဉ်ပါ
 
@@ -197,7 +197,7 @@ for line in _audit_log:
 # {"user": "aung", "query": "project status", "result_ids": ["doc1"], "allowed": false, "timestamp": "2026-01-01T00:00:02Z"}
 ```
 
-**အဓိကအယူဆ** — ဘယ် user က ဘယ် query နဲ့ ဘယ် doc ကို ကြည့်ခဲ့လဲဆိုတာကို append-only မှတ်တမ်းနဲ့ ဖမ်းထားရင် ဖျက်ခံခဲ့ရတဲ့ result တွေပါ ပါစွာ သက်သေပြနိုင်ပါတယ်နော်။
+**အဓိကအယူဆ** — ဘယ် user က ဘယ် query နဲ့ ဘယ် doc ကို ကြည့်ခဲ့လဲဆိုတာကို append-only မှတ်တမ်းနဲ့ ဖမ်းထားရင် ဖျက်ခံခဲ့ရတဲ့ result တွေပါ ပါဝင်စွာ သက်သေပြနိုင်ပါတယ်နော်။
 
 ## လေ့ကျင့်ခန်း ၆ — Delete propagation နှင့် provenance မှတ်တမ်းပါ
 

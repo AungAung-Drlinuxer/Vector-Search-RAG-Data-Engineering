@@ -1,12 +1,12 @@
 # M4 — HNSW Index အတွင်းပိုင်း: Parameter၊ Recall နှင့် Memory
 
-ဒီ module မှာ HNSW index (Hierarchy of Navigable Small World — vector တွေကို graph ပေါ်မှာ ရှာတဲ့ data structure) ရဲ့ အတွင်းပိုင်းကို လေ့လာပါမယ်။ အခြေခံအားဖြင့် paper ဖြစ်တဲ့ [Malkov & Yashunin, 2016](https://arxiv.org/abs/1603.09320)၊ [pgvector](https://github.com/pgvector/pgvector) နဲ့ [Faiss wiki](https://github.com/facebookresearch/faiss/wiki) တွေကနေ ယူထားတာပါ။ ဒါက original လေ့လာသင်ယူမှု material ဖြစ်ပြီး official documentation တွေကနေ ရေးထားတာပါ။ အချိန်ပြည့် runtime မှာ database ချိတ်မှာ မဟုတ်ပါ — Python standard library နဲ့ပဲ mechanics တွေကို ပြန်ဆောက်ပြပါမယ်။
+ဒီ module မှာ HNSW index (Hierarchy of Navigable Small World — vector တွေကို graph ပေါ်မှာ ရှာတဲ့ data structure) ရဲ့ အတွင်းပိုင်းကို လေ့လာပါမယ်။ အခြေခံအားဖြင့် paper ဖြစ်တဲ့ [Malkov & Yashunin, 2016](https://arxiv.org/abs/1603.09320)၊ [pgvector](https://github.com/pgvector/pgvector) နဲ့ [Faiss wiki](https://github.com/facebookresearch/faiss/wiki) တွေကနေ ယူထားတာပါ။ ဒါက original လေ့လာသင်ယူမှု material ဖြစ်ပြီး official documentation တွေကနေ ရေးထားတာပါ။ အချိန်ပြည့် runtime မှာ database ချိတ်တာ မဟုတ်ပါ — Python standard library နဲ့ပဲ mechanics တွေကို ပြန်ဆောက်ပြပါမယ်။
 
 ## Subtopic ၁ — Multi-layer Graph သဘောတရား
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-HNSW ဆိုတာ layer အများကြီးဆင့်ထားတဲ့ graph ပါ။ အပေါ် layer တွေမှာ point အနည်းငယ်ပဲ ရှိပြီး၊ အောက်ဆုံး layer မှာ point အားလုံး ရှိပါတယ်။ Query တစ်ခကို အပေါ်ကနေ အောက်ကို ဆင်းရှာတာပါ။
+HNSW ဆိုတာ layer အများကြီးဆင့်ထားတဲ့ graph ပါ။ အပေါ် layer တွေမှာ point အနည်းငယ်ပဲ ရှိပြီး၊ အောက်ဆုံး layer မှာ point အားလုံး ရှိပါတယ်။ Query တစ်ခုကို အပေါ်ကနေ အောက်ကို ဆင်းရှာတာပါ။
 
 ### ဘာကြောင့် လဲ
 
@@ -15,7 +15,7 @@ Graph ထဲမှာ point သန်းနဲ့ချီရှိရင် တ
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
 ၁။ Point တိုင်းကို အောက် layer အားလုံးမှာ ထည့်ပါတယ်။
-၂။ ဘယ် layer အထိတက်မလဲဆိုတာ တစ်ချက်ချင်း ဖြတ်သတာက ဆုံးဖြတ်ပါတယ် (paper မှာ "exponential decay" လို့ ခေါ်ပါတယ်)။
+၂။ ဘယ် layer အထိတက်မလဲဆိုတာ ကျပန်း ဖြတ်တာက ဆုံးဖြတ်ပါတယ် (paper မှာ "exponential decay" လို့ ခေါ်ပါတယ်)။
 ၃။ အပေါ် layer မှာ အစပြု point ကနေ ရှာပါတယ်။
 ၄။ ရှာတွေ့တဲ့ အကောင်းဆုံး point ကို အောက် layer ရဲ့ အစပြု point အဖြစ် ယူပါတယ်။
 ၅။ အောက်ဆုံး layer မှာ အနီးနားကို အသေးစိတ် ရှာပါတယ်။
@@ -106,7 +106,7 @@ pgvector documentation မှာ `m` default 16 ဖြစ်ပြီး၊ `ef_
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-`ef_search` (Faiss မှာ `efSearch`၊ pgvector မှာ `hnsw.ef_search`) က query ရှာစဉ် ထားရမယ့် candidate list အရွယ်အစားပါ။ Recall@k (top-k ထဲ အမှန်ဘယ်နှးရှိလဲဆိုတဲ့ အချိုး) က ef_search တက်တာနဲ့ တက်ပါတယ်။
+`ef_search` (Faiss မှာ `efSearch`၊ pgvector မှာ `hnsw.ef_search`) က query ရှာစဉ် ထားရမယ့် candidate list အရွယ်အစားပါ။ Recall@k (top-k ထဲ အမှန်ဘယ်နှရှိလဲဆိုတဲ့ အချိုး) က ef_search တက်တာနဲ့ တက်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 
@@ -149,7 +149,7 @@ print("recall@%d =" % k, hits / k)
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Faiss wiki မှာ `efSearch` တက်ရင် recall တက်ပြီး search time လည်း တက်တယ်လို့ ရှင်းပြထားပါတယ်။ Production မှာ target recall အတွက် အပေါင်းဆုံး ef_search ကို ရှာပြီး သတ်မှတ်တာ အရေးကြီးပါတယ်။ pgvector မှာတော့ `SET hnsw.ef_search = 100;` လိုမျိုး ချိန်နိုင်ပါတယ်။
+Faiss wiki မှာ `efSearch` တက်ရင် recall တက်ပြီး search time လည်း တက်တယ်လို့ ရှင်းပြထားပါတယ်။ Production မှာ target recall အတွက် အကောင်းဆုံး ef_search ကို ရှာပြီး သတ်မှတ်တာ အရေးကြီးပါတယ်။ pgvector မှာတော့ `SET hnsw.ef_search = 100;` လိုမျိုး ချိန်နိုင်ပါတယ်။
 
 ## Subtopic ၄ — Index Memory တွက်နည်း
 

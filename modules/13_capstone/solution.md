@@ -22,7 +22,7 @@ print("approx GB:", total_bytes / 1e9)
 # approx GB: 3.072
 ```
 
-**အဓိကအယူဆ** — fp32 vector တစ်ခုချင်းစီက 768 × 4 = 3,072 bytes ယူလို့ ခုနှစ်လီယံခုထဲမှာ ၃ GB ကျော် လိုအပ်ပါတယ်။
+**အဓိကအယူဆ** — fp32 vector တစ်ခုချင်းစီက 768 × 4 = 3,072 bytes ယူလို့ သုံးဘီလီယံခုထဲမှာ ၃ GB ကျော် လိုအပ်ပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၂ — Chunk size ရွေးမှုရဲ့ အကျိုးသက်ရောက်မှု
 
@@ -101,7 +101,7 @@ print("match:", graph_idx == exact_idx)
 # match: False
 ```
 
-**အဓိကအယူဆ** — greedy graph search က အမြဲတောင်မှ အနီးဆုံးကို မရဘူးဆိုတာက graph ရဲ့ သဘာဝပါ၊ ဒါပေမယ့် ဒေတာနည်းရင်တော့ များသောအားဖြင့် brute-force နဲ့ တူပါတယ်။
+**အဓိကအယူဆ** — greedy graph search က အမြဲတမ်း အနီးဆုံးကို မရဘူးဆိုတာက graph ရဲ့ သဘာဝပါ၊ ဒါပေမယ့် ဒေတာနည်းရင်တော့ များသောအားဖြင့် brute-force နဲ့ တူပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၄ — Recall@k တိုင်းပါ
 
@@ -164,7 +164,7 @@ print("avg recall@5 over 100 queries:", round(avg_recall, 4))
 
 ## လေ့ကျင့်ခန်း ၅ — QPS တွက်ပါ
 
-query ၁,၀၀၀ ခုကို `time.perf_counter` နဲ့ စက်တာတိုင်းပြီး QPS = 1000 / total_seconds နဲ့ တွက်ပါတယ်။ p95 latency က sorted latencies ထဲက 95% index ထုတ်တာပါ — ဒီဂဏန်းတွေက စက်ပေါ်မူတည်လို့ run တိုင်း နည်းနည်း ကွာနိုင်ပါတယ်နော်။
+query ၁,၀၀၀ ခုကို `time.perf_counter` နဲ့ ချိန်တာတိုင်းပြီး QPS = 1000 / total_seconds နဲ့ တွက်ပါတယ်။ p95 latency က sorted latencies ထဲက 95% index ထုတ်တာပါ — ဒီဂဏန်းတွေက စက်ပေါ်မူတည်လို့ run တိုင်း နည်းနည်း ကွာနိုင်ပါတယ်နော်။
 
 ```python
 import random

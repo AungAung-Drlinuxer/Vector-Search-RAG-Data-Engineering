@@ -172,7 +172,7 @@ print("Fused order:", [doc_id for doc_id, _ in fused])
 # Fused order: ['d1', 'd2', 'd3', 'd4']
 ```
 
-**အဓိကအယူဆ** — RRF က score အစား rank ကို အသုံးပြုလို့ scale မတူတဲ relevance score တွေရှိစေကာမှ ခေါင်းစဉ်များစွာကို တညီတည်း ပေါင်းနိုင်တယ်ဆိုတာပါ။
+**အဓိကအယူဆ** — RRF က score အစား rank ကို အသုံးပြုလို့ scale မတူတဲ relevance score တွေရှိစေကာမှ ranking များစွာကို တညီတည်း ပေါင်းနိုင်တယ်ဆိုတာပါ။
 
 ## လေ့ကျင့်ခန်း ၆ — MMR (Maximal Marginal Relevance) အပြည့်အစုံ
 

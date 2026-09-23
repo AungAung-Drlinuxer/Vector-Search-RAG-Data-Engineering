@@ -18,10 +18,10 @@ Documents တွေကို chunk အသေးအလတ်ခွဲပြီး
 | သင်ခန်းစာ | ဖော်ပြချက် |
 |---|---|
 | `lessons/01_fixed_size_chunking.py` | အရွယ်အတည်တည် chunk ခွဲနည်း၊ ချို့ယွင်းချက် |
-| `lessons/02_recursive_chunking.py` | Paragraph → sentence → word အဆင့်ဆင် ခွဲနည်း |
+| `lessons/02_recursive_chunking.py` | Paragraph → sentence → word အဆင့်ဆင့် ခွဲနည်း |
 | `lessons/03_token_based_chunking.py` | Token အရေအတွက်အလိုက် ခွဲနည်းနှင့် token counter |
 | `lessons/04_semantic_chunking.py` | အဓိပ္ပာယ်အလိုက် နယ်ခြား ရှာနည်း (scripted embedder နဲ့) |
-| `lessons/05_overlap_tradeoff.py` | Overlap အရွယ်နဲ့ recall@k ဆက်ဆံုး (offline test) |
+| `lessons/05_overlap_tradeoff.py` | Overlap အရွယ်နဲ့ recall@k ဆက်စပ်မှု (offline test) |
 | `lessons/06_structure_aware_chunking.py` | Markdown heading တွေ မပျက်အောင် ထိန်းခြင်း |
 | `lessons/07_parent_child_small_to_big.py` | Small-to-big retrieval ကို standard library နဲ့ ပြန်လုပ်ခြင်း |
 | `lessons/08_metadata_design.py` | Metadata schema ဒီဇိုင်းနှင့် filtering |
@@ -31,7 +31,7 @@ Documents တွေကို chunk အသေးအလတ်ခွဲပြီး
 
 - Python 3.10+ (standard library ပဲ လိုပါတယ် — external package မလိုပါဘူး)
 - M1 module — embedding၊ cosine similarity အခြေခံ သိထားရပါမယ်
-- Burmese ဖတ်နိုင်ဖို့ တောင်းဆိုချက် မရှိပါဘူး — ဥမာပြကုဒ် အားလုံး English comments နဲ့ ဖြစ်ပါတယ်
+- Burmese ဖတ်နိုင်ဖို့ တောင်းဆိုချက် မရှိပါဘူး — ဥပမာပြကုဒ် အားလုံး English comments နဲ့ ဖြစ်ပါတယ်
 
 ## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
 

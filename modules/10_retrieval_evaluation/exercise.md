@@ -10,7 +10,7 @@ Task: Python dictionary နဲ့ golden set တစ်ခု ဆောက်ပ�
 
 Task: `retrieved` list နဲ့ `relevant` list လက်ခံတဲ့ `recall_at_k(retrieved, relevant, k)` function ရေးပါ။ ပုံသေနည်း — recall@k = (မှန်တဲ့ chunk အရေအတွက်) / (relevant အားလုံးအရေအတွက်)။
 
-**Hints:** `retrieved[:k]` နဲ့ `relevant` ကို set အဖြစ် `set()` နဲ့ ဖြတ်ပါ။ relevant ဘူမတည်းမရှိရင် 0.0 return လုပ်ပါ။
+**Hints:** `retrieved[:k]` နဲ့ `relevant` ကို set အဖြစ် `set()` နဲ့ ဖြတ်ပါ။ relevant စာရင်းမရှိရင် 0.0 return လုပ်ပါ။
 
 **Expected behavior:** retrieved=[a,b,c,d], relevant=[a,c,x], k=4 မှာ 2/3 ဖြစ်တဲ့ 0.666... ထွက်ပါတယ်။ k=2 မှာ 0.5 ထွက်ပါတယ်။
 
@@ -32,7 +32,7 @@ Task: `ndcg_at_k(retrieved, relevant, k)` function ရေးပါ။ ideal rank
 
 ## လေ့ကျင့်ခန်း ၅ — document-level အကဲဖြတ်ခြင်း ပြောင်းပါ
 
-Task: chunk id တွေမှာ document id ပါတဲ့ format (`doc1#chunk2` လိုမျိုး) သုံးပါ။ `recall_at_k_doc` function ရေးပါ — document level မှာ ဘယ် document တစ်ခုမျှ ရှင်းနင်းဖို့ အရေအတွက်ပဲ ရေတွက်ပါ။
+Task: chunk id တွေမှာ document id ပါတဲ့ format (`doc1#chunk2` လိုမျိုး) သုံးပါ။ `recall_at_k_doc` function ရေးပါ — document level မှာ ဘယ် document တစ်ခုမျှ ရှာတွေ့ဖို့ အရေအတွက်ပဲ ရေတွက်ပါ။
 
 **Hints:** document id က `#` ရှေ့အပိုင်းပါ။ `split("#")[0]` သုံးလို့ရတယ်။ relevant documents set ဆောက်ပါ။
 

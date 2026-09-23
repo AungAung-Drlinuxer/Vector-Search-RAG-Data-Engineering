@@ -20,7 +20,7 @@ Vector ကို ဖျက်ပြီးလို့ မပြန်ရဘူ�
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Document ကို ingest လုပ်ခါန်းတဲ့အခါ PII pattern တွေကို စစ်တယ်။
+၁။ Document ကို ingest လုပ်တဲ့အခါ PII pattern တွေကို စစ်တယ်။
 ၂။ တွေ့ရင် `[REDACTED]` လိုမျိုး အစားထိုးလိုက်တယ်။
 ၃။ Redact လုပ်ပြီးတဲ့ စာသားကိုပဲ chunk လုပ်ပြီး embed လုပ်တယ်။
 ၄။ ဘယ် document မှာ ဘယ် PII type ဖျက်ခဲ့တယ်ဆိုတာ log မှတ်တယ်။
@@ -73,7 +73,7 @@ PostgreSQL မှာ Row-Level Security (RLS) ဆိုတာ row တစ်ခ�
 ### ဘာကြောင့် လဲ
 
 RLS မရှိရင် application က query တိုင်းမှာ "owner = current_user" ဆိုတာကို ကိုယ်တိုင် ထည့်ပေးရတယ်။
-တစ်နေရာမှာ မေ့လိုက်ရင် အခြားသူရဲ့ document တွေ ပြတ်သွားနိုင်တယ်။
+တစ်နေရာမှာ မေ့လိုက်ရင် အခြားသူရဲ့ document တွေ ပေါ်သွားနိုင်တယ်။
 PostgreSQL ရဲ့ [Row Security documentation](https://www.postgresql.org/docs/current/ddl-rowsecurity.html) အရ RLS က query ထဲ အလိုအလျောက် filter ထည့်ပေးတယ်။
 ဒါကြောင့် filter ကို မေ့ဖို့ မဖြစ်နိုင်တော့ပါဘူး။
 
@@ -130,7 +130,7 @@ RAG system မှာ search index နဲ့ ACL filter က တစ်ပြို
 Filter ကို မေ့ရင် user တစ်ယောက်က မလုပ်သင့်တဲ့ document ကို ရှာတွေ့သွားမယ်။
 Postgres RLS က အဲဒါကို database အဆင့်မှာ အာမခံပေးတယ်။
 
-## Subtopic 3 — Multi-tenant Isolation (စာရင်းရှင် များ ခွဲခြားခြင်း)
+## Subtopic 3 — Multi-tenant Isolation (သုံးစွဲသူ များ ခွဲခြားခြင်း)
 
 ### ဘာကို ဆိုလိုတာလဲ
 
@@ -247,7 +247,7 @@ Provenance ဆိုတာ data တစ်ခု အနေနဲ့ ဘယ်အ�
 
 License မသိဘဲ data ကို သုံးရင် တရားဥပဒေ ပြဿနာ ဖြစ်နိုင်တယ်။
 ရလဒ်ထဲ ဘယ် source ကနေ လာတယ်ဆိုတာ မပြနိုင်ရင် ယုံကြည်မှု ကျတယ်။
-Ragas docs အရ evaluation က RAG pipeline ရဲ့ အရည်အသွေးကို တိုင်းတင်ပေးတယ်။
+Ragas docs အရ evaluation က RAG pipeline ရဲ့ အရည်အသွေးကို တိုင်းတာပေးတယ်။
 ဒါပေမယ့် ဒီသင်ခန်းစာမှာ real evaluation မလုပ်ဘူး — offline စစ်နည်း လေ့လာမယ်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
@@ -292,11 +292,9 @@ print(result)
 
 License စစ်တာက data pipeline ရဲ့ ပထမဆုံး ခုခံကာကွယ်မှု ဖြစ်ရပါတယ်။ မူရင်း စာရွက်စာတမ်း သုံးခွင့် မရှိရင် index ထဲ ထည့်တာနဲ့ အသုံးပြုသူဆီ ပြန်ဖြန့်တာ နှစ်ခုစလုံး ဥပဒေနဲ့ ဆန့်ကျင်နိုင်ပါတယ်။
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-
 Retrieval စနစ်က permission ကို မစစ်ရင် အသုံးပြုသူ မမြင်သင့်တဲ့ document ကို အဖြေထဲ ထည့်ပေးမိနိုင်ပါတယ်။ ACL ကို query အဆင့်မှာသာ စစ်ပြီး အဖြေဖန်တီးတဲ့ နေရာမှာ ပြန်စစ်တာ နှစ်ထပ်လုံခြုံရေး ဖြစ်ပါတယ်။
 
-## အနှစ်ခုပ်
+## အနှစ်ချုပ်
 
 - PII ကို embedding မတွက်ခင် ရှာပြီး ဖျောက်ပါ။
 - Document-level ACL ကို retrieval query ထဲ ထည့်ပါ။

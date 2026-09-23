@@ -22,7 +22,7 @@ LIMIT 5;
 
 ## လေ့ကျင့်ခန်း ၃ — စာပိုဒ်ရှေ့ပိုင်းအတွက် RRF fusion (Python)
 
-ခန္ဓာကိုယ်နဲ့ရေးတဲ့ brute-force cosine ranking တစ်ခုနဲ့ စာသား keyword ranking တစ်ခုကို Reciprocal Rank Fusion (RRF) နဲ့ ပေါင်းပါ။ rank တွေက deterministic ဖြစ်ရပါမယ်။
+ကိုယ်တိုင်ရေးတဲ့ brute-force cosine ranking တစ်ခုနဲ့ စာသား keyword ranking တစ်ခုကို Reciprocal Rank Fusion (RRF) နဲ့ ပေါင်းပါ။ rank တွေက deterministic ဖြစ်ရပါမယ်။
 
 **Hints:** RRF formula က `1 / (k + rank)` ပါ, k=60 ယူဆပါ။ ranking နှစ်ခုလုံးကို standard-library Python (`math`, `statistics` စတာတွေ) နဲ့ပဲ ရေးပါ။ runtime မှာ database ချိတ်စရာ မလိုပါ။
 
@@ -32,13 +32,13 @@ LIMIT 5;
 
 million-level chunk တွေအတွက် ဘယ် index ကို ရွေးမလဲ, `m` နဲ့ `ef_construction` တန်ဖိုးတွေကဘယ်လို သက်ရောက်မလဲဆိုတာ ရှင်းပါ။ IVFFlat မှာဆိုရင် `lists` တန်ဖိုးနဲ့ `probes` တန်ဖိုးကိုလည်း ဖော်ပြပါ။
 
-**Hints:** IVFFlat က cluster တွေ ခွဲပြီး search တယ်, HNSW က graph layer တွေ ဆောက်တယ်။ IVFFlat က build ကြာတာနည်းပေမယ့် recall က probes ပေးထားမူု့အပေါ် မူတည်ပါတယ်။ HNSW က build ကြာပေမယ့် query performance က ပိုသာပါတယ်။ IVFFlat မှာ data အသစ်ထည့်နေရင် cluster တွေ ပျက်နိုင်လို့ retrain လုပ်ဖို့ လိုနိုင်ပါတယ်။
+**Hints:** IVFFlat က cluster တွေ ခွဲပြီး search တယ်, HNSW က graph layer တွေ ဆောက်တယ်။ IVFFlat က build ကြာတာနည်းပေမယ့် recall က probes ပေးထားမှုအပေါ် မူတည်ပါတယ်။ HNSW က build ကြာပေမယ့် query performance က ပိုသာပါတယ်။ IVFFlat မှာ data အသစ်ထည့်နေရင် cluster တွေ ပျက်နိုင်လို့ retrain လုပ်ဖို့ လိုနိုင်ပါတယ်။
 
 **Expected behavior:** dataset size, query latency tolerance, recall requirement တွေအပေါ် မူတည်ပြီး trade-off တွေကို အကြောင်းပြချက်နဲ့ ရွေးချယ်နိုင်ရပါမယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — jsonb metadata နဲ့ GIN index + filtered search
 
-`metadata` jsonb column တစ်ခုထည့်ပြီး, `source` field အပေါ် filter လုပ်တဲvector search query ကို ရေးပါ။ metadata filter အတွက် GIN index တစ်ခုပါ ထည့်ပေးပါ။
+`metadata` jsonb column တစ်ခုထည့်ပြီး, `source` field အပေါ် filter လုပ်တဲ့ vector search query ကို ရေးပါ။ metadata filter အတွက် GIN index တစ်ခုပါ ထည့်ပေးပါ။
 
 ```sql
 CREATE INDEX ON chunks USING gin (metadata jsonb_path_ops);
@@ -50,7 +50,7 @@ CREATE INDEX ON chunks USING gin (metadata jsonb_path_ops);
 
 ## လေ့ကျင့်ခန်း ၆ — maintenance_work_mem, parallel build, EXPLAIN ဖတ်တာ
 
-Index build တွေမှာ `maintenance_work_mem` တန်ဖိုးနဲ် `max_parallel_maintenance_workers` တန်ဖိုးတွေကဘယ်လို သက်ရောက်လဲဆိုတာ ရှင်းပြပြီး, vector index scan တစ်ခုရဲ့ `EXPLAIN` output ကို ဖတ်ပါ။
+Index build တွေမှာ `maintenance_work_mem` တန်ဖိုးနဲ့ `max_parallel_maintenance_workers` တန်ဖိုးတွေကဘယ်လို သက်ရောက်လဲဆိုတာ ရှင်းပြပြီး, vector index scan တစ်ခုရဲ့ `EXPLAIN` output ကို ဖတ်ပါ။
 
 **Hints:** memory ကနောက်မှ တစ်နေရာရာသို့ သွားစောင့်ချင်ပါတယ်။ IVFFlat build မှာ `maintenance_work_mem` က sample data တွေကို memory ထဲ တင်ပါတယ်, HNSW build မှာက graph ကို memory ထဲ ဆောက်ပါတယ်။
 

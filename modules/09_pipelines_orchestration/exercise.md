@@ -4,7 +4,7 @@ Idempotent (တစ်ခါထက်ပိုပြီး လုပ်တဲ့�
 
 **Task:** တူညီတဲ့ record နှစ်ခါ ထည့်လိုက်တာနဲ့ တစ်ခါတည်း ထည့်လိုက်တာ ရလဒ် တူမယ်လို့ သက်သေပြတဲ့ function ရေးပါ။
 
-**Hints:** content-hash (အကြောင်းအရာရဲ့ ထပ်ခါတလင်း hash) ကို key အဖြစ်သုံးပြီး dict ထဲ ထည့်ပါ။ `hashlib.sha256` နဲ့ content hash တွက်ပါ။
+**Hints:** content-hash (အကြောင်းအရာရဲ့ ထပ်ခါတလဲလဲ hash) ကို key အဖြစ်သုံးပြီး dict ထဲ ထည့်ပါ။ `hashlib.sha256` နဲ့ content hash တွက်ပါ။
 
 **Expected behavior:** ဖိုင်နှစ်ခါ run ရင် output အတူတူပါတယ်။ list ထဲ record ၁၀ ခုပဲ ရှိပြီး အရေအတွက် မတိုးဘူးဆိုတာ မြင်ရပါလိမ့်မယ်။
 
@@ -24,7 +24,7 @@ Batch pipeline မှာ fail တဲ့ record တွေ မပျောက်�
 
 **Task:** Record တစ်ချို့ကို process လုပ်ရင် exception ပေးမယ်ဆိုပြီး၊ retry (ပြန်စမ်းခြင်း) ၃ ကြိမ် လုပ်ပြီး မအောင်ရင် dead-letter list ထဲ ထည့်တဲ့ Python function ရေးပါ။
 
-**Hints:** `random` သုံးတော့ မရဘူးနော် — record id အမှတ်စဉ်အရ မှန်ချက် deterministic အရင်းပြပြီး fail အဖြစ် သတ်မှတ်ပါ။
+**Hints:** `random` သုံးတော့ မရဘူးနော် — record id အမှတ်စဉ်အရ မှတ်ချက် deterministic အရင်းပြပြီး fail အဖြစ် သတ်မှတ်ပါ။
 
 **Expected behavior:** Fail တဲ့ record id တွေကို dead-letter ထဲ မြင်ရပြီး retry ၃ ကြိမ် လုပ်မှ ထည့်တယ်ဆိုတာ counter နဲ့ ပြနိုင်ပါတယ်။ Output ကို run တိုင်း တူစေပါ။
 
@@ -58,4 +58,4 @@ Streaming ingestion မှာ changelog ကို window ခွဲပြီး �
 
 **Expected behavior:** ထည့်တဲ့ record တွေကို INSERT event၊ ပြောင်းတဲ့ record တွေကို UPDATE event၊ ဖျက်တဲ့ record တွေကို DELETE event အဖြစ် အတိအကျ မြင်ရပါလိမ့်မယ်။ Output ကို run တိုင်း တူညီအောင် deterministic ဖြစ်စေပါ။
 
-အားလုံးအတွက် သတိပြုရမှာက — ဒီလေ့ကျင့်ခန်းတွေက runtime မှာ database ချိတ်မထားပါဘူးနော်။ စင်တာတော့ exercise ၅ မှာ ပြခဲ့သလို DAG သဘောကို Airflow (https://airflow.apache.org/docs/) နဲ့ Dagster (https://docs.dagster.io/) official doc တွေမှာ ဆက်ဖတ်ပါ။ pgvector အတွက်ကတော့ https://github.com/pgvector/pgvector မှာ ရှိပါတယ်။
+အားလုံးအတွက် သတိပြုရမှာက — ဒီလေ့ကျင့်ခန်းတွေက runtime မှာ database ချိတ်မထားပါဘူးနော်။ ဒါပေမယ့် exercise ၅ မှာ ပြခဲ့သလို DAG သဘောကို Airflow (https://airflow.apache.org/docs/) နဲ့ Dagster (https://docs.dagster.io/) official doc တွေမှာ ဆက်ဖတ်ပါ။ pgvector အတွက်ကတော့ https://github.com/pgvector/pgvector မှာ ရှိပါတယ်။

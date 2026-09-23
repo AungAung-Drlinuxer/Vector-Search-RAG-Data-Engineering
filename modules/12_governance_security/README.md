@@ -7,7 +7,7 @@ Vector search system တစ်ခုမှာ data လုံခြုံရေ�
 ## ဒီ module မှာ ဘာသင်မလဲ
 
 - Embedding (သတင်းအချက်အလက်ကို ဂဏန်း array အဖြစ်ပြောင်းထားတာ) ထဲမှာ PII (ကိုယ်ရေးအချက်အလက် — နာမည်၊ ဖုန်းနံပါတ်၊ မှတ်ပုံတင်) ကျန်နေတဲ့ အန္တရာယ် နဲ့ သတိပြုရမည့် အချက်တွေ
-- PostgreSQL pgvector ရဲ့ row-level security (RLS) နည်းနဲ် document-level ACL (ခွင့်ပြုချက် စာရင်း) ကို retrieval query ထဲ ထည့်တဲ့ နည်း
+- PostgreSQL pgvector ရဲ့ row-level security (RLS) နည်းနဲ့ document-level ACL (ခွင့်ပြုချက် စာရင်း) ကို retrieval query ထဲ ထည့်တဲ့ နည်း
 - Multi-tenancy (customer တစ်ယောက်ချင်းစီ အချက်အလက်တွေ ခွဲခြား သိမ်းဆည်းတဲ့ စနစ်) isolation လုပ်တဲ့ နည်းလမ်း သုံးမျိုး
 - Audit log (ဘယ်သူက ဘာကို ဘယ်အချိန်မှာ ကြည့်ခဲ့လဲ ဆိုတဲ့ မှတ်တမ်း) နဲ့ access မှတ်တမ်း တင်ပုံ
 - Data retention (အချက်အလက် သိမ်းဆည်းချိန်ကာလ) နဲ့ delete ပြဋ္ဌာန်းချက် ဆွဲပုံ
@@ -40,7 +40,7 @@ Vector search system တစ်ခုမှာ data လုံခြုံရေ�
 ## ကိုးကား
 
 - PostgreSQL Row Security Policies: https://www.postgresql.org/docs/current/ddl-rowsecurity.html
-- PostgreSQL Text Search Controls (text search ထဲမှာ filter နဲ် ranking): https://www.postgresql.org/docs/current/textsearch-controls.html
+- PostgreSQL Text Search Controls (text search ထဲမှာ filter နဲ့ ranking): https://www.postgresql.org/docs/current/textsearch-controls.html
 - Ragas (RAG evaluation framework): https://docs.ragas.io/
 
 > ဒီ module မှာပြတဲ့ ဂဏန်းတွေက ကိုယ်တိုင်တွက်ပြထားတဲ့ example တွေသာ ဖြစ်ပြီး၊ real system ရဲ့ benchmark ဂဏန်းတွေ မဟုတ်ပါဘူးနော်။

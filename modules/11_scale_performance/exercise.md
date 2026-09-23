@@ -20,7 +20,7 @@
 
 **Hints:** Jégou et al., "Product Quantization for Nearest Neighbor Search" (arXiv:0903.2314) အရ PQ က subvector တွေကို သီးခြား quantize လုပ်တယ်။ centroid နည်းနည်း (ဥပမာ ၄ လုံး) သတ်မှတ်ပြီး Euclidean distance နဲ့ အနီးဆုံးကို ရွေးပါ။
 
-**Expected behavior:** Approximate distance နဲ့ original distance ကို နှိုင်းယှဉ်နိုင်ပါမယ်။ PQ က memory သက်သာေdrdrrdပြီး တိကျမှု အနည်းငယ် လျှော့တာကို မြင်ရပါမယ်။
+**Expected behavior:** Approximate distance နဲ့ original distance ကို နှိုင်းယှဉ်နိုင်ပါမယ်။ PQ က memory သက်သာလာပြီး တိကျမှု အနည်းငယ် လျှော့တာကို မြင်ရပါမယ်။
 
 ## လေ့ကျင့်ခန်း ၄ — Recall@k တိုင်းတာခြင်း
 
@@ -32,7 +32,7 @@
 
 ## လေ့ကျင့်ခန်း ၅ — Sharding နဲ့ distributed search
 
-**Task:** Vector 200 ခုကို shard (အချက်အပြုံ ခွဲဝေထားတဲ့ အပိုင်း) ၄ ပိုင်းခွဲပါ — hash-based နဲ့ dimension-based နှစ်နည်း ရေးပါ။ Query vector တစ်ခုကို တစ်ချိန်ထဲ shards အားလုံးမှာ ရှာပြီး ရလဒ်တွေကို merge လုပ်ပါ။
+**Task:** Vector 200 ခုကို shard (အချက်အလက် ခွဲဝေထားတဲ့ အပိုင်း) ၄ ပိုင်းခွဲပါ — hash-based နဲ့ dimension-based နှစ်နည်း ရေးပါ။ Query vector တစ်ခုကို တစ်ချိန်ထဲ shards အားလုံးမှာ ရှာပြီး ရလဒ်တွေကို merge လုပ်ပါ။
 
 **Hints:** Hash-based က `id % 4` သုံးပါ။ Dimension-based က dimension အပိုင်းအစ တစ်ခုစီကို shard တစ်ခု ထားပါ — ဒါက Qdrant/Faiss တို့ရဲ့ sharding strategy နှစ်မျိုးနဲ့ ဆင်တယ်။ Result merge လုပ်တဲ့အခါ top-k ထပ်စစ်ပါ။
 
@@ -42,6 +42,6 @@
 
 **Task:** Vector 1000 ခုကို load ပါ။ Strategy နှစ်မျိုး နှိုင်းပါ — (၁) insert တိုင်း index တည်ဆောက်ခြင်း၊ (၂) build after load (အားလုံး load ပြီးမှ index တစ်ခါတည်း တည်ဆောက်ခြင်း)။ `time.perf_counter()` နဲ့ ချိန်ပါ။
 
-**Hints:** pgvector README က bulk load ရာနှုန်း မြှင့်ဖို့ index ကို load ပြီးမှ တည်ဆောက်ဖို့ ညွှန်ပါတယ်။ အလွယ်အားဖြင့် "index" က sorted array တစ်ခု ထားပါ — တစ်ခုတည်း sort လုပ်တာ vs တစ်ခုထည့်တိုင်း bisect insert လုပ်တာ နှိုင်းပါ။
+**Hints:** pgvector README က bulk load ရာခိုင်နှုန်း မြှင့်ဖို့ index ကို load ပြီးမှ တည်ဆောက်ဖို့ ညွှန်ပါတယ်။ အလွယ်အားဖြင့် "index" က sorted array တစ်ခု ထားပါ — တစ်ခုတည်း sort လုပ်တာ vs တစ်ခုထည့်တိုင်း bisect insert လုပ်တာ နှိုင်းပါ။
 
 **Expected behavior:** Build-after-load က ပိုမြန်တာကို seconds ဂဏန်းနဲ့ မြင်ရပါမယ်။ pgvector မှာ `CREATE INDEX` ကို load ပြီးမှ လုပ်သင့်တဲ့ အကြောင်းရင်းကို Burmese လေး နားလည်ရပါမယ်။

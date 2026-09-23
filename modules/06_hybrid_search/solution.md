@@ -72,7 +72,7 @@ print("mysql-only query on doc1:",
 # mysql-only query on doc1: 0
 ```
 
-**အဓိကအယူဆ** — ranking score ရဲ့ အရိုးရှုံးဆုံး ပုံစံက ဘယ်လောက် ကိုက်လဲ ဆိုတဲ့ အရေအတွက်ပဲ ဖြစ်ပါတယ်။
+**အဓိကအယူဆ** — ranking score ရဲ့ အရိုးရှင်းဆုံး ပုံစံက ဘယ်လောက် ကိုက်လဲ ဆိုတဲ့ အရေအတွက်ပဲ ဖြစ်ပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၃ — Trigram similarity (3-gram Jaccard)
 
@@ -115,7 +115,7 @@ for w1, w2 in pairs:
 
 ## လေ့ကျင့်ခန်း ၄ — Weighted sum မှာ score normalization ရဲ့ အရေးကြီးမှု
 
-Vector score က 0–1 ကြားမှာ ရှိလေ့ရှိပြီး BM25 score က ၁၀ နား ရှိတတ်ပါတယ်၊ ဒါကြောင့် တိုက်ရိုက်ပေါင်းရင် BM25 က တစ်ခုတည်း ကိုင်ပါတယ်။ min-max normalize လုပ်မှ နှစ်ဖက်လုံး တန်းတန်းစားစား ပါဝင်လာပါတယ်နော်။
+Vector score က 0–1 ကြားမှာ ရှိလေ့ရှိပြီး BM25 score က ၁၀ နား ရှိတတ်ပါတယ်၊ ဒါကြောင့် တိုက်ရိုက်ပေါင်းရင် BM25 က တစ်ခုတည်း လွှမ်းမိုးပါတယ်။ min-max normalize လုပ်မှ နှစ်ဖက်လုံး တန်းတန်းစားစား ပါဝင်လာပါတယ်နော်။
 
 ```python
 # Weighted sum: raw scores vs min-max normalized scores (0.5/0.5 weights)
@@ -150,7 +150,7 @@ print("norm sums:   ", [round(s, 4) for s in norm],     "-> ranking:", ranked(no
 # norm sums:    [0.5, 0.4833, 0.5] -> ranking: ['A', 'C', 'B']
 ```
 
-**အဓိကအယူဆ** — scale မတူတဲ့ score တွေကို ပေါင်းခင်း normalize လုပ်ဖို့ လိုပါတယ်၊ မလုပ်ရင် ကြီးတဲ့ scale က ranking အလွန်ကိုင်ပါတယ်။
+**အဓိကအယူဆ** — scale မတူတဲ့ score တွေကို ပေါင်းခင်း normalize လုပ်ဖို့ လိုပါတယ်၊ မလုပ်ရင် ကြီးတဲ့ scale က ranking ကို အလွန်လွှမ်းမိုးပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — Reciprocal Rank Fusion (RRF) အခြေခံ
 

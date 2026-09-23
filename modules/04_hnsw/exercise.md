@@ -4,7 +4,7 @@
 
 **Hints:** recall@10 = (gold top-10 ထဲမှာ graph result နဲ့ တူတဲ့ အရေအတွက်) ÷ 10 ပါ။ graph search ကို candidate list ကို ef_search အထိ ဖွင့်ထားတဲ့ simulation နဲ့ ရေးနိုင်ပါတယ်။
 
-**Expected behavior:** ef_search တန်ဖိုးတက်တာနဲ့ recall တက်ပြီး latency ဆိုတဲ့ (တွက်ရသမျှ search step အရေအတွက်) လည်းတက်တာ မြင်ရပါမယ်။
+**Expected behavior:** ef_search တန်ဖိုးတက်တာနဲ့ recall တက်ပြီး latency ဆိုတာ (တွက်ရသမျှ search step အရေအတွက်) လည်းတက်တာ မြင်ရပါမယ်။
 
 ## လေ့ကျင့်ခန်း ၂ — M parameter ရဲ့ သက်ရောက်မှု
 
@@ -40,7 +40,7 @@
 
 ## လေ့ကျင့်ခန်း ၆ — Delete/update ရဲ့ ဆိုးကျိုးနဲ့ restore စစ်ဆေးခြင်း
 
-**Task:** Graph ထဲက node ၁၀၀ ခုကို delete လုပ်တဲ့ simulation ရေးပါ — delete ဆိုတာ edge တွေကို ဖြတ်တယ် (relink မလုပ်ဘဲ)။ Delete မလုပ်ခင်နဲ့ ပြီးလို့ graph ကို rebuild လုပ်ပြီးခါနှိုင်းယှဉ် recall@10 သုံးမျိုးလုံး ထုတ်ပြပါ။
+**Task:** Graph ထဲက node ၁၀၀ ခုကို delete လုပ်တဲ့ simulation ရေးပါ — delete ဆိုတာ edge တွေကို ဖြတ်တယ် (relink မလုပ်ဘဲ)။ Delete မလုပ်ခင်နဲ့ ပြီးလို့ graph ကို rebuild လုပ်ပြီးချိန် နှိုင်းယှဉ် recall@10 သုံးမျိုးလုံး ထုတ်ပြပါ။
 
 **Hints:** Delete လုပ်ထားတဲ့ node တွေကို search မှာ ကျော်ရပါမယ်။ Rebuild ဆိုတာ delete လုပ်ပြီး dataset အားလုံးနဲ့ graph အသစ်ပြန်ဆောက်တာပါ။ gold answer က brute-force ကြီးပါ။
 

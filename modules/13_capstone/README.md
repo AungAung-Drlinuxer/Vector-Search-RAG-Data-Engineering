@@ -7,7 +7,7 @@ Ingest ကနေ evaluate အထိ တစ်ခုတည်း pipeline ဒီ�
 - Ingest → chunk → embed → index → retrieve → rerank → evaluate ကြားထဲက ဆက်စပ်မှုကို တစ်ပုံတည်း မြင်ရမယ်
 - Storage တွက်ချက်မှု — chunk အရေအတွက် × dimension × bytes ဖော်မျူလာနဲ့ တွက်နည်း
 - HNSW index (Malkov & Yashunin, 2016 စာတမ်းအရ graph-based ရှာဖွေမှု) memory ခန့်မှန်းချက်
-- QPS (Query Per Second — စက္ကန့်အလိုက် query အရေအတွက်) နှင့် p95 latency (request ၉၅% ရောက်တဲ့ အချိန်အထကန်း)
+- QPS (Query Per Second — စက္ကန့်အလိုက် query အရေအတွက်) နှင့် p95 latency (request ၉၅% ရောက်တဲ့ အချိန်)
 - Chunking နှင့် embedding ရွေးချယ်မှုက query ရလဒ်အပေါ် ဘယ်လိုသက်ရောက်လဲ
 - Offline, deterministic တွက်စက် script တစ်ခု ရေးတာ
 

@@ -4,11 +4,11 @@
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Pipeline ဆိုတာ အဆင့်တွေ ဆက်တန်း ချိတ်တာပါ — ingest, chunk, embed, index, retrieve, rerank, evaluate ပါ။ Ingest က document တွေကို စနစ်တင်တာပါ။ Chunk က စာပိုဒ်ရှည်ကြီးကို အပိုင်းသေးသေး ဖြတ်တာပါ။ Embed က စာသားကိ vector (နံပါတ်အတန်း) အဖြစ် ပြောင်းတာပါ။ Retrieve က query နဲ့ နီးစပ်တဲ့ chunk တွေကို ရှာတာပါ။ Rerank က ရှာရင်း top results တွေကို ပြန်စစ်ပြီး အဆင့်ပြန်တာပါ။
+Pipeline ဆိုတာ အဆင့်တွေ ဆက်တိုက် ချိတ်တာပါ — ingest, chunk, embed, index, retrieve, rerank, evaluate ပါ။ Ingest က document တွေကို စနစ်တင်တာပါ။ Chunk က စာပိုဒ်ရှည်ကြီးကို အပိုင်းသေးသေး ဖြတ်တာပါ။ Embed က စာသားကိ vector (နံပါတ်အတန်း) အဖြစ် ပြောင်းတာပါ။ Retrieve က query နဲ့ နီးစပ်တဲ့ chunk တွေကို ရှာတာပါ။ Rerank က ရှာပြီး top results တွေကို ပြန်စစ်ပြီး အဆင့်ပြန်တာပါ။
 
 ### ဘာကြောင့် လဲ
 
-အဆင့်တစ်ခုချင်းစီကို တစ်ခုပြီးတစ်ခု လေ့ကျင့်ရင် အဆင့်တွေကို ချိတ်ဆက်ပုံကို မမြင်ရဘူနော်။ Chunk အရွယ်အစားပြောင်းရင် retrieve ရလဒ်လည်း ပြောင်းတယ်။ Embedding dimension ပြောင်းရင် storage လည်း ပြောင်းတယ်။ ဒါကြောင့် တစ်ခုတည်း ဒီဇိုင်းအဖြစ် မြင်ဖို့ လိုပါတယ်။ တွက်စက်လည်း pipeline တစ်ခုလုံးကို သိမ်းမှ မှန်တယ်နော်။
+အဆင့်တစ်ခုချင်းစီကို တစ်ခုပြီးတစ်ခု လေ့ကျင့်ရင် အဆင့်တွေကို ချိတ်ဆက်ပုံကို မမြင်ရဘူးနော်။ Chunk အရွယ်အစားပြောင်းရင် retrieve ရလဒ်လည်း ပြောင်းတယ်။ Embedding dimension ပြောင်းရင် storage လည်း ပြောင်းတယ်။ ဒါကြောင့် တစ်ခုတည်း ဒီဇိုင်းအဖြစ် မြင်ဖို့ လိုပါတယ်။ တွက်စက်လည်း pipeline တစ်ခုလုံးကို သိမ်းမှ မှန်တယ်နော်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
@@ -16,7 +16,7 @@ Pipeline ဆိုတာ အဆင့်တွေ ဆက်တန်း ချ�
 ၂။ chunk တိုင်းကို embedding model နဲ့ vector ပြောင်းတယ်။ ဒီမှာ real model ကို မသုံးဘူး — သင်ခန်းစာက offline ဖြစ်ရလို့ fixed vector တွေကို သုံးပါမယ်။
 ၃။ vector တွေကို index (HNSW graph) မှာ သိမ်းတယ်။
 ၄။ Query လာရင် cosine similarity နဲ့ နီးစပ်တဲ့ chunk တွေကို ရှာတယ်။
-၅။ ရလဒ်တွေကို rerank လုပ်ပြီး evaluate ဆိုတာ recall@k (စုစည်းတဲ့နံပါတ်၊ မှန်တဲ့အဖြေ ဘယ်နှးပါလဲ တွက်တာ) နဲ့ တိုင်းတယ်။
+၅။ ရလဒ်တွေကို rerank လုပ်ပြီး evaluate ဆိုတာ recall@k (စုစည်းတဲ့နံပါတ်၊ မှန်တဲ့အဖြေ ဘယ်နှစ်ခုပါလဲ တွက်တာ) နဲ့ တိုင်းတယ်။
 
 ### ဥပမာ
 
@@ -55,15 +55,10 @@ print("recall@3 vs ground truth: {:.2f}".format(recall3))
 # recall@3 vs ground truth: 1.00
 ```
 
-```
-# Expected output:
-# Retrieved top-3 doc ids: [0, 3, 2]
-# recall@3 vs ground truth: 1.00
-```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Production မှာ အဆင့်တစ်ခုချင်းစီက ကွဲနေရင် debug ရခက်ပါတယ်။ ရလဒ်ဆိုးရင် chunk, embedding, rerank ထဲက ဘယ်ဟာမှားလဲ မသိရဘူနော်။ Pipeline တစ်ခုလုံးကို သတ်မှတ်ချက် (deterministic) နဲ့ ပြန်တာကို အဆင့်တိုင်းကို ခြေရာခံနိုင်တယ်။ Ragas လို evaluation framework ကို ပေါင်းရင် ရလဒ်ကို ဂဏန်းနဲ့ တိုင်းတနိုင်ပါတယ်။
+Production မှာ အဆင့်တစ်ခုချင်းစီက ကွဲနေရင် debug ရခက်ပါတယ်။ ရလဒ်ဆိုးရင် chunk, embedding, rerank ထဲက ဘယ်ဟာမှားလဲ မသိရဘူးနော်။ Pipeline တစ်ခုလုံးကို သတ်မှတ်ချက် (deterministic) နဲ့ ပြန်တာကို အဆင့်တိုင်းကို ခြေရာခံနိုင်တယ်။ Ragas လို evaluation framework ကို ပေါင်းရင် ရလဒ်ကို ဂဏန်းနဲ့ တိုင်းတနိုင်ပါတယ်။
 
 ## Subtopic 2 — Storage တွက်ချက်မှု (chunks × dimension × bytes)
 
@@ -110,11 +105,6 @@ print("fp16 vector storage: {} bytes = {:.2f} GiB".format(vector_bytes, vector_b
 # fp16 vector storage: 1536000000 bytes = 1.43 GiB
 ```
 
-```
-# Expected output:
-# fp32 vector storage: 3072000000 bytes = 2.86 GiB
-# fp16 vector storage: 1536000000 bytes = 1.43 GiB
-```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
@@ -164,22 +154,14 @@ print("Index total : {} bytes = {:.2f} GiB".format(total, total / GIB))
 # Index total : 3200000000 bytes = 2.98 GiB
 ```
 
-```
-# Expected output:
-# Vector data : 3072000000 bytes = 2.86 GiB
-# Graph links : 128000000 bytes = 0.12 GiB
-# Index total : 3200000000 bytes = 2.98 GiB
-```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
 M တိုးရင် recall ကောင်းလာပေမဲ့ memory နဲ့ build time လည်း တိုးပါတယ်။ ef_construction တိုးရင် build နှေးပေမဲ့ graph အရည်အသွေး တက်ပါတယ်။ ef_search ကို query အချိန်မှာ ချိန်လို့ရတာမို့ latency နဲ့ recall ကို အလုပ်ချိန်မှာ ညှိနိုင်ပါတယ်။
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-
 Capstone ဒီဇိုင်းမှာ parameter တွေကို ကိန်းဂဏန်းနဲ့ ရှင်းပြနိုင်ရင် အဖွဲ့က ယုံကြည်ပါတယ်။ Memory တွက်ချက်မှု၊ QPS ခန့်မှန်းချက်နဲ့ eval ရလဒ် သုံးခု ကိုက်ညီနေရင် ဒီဇိုင်းက ခိုင်မာပါတယ်။
 
-## အနှစ်ခုပ်
+## အနှစ်ချုပ်
 
 - Storage = chunk အရေအတွက် × dimension × bytes-per-value (+ metadata)။
 - HNSW index memory ≈ vector data + graph (M နှင့် အချိုးကျ)။

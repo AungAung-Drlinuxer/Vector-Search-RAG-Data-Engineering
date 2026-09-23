@@ -99,7 +99,7 @@ print("NFC length equal :", len(n1) == len(n2))
 
 ## လေ့ကျင့်ခန်း ၄ — Duplicate စစ်ဖို့ content fingerprint သုံးတယ်
 
-Document ငါးပိုင်းမှာ တူညီတဲ့ content နှစ်ခု ရောထားတယ်၊ SHA-256 fingerprint နဲ့ ဖမ်းပါတယ်။ Normalize (whitespace collapse) လုပ်ပြီးမှ hash လုပ်တာက superfluously ကွာခြားတဲ့ copy တွေကိုပါ ဖမ်းပေးတယ်။
+Document ငါးပိုင်းမှာ တူညီတဲ့ content နှစ်ခု ရောထားတယ်၊ SHA-256 fingerprint နဲ့ ဖမ်းပါတယ်။ Normalize (whitespace collapse) လုပ်ပြီးမှ hash လုပ်တာက superficially ကွာခြားတဲ့ copy တွေကိုပါ ဖမ်းပေးတယ်။
 
 ```python
 import hashlib
@@ -188,7 +188,7 @@ print("deleted:", deleted_ids)
 
 ## လေ့ကျင့်ခန်း ၆ — Idempotent upsert နဲ့ delete pipeline
 
-Batch တစ်ခုကို လက်ခံပြီး upsert (PostgreSQL မှာ `INSERT ... ON CONFLICT (doc_id) DO UPDATE SET ...` နဲ့) နဲ့ delete ကို အလုံးစုံလုပ်ပေးတဲ့ pipeline function ရေးပါတယ်။ ဒီနောက် batch တစ်ခုကို နှစ်ကြိမ်ထပ်ပြေးလိုက်ရင် state အတူတူပဲ ဖြစ်ရတာ — ဒါက idempotency ပါတယ်။ DAG scheduler (Airflow) နဲ့ ချိတ်ရင် retry တွေ ဒိုင်းတွေမှာလည်း ဒီကိုယ်ပိုင်ချက်က အဆင့်ဆင် အလုပ်လုပ်ပေးတယ်။
+Batch တစ်ခုကို လက်ခံပြီး upsert (PostgreSQL မှာ `INSERT ... ON CONFLICT (doc_id) DO UPDATE SET ...` နဲ့) နဲ့ delete ကို အလုံးစုံလုပ်ပေးတဲ့ pipeline function ရေးပါတယ်။ ဒီနောက် batch တစ်ခုကို နှစ်ကြိမ်ထပ်ပြေးလိုက်ရင် state အတူတူပဲ ဖြစ်ရတာ — ဒါက idempotency ပါတယ်။ DAG scheduler (Airflow) နဲ့ ချိတ်ရင် retry တွေ ဒိုင်းတွေမှာလည်း ဒီကိုယ်ပိုင်ချက်က အဆင့်ဆင့် အလုပ်လုပ်ပေးတယ်။
 
 ```python
 import hashlib

@@ -6,7 +6,7 @@ Retrieval ကို production မှာ ဘယ်လို serving လုပ်
 
 ## ဒီ module မှာ ဘာသင်မလဲ
 
-- Retrieval API တစ်ခု ဒီဇိုင်းဆွဲနည်း — filter (metadata စစ်ခြင်း) နှင့် ACL (Access Control List — ဘယ် user က ဘယ် data မြင်ရမလဲ ကန့်သတ်ချင်း) ပါဝင်စေနည်း။
+- Retrieval API တစ်ခု ဒီဇိုင်းဆွဲနည်း — filter (metadata စစ်ခြင်း) နှင့် ACL (Access Control List — ဘယ် user က ဘယ် data မြင်ရမလဲ ကန့်သတ်ချက်) ပါဝင်စေနည်း။
 - Caching အလွှာများ — embedding cache နှင့် result cache ဘာကြောင့်လိုအပ်လဲ၊ ဘယ်နေရာမှာ သိမ်းသင့်လဲ။
 - Concurrency (တပြိုင်တည် request များ ဆက်တိုက်လာခြင်း) နှင့် connection pool (database connection တွေ ပြန်လည်အသုံးပြုနိုင်တဲ့ အစု) အခြေခံ။
 - pgvector နှင့် Qdrant / Milvus / Weaviate / Chroma တို့ရဲ့ ကွာခြားချက် — ဘယ်အချိန်မှာ ဘယ်ဟာ သင့်တော့လဲ။
@@ -24,7 +24,7 @@ Retrieval ကို production မှာ ဘယ်လို serving လုပ်
 
 - M7 အထိ module တွေ ပြီးထားဖို့ — cosine similarity၊ HNSW-style search နှင့် pgvector SQL အခြေခံ နားလည်ထားဖို့ လိုပါတယ်။
 - Python standard library (`threading`, `time`, `hashlib`) နဲ့ ရေတွက်နိုင်ဖို့၊ network မလိုပါဘူးနော်။
-- Postgres + pgvector SQL ကို ဖတ်နိုင်ဖို့ — lesson တွေက SQL ကို run မချုပ်ပါဘူး၊ ပြောပြပြီးသား `pgvector` စနစ်ရဲ့ syntax အတိုင်း ပြပါမယ်။
+- Postgres + pgvector SQL ကို ဖတ်နိုင်ဖို့ — lesson တွေက SQL ကို run မခိုင်းပါဘူး၊ ပြောပြပြီးသား `pgvector` စနစ်ရဲ့ syntax အတိုင်း ပြပါမယ်။
 
 ## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
 

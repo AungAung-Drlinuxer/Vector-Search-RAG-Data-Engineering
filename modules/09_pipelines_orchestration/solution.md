@@ -35,7 +35,7 @@ print("idempotent:", size_after_run1 == size_after_run2 == 10)
 # idempotent: True
 ```
 
-**အဓိကအယူဆ** — Content hash နဲ့ upsert လုပ်ခြင်းက pipeline ပြန် run တဲ့အခါ data ပုံဆီးမှုကို ကာကွယ်ပေးလို့ backfill နဲ့ retry တွေမှာ ဒဏ်ခံနိုင်ပါတယ်။
+**အဓိကအယူဆ** — Content hash နဲ့ upsert လုပ်ခြင်းက pipeline ပြန် run တဲ့အခါ data ပုံတူပွားမှုကို ကာကွယ်ပေးလို့ backfill နဲ့ retry တွေမှာ ဒဏ်ခံနိုင်ပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၂ — Backfill rate limit တွက်ပါ
 
@@ -154,7 +154,7 @@ for doc_id in docs:
 #   d3 served: [3, 2]
 ```
 
-**အဓိကအယူဆ** — Shadow index အလုပ်ဖြစ်တဲ့ကို သေချာစစ်ပြီးမှ read path ကို cut-over လုပ်တာက embedding version migration ကို downtime နဲ့ risk နည်းနည်း လုပ်နိုင်စေပါတယ်။
+**အဓိကအယူဆ** — Shadow index အလုပ်ဖြစ်တာကို သေချာစစ်ပြီးမှ read path ကို cut-over လုပ်တာက embedding version migration ကို downtime နဲ့ risk နည်းနည်း လုပ်နိုင်စေပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — DAG dependency ကို topological sort နဲ့ ဖြေရှင်းပါ
 

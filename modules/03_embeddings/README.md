@@ -7,7 +7,7 @@
 - Embedding model ရွေးတဲ့အခါ multilingual ဖြစ်မဖြစ်၊ domain နဲ့ ကိုက်မကိုက် ကြည့်နည်း
 - Dimension အရွယ်နဲ့ storage အရွယ်ကို formula နဲ့ တွက်ချက်နည်း
 - L2 normalization (vector ရဲ့ အလျားကို တစ်ဖြစ်လဲ လုပ်ပေးတဲ့ နည်း) နဲ့ cosine၊ dot၊ L2 distance တွေရဲ့ ဆက်စပ်မှု
-- Matryoshka embedding (အရွယ် အမျိုးမျိုး ခေါက်သားရှိတဲ့ embedding) နဲ့ dimension ဖြတ်တောက်ခြင်း
+- Matryoshka embedding (အရွယ် အမျိုးမျိုး ခေါက်သိမ်းရှိတဲ့ embedding) နဲ့ dimension ဖြတ်တောက်ခြင်း
 - Batch encoding နဲ့ embedding cache လုပ်နည်း
 - Embedding version စီမံခန့်ခွဲမှုနဲ့ multilingual corpus (မြန်မာ အပါအဝင်) အတွက် သတိထားစရာတွေ
 
@@ -42,6 +42,6 @@
 - https://arxiv.org/abs/2309.07597 (BGE / C-Pack)
 - https://arxiv.org/abs/2212.03533 (Matryoshka representation learning)
 - https://arxiv.org/abs/2205.13147 (ELOQUERA / instruction-finetuned embeddings — GTE စာတမ်း)
-- https://sbert.net/ (Sentence Transformers တရားဝ စာရွက်စာတမ်း)
+- https://sbert.net/ (Sentence Transformers တရားဝင် စာရွက်စာတမ်း)
 
-**Originality:** ဒီကိစ္သည် official open documentation တွေကနေ ကိုယ်ပိုင်ရေးသားထားတဲ့ လေ့လာမှု ပါဝင်သည့် အချက်အလက်များ ဖြစ်ပါသည် — စီးပွားဖြစ် သင်တန်းတစ်ခုခုရဲ့ သင်ခန်းစာကို ကူးယူ ဒါမှမဟုတ် ပြန်ရေးထားတာ မဟုတ်ပါဘူး။
+**Originality:** ဒီကိစ္စသည် official open documentation တွေကနေ ကိုယ်ပိုင်ရေးသားထားတဲ့ လေ့လာမှု ပါဝင်သည့် အချက်အလက်များ ဖြစ်ပါသည် — စီးပွားဖြစ် သင်တန်းတစ်ခုခုရဲ့ သင်ခန်းစာကို ကူးယူ ဒါမှမဟုတ် ပြန်ရေးထားတာ မဟုတ်ပါဘူး။

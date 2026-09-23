@@ -72,7 +72,7 @@ print(f"binary approx cos : {bin_approx:.4f}")
 # binary approx cos : 0.8660
 ```
 
-**အဓိကအယူဆ** — Binary quantization က memory ကို ၃၂ ဆအထိ သက်သာစေပေမယ့် approximate ဖြစ်လို့ recall ချမ်းသွားနိုင်ပါတယ်။
+**အဓိကအယူဆ** — Binary quantization က memory ကို ၃၂ ဆအထိ သက်သာစေပေမယ့် approximate ဖြစ်လို့ recall ကျသွားနိုင်ပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၃ — Product Quantization (PQ) အခြေခံ
 

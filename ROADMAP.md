@@ -16,7 +16,7 @@ RAG (Retrieval-Augmented Generation — အချက်အလက် ရှာဖ
 
 ## M1 — `01_ingestion/` — Corpus Ingestion
 
-ရင်းမြစ် အမျိုးအစားများ (PDF၊ HTML၊ Markdown၊ database row) ကနေ text ဆွဲထုတ်နည်းကို သင်ပါတယ်။ boilerplate (စာမျက်နှာရဲ့ header/footer စတဲ့ အဆင့်ဆင်းသား) ဖယ်ရှားခြင်း၊ unicode normalization (စာလုံး ပုံစံ တစ်သွေတည်း ပြောင်းခြင်း) နဲ့ duplicate စစ်ခြင်း (hash နဲ့ content fingerprint) ကို လက်တွေ့ ကုဒ်နဲ့ ပြပါတယ်။ upsert (ရှိရင် ပြင်၊ မရှိရင် ထည့်) နဲ့ delete သဘောတရားလည်း ပါပါတယ်။
+ရင်းမြစ် အမျိုးအစားများ (PDF၊ HTML၊ Markdown၊ database row) ကနေ text ဆွဲထုတ်နည်းကို သင်ပါတယ်။ boilerplate (စာမျက်နှာရဲ့ header/footer စတဲ့ အပိုအပိုင်းများ) ဖယ်ရှားခြင်း၊ unicode normalization (စာလုံး ပုံစံ တစ်သွေတည်း ပြောင်းခြင်း) နဲ့ duplicate စစ်ခြင်း (hash နဲ့ content fingerprint) ကို လက်တွေ့ ကုဒ်နဲ့ ပြပါတယ်။ upsert (ရှိရင် ပြင်၊ မရှိရင် ထည့်) နဲ့ delete သဘောတရားလည်း ပါပါတယ်။
 
 ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — ရင်းမြစ်ဖိုင်တစ်ခုကနေ သန့်စင်တဲ့ text ထုတ်ပြီး၊ duplicate ဖြစ်နေတဲ့ စာပိုဒ်ကို hash နဲ့ ရှာနိုင်ရမယ်။
 
@@ -82,7 +82,7 @@ Bi-encoder (embedding ချင်း နှိုင်းတဲ့ မော�
 
 - Cross-encoder က bi-encoder ထက် ပိုတိကျပေမယ့် ဘာကြောင့် အားလုံးအတွက် မသုံးရလဲ။
 - MMR က diversity ကို ဘယ်လို တိုးပေးလဲ။
-- Rerank အဆင့်ကိ်ု ထည့်ရင် latency ဘယ်လို ပြောင်းလဲ။
+- Rerank အဆင့်ကို ထည့်ရင် latency ဘယ်လို ပြောင်းလဲ။
 
 ## M8 — `08_serving_architecture/` — Retrieval Serving Architecture
 
@@ -98,7 +98,7 @@ Retrieval API ဒီဇိုင်းကို သင်ပါတယ် — fil
 
 Batch နဲ့ streaming ingestion ကို သင်ပါတယ်။ Idempotent (ထပ်လုပ်လည်း ရလဒ် အတူတူ) ပြန်လုပ်နိုင်မှု၊ backfill (အတိတ် data ပြန်ထည့်ခြင်း) နဲ့ rate limit၊ dead-letter (ကျန်နေတဲ့ အချက်အလက်ကို သီးသန့် သိမ်းတဲ့နေရာ) နဲ့ retry စနစ်၊ change data capture အခြေခံတွေ ပါပါတယ်။ Embedding model version ပြောင်းတဲ့အခါ migration လုပ်နည်းလည်း သင်ပါတယ်။
 
-ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — Retry ခံနိုင်တဲ့ ingestion pipeline တစ်ခုရဲ့ flow chart ရေးနိုင်ရမယ်။ Model version ပြောင်းချိန် migration စီမံခါက်ရေးနိုင်ရမယ်။
+ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — Retry ခံနိုင်တဲ့ ingestion pipeline တစ်ခုရဲ့ flow chart ရေးနိုင်ရမယ်။ Model version ပြောင်းချိန် migration စီမံချက်ရေးနိုင်ရမယ်။
 
 - Idempotency က pipeline ကို ဘာကြောင့် လုံခြုံစေလဲ။
 - Dead-letter queue ကို ဘယ်အချိန် သုံးသင့်လဲ။
@@ -108,11 +108,11 @@ Batch နဲ့ streaming ingestion ကို သင်ပါတယ်။ Idempo
 
 Golden set (query → မှန်တဲ့ chunk အမှတ် ဆိုတဲ့ စာရင်း) ဖွဲ့ခြင်းနဲ့ metric တွေကို သင်ပါတယ်။ recall@k၊ precision@k၊ MRR (Mean Reciprocal Rank — မှန်တဲ့ ရလဒ်ရဲ့ rank ပျမ်းမျှ) နဲ့ nDCG (Normalized Discounted Cumulative Gain — rank အလိုက် အလေးချိန် ပေးတဲ့ metric) တွေကို formula နဲ့ တွက်ပြပါတယ်။ Chunk-level နဲ့ document-level အကဲဖြတ်မှု၊ LLM judge ကို offline/deterministic stand-in နဲ့ စမ်းနည်း ပါပါတယ်။
 
-ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — Golden set တစ်ခု ဖွဲ့ပြီး၊ recall@k နဲ့ nDCG ကို ကိုယ်တိုင်တွက်နိုင်ရမယ်။ Regression gate (အရည်အသွေး ကျမသွားအောင် တားတဲ့ စစချက်) တစ်ခု သတ်မှတ်နိုင်ရမယ်။
+ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — Golden set တစ်ခု ဖွဲ့ပြီး၊ recall@k နဲ့ nDCG ကို ကိုယ်တိုင်တွက်နိုင်ရမယ်။ Regression gate (အရည်အသွေး ကျမသွားအောင် တားတဲ့ စစ်ဆေးချက်) တစ်ခု သတ်မှတ်နိုင်ရမယ်။
 
 - Recall@k က precision@k ထက် ဘယ်အချိန် ပိုအရေးကြီးလဲ။
 - MRR က rank ၁ မှာ မှန်တာနဲ့ rank ၅ မှာ မှန်တာကို ဘယ်လို ကွာပြလဲ။
-- Golden set ကို သေးငယ်ရင် evaluation ရလဒ် ဘယ်လို ယုံမှာ မရှိလဲ။
+- Golden set ကို သေးငယ်ရင် evaluation ရလဒ် ဘယ်လို ယုံလို့ မရလဲ။
 
 ## M11 — `11_scale_performance/` — Scale နှင့် Performance
 
@@ -122,11 +122,11 @@ Quantization (ကိန်းဂဏန်းကို ကုန်ခန့်�
 
 - fp32 ကနေ int8 ချုံ့ရင် memory က ဘယ်လောက် လျှော့လဲ — တွက်ပြပါ။
 - Binary quantization က recall ကို ဘယ်လို သက်ရောက်လဲ။
-- Sharding က query latency ကို အခါခပ်း လျှော့ပေးလား၊ ရှင်းပြပါ။
+- Sharding က query latency ကို အခါခပ်သိမ်း လျှော့ပေးလား၊ ရှင်းပြပါ။
 
 ## M12 — `12_governance_security/` — Governance နှင့် လုံခြုံရေး
 
-Embedding ထဲ ကျန်နေနိုင်တဲ့ PII (Personally Identifiable Information — ပုဂ္ဂလိက မှတ်ချက်များ) အန္တရာယ်ကို သင်ပါတယ်။ Row-level security နဲ့ document-level ACL ကို retrieval query ထဲ ထည့်ခြင်း၊ multi-tenant isolation (ဆိုင်ရင်းသုံး party ခွဲခြားခြင်း) နည်းလမ်းများ၊ audit log နှင့် access control စစ်ဆေးမှု တွေ ပါပါတယ်။
+Embedding ထဲ ကျန်နေနိုင်တဲ့ PII (Personally Identifiable Information — ပုဂ္ဂလိက မှတ်ချက်များ) အန္တရာယ်ကို သင်ပါတယ်။ Row-level security နဲ့ document-level ACL ကို retrieval query ထဲ ထည့်ခြင်း၊ multi-tenant isolation (တစ်ဆိုင်တည်းသုံး party ခွဲခြားခြင်း) နည်းလမ်းများ၊ audit log နှင့် access control စစ်ဆေးမှု တွေ ပါပါတယ်။
 
 ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — ACL ပါတဲ့ retrieval query တစ်ခု ဒီဇိုင်းနိုင်ရမယ်။ Tenant တစ်ခုစီရဲ့ data ကို ခွဲထားနည်း ၃ မျိုး နှိုင်းယှဉ်နိုင်ရမယ်။
 
@@ -160,7 +160,7 @@ Ingest → chunk → embed → index → retrieve → rerank → evaluate အဆ
 - ကိုယ့်အလုပ် (သို့) စိတ်ဝင်စားတဲ့ နယ်ပယ်က စာရွက် ၁၀၀ ကနေ ၅၀၀ ကို ရင်းမြစ် အဖြစ် ရွေးပါ။
 - တစ် module စီမှာ checkpoint မေးခွန်းတွေကို စာရွက်ပေါ် ဖြေပြီး သိမ်းထားပါ။
 - M10 ရောက်တဲ့အခါ ကိုယ့် corpus အတွက် golden set အနည်းဆုံး query ၃၀ ဖွဲ့ပါ။
-- အားလုံးကို git repo တစ်ခုထဲ သိမ်းပြီး တစ်ပတ်ကိ်ု တစ်ခါ commit လုပ်ပါ။
+- အားလုံးကို git repo တစ်ခုထဲ သိမ်းပြီး တစ်ပတ်ကို တစ်ခါ commit လုပ်ပါ။
 - Capstone ဒီဇိုင်းစာတမ်းကို ကိုယ့်အဖွဲ့နဲ့ မျှဝေပြီး တခြားသူတွေရဲ့ ဆန်းစစ်မှု ခံယူပါ။
 
 ## Capstone

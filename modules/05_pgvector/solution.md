@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — vector column ဆောက်တာ
 
-`CREATE EXTENSION` နဲ့ extension အရင်ဖွင့်ပြီးမှ `vector(768)` type နဲ့ embedding column ဆောက်ရမယ်၊ cosine သုံးမယ့်အတွက် value တွေကို normalize လုပ်ထားဖို့လည်း မမို့လိုအပ်ပါတယ်နော်။ အောက်မှာ schema နဲ့ HNSW index ကို တွဲရေးပြထားပါတယ်။
+`CREATE EXTENSION` နဲ့ extension အရင်ဖွင့်ပြီးမှ `vector(768)` type နဲ့ embedding column ဆောက်ရမယ်၊ cosine သုံးမယ့်အတွက် value တွေကို normalize လုပ်ထားဖို့လည်း လိုအပ်ပါတယ်နော်။ အောက်မှာ schema နဲ့ HNSW index ကို တွဲရေးပြထားပါတယ်။
 
 ```python
 # Exercise 1: build the chunks table schema SQL (printed, not executed -- no DB in this exercise).
@@ -85,7 +85,7 @@ print("Check L2^2 == 2*cosine:",
 # Check L2^2 == 2*cosine: 0.133333 == 0.133333
 ```
 
-**အဓိကအယူဆ** — normalize လုပ်ထားရင် L2, cosine, inner product ranking သုံးခုလုံး အစဉ်လိုက်တူပြီး၊ unnormalized ဖြစ်ရင် cosine အတွက် `<=>` + `vector_cosine_ops` ကို ခွဲချင့်သုံးသင့်ပါတယ်။
+**အဓိကအယူဆ** — normalize လုပ်ထားရင် L2, cosine, inner product ranking သုံးခုလုံး အစဉ်လိုက်တူပြီး၊ unnormalized ဖြစ်ရင် cosine အတွက် `<=>` + `vector_cosine_ops` ကို ခွဲခြားသုံးသင့်ပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၃ — စာပိုဒ်ရှေ့ပိုင်းအတွက် RRF fusion (Python)
 
@@ -134,11 +134,11 @@ print("RRF fused ranking:", fused)
 # RRF fused ranking: [1, 2, 3]
 ```
 
-**အဓိကအယူဆ** — RRF က score တန်ဖိုးမှန်းစပါတယ်၊ rank position ပေါ်အခြေခံထားလို့ scale မတူတဲ့ ranking နှစ်ခုကို လွယ်လွယ်ပေါင်းလို့ရပါတယ်။
+**အဓိကအယူဆ** — RRF က score တန်ဖိုးမသုံးပါဘူး၊ rank position ပေါ်အခြေခံထားလို့ scale မတူတဲ့ ranking နှစ်ခုကို လွယ်လွယ်ပေါင်းလို့ရပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၄ — HNSW နဲ့ IVFFlat ရွေးချယ်တာ
 
-million-level data အတွက် HNSW က build ကြာပေမယ့် query latency နဲ့ recall ကို ပိုသာပြီး၊ IVFFlat က build မြန်ပေမယ့sí recall က `probes` အပေါ်မူတည်ပြီး data အသစ်ထည့်ရင် cluster ပျက်လို့ retrain လိုနိုင်ပါတယ်နော်။ အောက် code က dataset size, latency budget, recall target အပေါ် အခြေခံပြီး အကြံပေးတဲ့ decision helper ပါ။
+million-level data အတွက် HNSW က build ကြာပေမယ့် query latency နဲ့ recall ကို ပိုသာပြီး၊ IVFFlat က build မြန်ပေမယ့် recall က `probes` အပေါ်မူတည်ပြီး data အသစ်ထည့်ရင် cluster ပျက်လို့ retrain လိုနိုင်ပါတယ်နော်။ အောက် code က dataset size, latency budget, recall target အပေါ် အခြေခံပြီး အကြံပေးတဲ့ decision helper ပါ။
 
 ```python
 # Exercise 4: deterministic index-choice helper (scripted logic, no real DB).
@@ -218,7 +218,7 @@ for stmt in sql:
 
 ## လေ့ကျင့်ခန်း ၆ — maintenance_work_mem, parallel build, EXPLAIN ဖတ်တာ
 
-`maintenance_work_mem` တန်ဖိုးက IVFFlat sample data တွေနဲ့ HNSW graph ကို memory ထဲ ဆောက်ချင်ပေးပြီး၊ `max_parallel_maintenance_workers` က build ကို CPU များများနဲ့ အလုပ်ခွဲချင်ပေးပါတယ်၊ memory မလုံရင် disk ပေါ် spill လုပ်ပြီး build နှေးသွားတယ်နော်။ အောက်မှာ sample EXPLAIN output ကို ဖတ်ပြပါတယ်။
+`maintenance_work_mem` တန်ဖိုးက IVFFlat sample data တွေနဲ့ HNSW graph ကို memory ထဲ ဆောက်ပေးပြီး၊ `max_parallel_maintenance_workers` က build ကို CPU များများနဲ့ အလုပ်ခွဲပေးပါတယ်၊ memory မလုံရင် disk ပေါ် spill လုပ်ပြီး build နှေးသွားတယ်နော်။ အောက်မှာ sample EXPLAIN output ကို ဖတ်ပြပါတယ်။
 
 ```python
 # Exercise 6: parse a scripted (deterministic) EXPLAIN output stand-in and read key facts.

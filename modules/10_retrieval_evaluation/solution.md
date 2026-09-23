@@ -24,7 +24,7 @@ for q, ids in golden.items():
 
 ## လေ့ကျင့်ခန်း ၂ — recall@k တွက်ပါ
 
-recall@k က top-k အထဲ မှန်တာ ဘယ်လောက် ပြန်ရလဲကို တိုင်တာပါပဲ၊ relevant ဘူမတည်းက ခံမထိုးရင် 0.0 ပြန်ဖို့ သတိထားပါတယ်။
+recall@k က top-k အထဲ မှန်တာ ဘယ်လောက် ပြန်ရလဲကို တိုင်တာပါပဲ၊ relevant စာရင်းက ခံမထိုးရင် 0.0 ပြန်ဖို့ သတိထားပါတယ်။
 
 ```python
 def recall_at_k(retrieved, relevant, k):
@@ -50,7 +50,7 @@ print(recall_at_k(r, [], 4))
 
 ## လေ့ကျင့်ခန်း ၃ — precision@k နဲ့ MRR တွက်ပါ
 
-precision@k က top-k ထဲမှာ မှန်တာ ဘယ်လောက် စားရှိလဲ၊ MRR က ပထမဆုံး မှန်တဲ့ result အဆင့်ရဲ့ ပြောင်းပုံကို တိုင်တာပါတယ်၊ rank က 1 ကစပါတယ်နော်။
+precision@k က top-k ထဲမှာ မှန်တာ ဘယ်လောက် ရှိလဲ၊ MRR က ပထမဆုံး မှန်တဲ့ result အဆင့်ရဲ့ ပြောင်းပုံကို တိုင်တာပါတယ်၊ rank က 1 ကစပါတယ်နော်။
 
 ```python
 import math
@@ -82,11 +82,11 @@ print(mrr(["a", "c"], ["b"]))
 # 0.0
 ```
 
-**အဓိကအယူဆ** — MRR က ပထမဆုံး hit တစ်ခုတည်းရဲ့ အဆင့်ကိုပဲ ကြည့်တာမို့ "ရှင်းနင်းတဲ့ အဖြေ နှေးသလော" ကို ဖမ်းနိုင်တယ်။
+**အဓိကအယူဆ** — MRR က ပထမဆုံး hit တစ်ခုတည်းရဲ့ အဆင့်ကိုပဲ ကြည့်တာမို့ "ရှာတွေ့တဲ့ အဖြေ နှေးသလော" ကို ဖမ်းနိုင်တယ်။
 
 ## လေ့ကျင့်ခန်း ၄ — nDCG@k တွက်ပါ
 
-nDCG@k က တကယ့် ranking ရဲ့ DCG ကို ideal ranking ရဲ့ IDCG နဲ့ ဘေးချိတ် တိုင်းတာတာပါ၊ rank နိမ့်ရင် gain နည်းသွားအောင် log နဲ့ ချိန်ပါတယ်။
+nDCG@k က တကယ့် ranking ရဲ့ DCG ကို ideal ranking ရဲ့ IDCG နဲ့ နှိုင်းချိတ် တိုင်းတာတာပါ၊ rank နိမ့်ရင် gain နည်းသွားအောင် log နဲ့ ချိန်ပါတယ်။
 
 ```python
 import math
@@ -120,7 +120,7 @@ print(round(ndcg_at_k(r, ["d"], 4), 4))
 
 ## လေ့ကျင့်ခန်း ၅ — document-level အကဲဖြတ်ခြင်း ပြောင်းပါ
 
-document-level မှာ `#` ရှေ့ပိုင်းက doc id အဖြစ် ယူပြီး အဲဒီ document က top-k ထဲ ပါလာရင် relevant chunk တစ်ခုချင်းစီ ရှင်းနင်းတယ်လို့ မှတ်ပါတယ်။
+document-level မှာ `#` ရှေ့ပိုင်းက doc id အဖြစ် ယူပြီး အဲဒီ document က top-k ထဲ ပါလာရင် relevant chunk တစ်ခုချင်းစီ ရှာတွေ့တယ်လို့ မှတ်ပါတယ်။
 
 ```python
 def recall_at_k_doc(retrieved, relevant, k):
@@ -143,7 +143,7 @@ print(round(recall_at_k_doc(retrieved, relevant, 3), 4))
 
 ## လေ့ကျင့်ခန်း ၆ — Regression gate နဲ့ drift စစ်ပါ
 
-Regression gate က baseline metric တွေနဲ့ ခုံကြည့်ပြီး တစ်ခုမျှ ကျရင် တားဆီးပေးတာပါ၊ CI ထဲ ထည့် run ခြင်းက drift ကို အလိုအလျောက် ဖမ်းပေးတယ်နော်။
+Regression gate က baseline metric တွေနဲ့ နှိုင်းယှဉ်ကြည့်ပြီး တစ်ခုမျှ ကျရင် တားဆီးပေးတာပါ၊ CI ထဲ ထည့် run ခြင်းက drift ကို အလိုအလျောက် ဖမ်းပေးတယ်နော်။
 
 ```python
 def regression_gate(baseline, current):

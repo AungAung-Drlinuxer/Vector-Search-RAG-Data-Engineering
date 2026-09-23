@@ -16,7 +16,7 @@ Retrieval လုပ်တဲ့အခါ user မ မြင်နိုင်တ
 
 **Hints:** Cosine similarity က `(A·B)/(||A||·||B||)` ပါ။ Rank တွက်ပြီးမှ allowed list ထဲ မပါတဲ့ doc တွေကို ဖျက်ပါ။ ဒီဟာက PostgreSQL `pgvector` + row-level security နဲ့ တူတဲ့ mechanics ကို သင်ကိုယ်တိုင် ပြန်တည်ဆောက်တာပါ။
 
-**Expected behavior:** ကျောင်းသားအို သုံးယူသူအတွက် allowed မဟုတ်တဲ့ doc တစ်ခု score အမြင့်ဆုံး ရှိနေလည်း top-k ထဲ မပါတာကို မြင်ရပါတယ်။ Filter မရှိရင် permission ချိုးဖျက်တဲ့ document ပေါ်လာမယ်ဆိုတာက ဒီလေ့ကျင့်ခန်းရဲ့ သင်ချက်ပါ။
+**Expected behavior:** သုံးစွဲသူအတွက် allowed မဟုတ်တဲ့ doc တစ်ခု score အမြင့်ဆုံး ရှိနေလည်း top-k ထဲ မပါတာကို မြင်ရပါတယ်။ Filter မရှိရင် permission ချိုးဖျက်တဲ့ document ပေါ်လာမယ်ဆိုတာက ဒီလေ့ကျင့်ခန်းရဲ့ သင်ချက်ပါ။
 
 ## လေ့ကျင့်ခန်း ၃ — pgvector + row-level security အတွက် SQL ရေးပါ
 
@@ -24,7 +24,7 @@ PostgreSQL မှာ document-level ACL ကို row-level security (row တစ
 
 **Task:** `documents` table မှာ `owner` column နဲ့ `embedding vector(4)` ပါတဲ့ DDL၊ RLS enable policy နဲ့ user က ကိုယ်ပိုင် doc တွေကိုပဲ cosine distance (`<=>`) နဲ့ ရှာတဲ့ SELECT query သုံးခု ရေးပါ။
 
-**Hints:** Official doc က https://www.postgresql.org/docs/current/ddl-rowseecurity.html ... မှားပါတယ် — မှန်တာက `https://www.postgresql.org/docs/current/ddl-rowsecurity.html` ပါ။ Policy ကို `USING (owner = current_user)` ပုံစြံနဲ့ ရေးပါ။ Query မှာ `ORDER BY embedding <=> '[0.1,0.2,0.3,0.4]' LIMIT 3` လိုမျိုး သုံးပါ။ SQL ကို သင် run မှာ မဟုတ်ဘူး၊ fence ထဲမှာပဲ ပြပါ။
+**Hints:** Official doc က https://www.postgresql.org/docs/current/ddl-rowseecurity.html ... မှားပါတယ် — မှန်တာက `https://www.postgresql.org/docs/current/ddl-rowsecurity.html` ပါ။ Policy ကို `USING (owner = current_user)` ပုံစံနဲ့ ရေးပါ။ Query မှာ `ORDER BY embedding <=> '[0.1,0.2,0.3,0.4]' LIMIT 3` လိုမျိုး သုံးပါ။ SQL ကို သင် run မှာ မဟုတ်ဘူး၊ fence ထဲမှာပဲ ပြပါ။
 
 **Expected behavior:** SQL သုံးခုလုံး PostgreSQL + pgvector မှာ valid ဖြစ်ပြီး၊ RLS ကြောင့် သူမကိုယ်ပိုင်တဲ့ row ကို user က query ထဲ မမြင်ရတာ ဖြစ်ပါတယ်။ Database အစား Python filter နဲ့ တူတဲ့အချက်က လေ့ကျင့်ခန်း ၂ နဲ့ ဆက်စပ်တယ်ဆိုတာ သတိပြုပါ။
 
@@ -52,7 +52,7 @@ Tenant (ဆိုင်ရာအဖွဲ့အစည်းတစ်ခုချ
 
 User တစ်ယောက်က data ဖျက်ပါစေခိုင်းရင် source doc တစ်ခုတည်း မဟုတ်ဘူး၊ သူ့ကနေ ဆွဲထုတ်ထားတဲ့ chunk၊ embedding တွေအထိ ဖျက်ရပါတယ်။
 
-**Task:** `docs` dict ထဲက doc တစ်ခုကို delete လုပ်ရင် chunk တွေ၊ embedding တွေနဲ့ audit log ထဲက reference တွေပါ cascade (တစ်ခုကို တစ်ခုဆက် လိုက်ဖျက်တဲ့ ပုံစံ) နဲ့ ဖျက်တဲ့ function ရေးပါ။ Doc တစ်ခုချင်းမှာ `source_url` နဲ့ `license` ကို provenance (ဒေတာ ဘယ်ကနေလာသလဲဆိုတဲ့ မှတ်တမ်း) အနေနဲ့ သင်္ပါ။
+**Task:** `docs` dict ထဲက doc တစ်ခုကို delete လုပ်ရင် chunk တွေ၊ embedding တွေနဲ့ audit log ထဲက reference တွေပါ cascade (တစ်ခုကို တစ်ခုဆက် လိုက်ဖျက်တဲ့ ပုံစံ) နဲ့ ဖျက်တဲ့ function ရေးပါ။ Doc တစ်ခုချင်းမှာ `source_url` နဲ့ `license` ကို provenance (ဒေတာ ဘယ်ကနေလာသလဲဆိုတဲ့ မှတ်တမ်း) အနေနဲ့ သင်ပါ။
 
 **Hints:** `dict.pop()` နဲ့ list comprehension သုံးပြီး orphan chunk (အမိ doc မရှိတော့တဲ့ chunk) တွေ ရှာပါ။ Retention (ဒေတာကို ဘယ်လောက်ကြာ ထားမလဲဆိုတဲ့ သတ်မှတ်ချက်) စည်းကို မှတ်တမ်းအသစ်မှာ ပြပါ။
 

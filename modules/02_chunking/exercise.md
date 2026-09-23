@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Fixed-size chunking ကို လက်တွေ့စမ်းကြည့်ပါ
 
-ဒီလေ့ကျင့်ခန်းမှာ fixed-size chunking (စာသားကို အရွေအတိအထ ဖြတ်တာ) ကို Python နဲ့ ရေးပါ။ စာသားတစ်ခုကို စာလုံး ၅၀ စီနဲ့ ဖြတ်ပြီး chunk စာရင်း ထုတ်ပါ။ ကိုယ်တိုင်ရေးထားတဲ့ စာသားနဲ့ စမ်းပါ။
+ဒီလေ့ကျင့်ခန်းမှာ fixed-size chunking (စာသားကို အရွယ်အတိအကျ ဖြတ်တာ) ကို Python နဲ့ ရေးပါ။ စာသားတစ်ခုကို စာလုံး ၅၀ စီနဲ့ ဖြတ်ပြီး chunk စာရင်း ထုတ်ပါ။ ကိုယ်တိုင်ရေးထားတဲ့ စာသားနဲ့ စမ်းပါ။
 
 **Hints:** `range` နဲ့ list slicing ကိုသုံးပါ။ စာလုံးခွဲရန် `str.split()` လုံလောက်ပါတယ်။
 
@@ -24,17 +24,17 @@ Recursive splitter (ကြားခံ အမှတ်အသားများ�
 
 ## လေ့ကျင့်ခန်း ၄ — Token-based chunking နဲ့ ဂဏန်းခြင်း
 
-Token (model ဖတ်တဲ့ စာသားယူနစ်) နဲ့ စာလုံးရဲ့ ကွာခြားချက်ကို တွက်ပြပါ။ ကိုယ်တိုင်ရေးတဲ့ simple tokenizer တစ်ခုကို `re.findall(r"\w+|\S", text)` နဲ့ ရေးပါ။ ယူဆိုက်မှုက 10,000 tokens၊ chunk size 512 tokens၊ overlap 64 tokens ဆိုရင် စုစုပေါင်း chunk အရေအတွကကို formula နဲ့ တွက်ပြပါ။
+Token (model ဖတ်တဲ့ စာသားယူနစ်) နဲ့ စာလုံးရဲ့ ကွာခြားချက်ကို တွက်ပြပါ။ ကိုယ်တိုင်ရေးတဲ့ simple tokenizer တစ်ခုကို `re.findall(r"\w+|\S", text)` နဲ့ ရေးပါ။ ယူဆချက်က 10,000 tokens၊ chunk size 512 tokens၊ overlap 64 tokens ဆိုရင် စုစုပေါင်း chunk အရေအတွက်ကို formula နဲ့ တွက်ပြပါ။
 
-**Hints:** formula က `1 + ceil((total - chunk) / (chunk - overlap))` ပါတယ်။ တွက်ချက်ချက်ကို print လုပ်ပြပါ။ Hugging Face tokenizers အစစ်ကို https://huggingface.co/docs/tokenizers/index မှာ ဖတ်ပါ။
+**Hints:** formula က `1 + ceil((total - chunk) / (chunk - overlap))` ပါတယ်။ တွက်ချက်မှုကို print လုပ်ပြပါ။ Hugging Face tokenizers အစစ်ကို https://huggingface.co/docs/tokenizers/index မှာ ဖတ်ပါ။
 
-**Expected behavior:** tokenized result နဲ့ တွက်ချက်ချက် နှစ်မျိုးလုံး ထွက်ပါတယ်။ ယူဆချက် အရေအတွက်နဲ့ formula ကနေ 20 chunks ရမယ် ဆိုတာ မိမိကိုယ်တိုင် တွက်ပြီး အတည်ပြုနိုင်ပါတယ်။
+**Expected behavior:** tokenized result နဲ့ တွက်ချက်မှု နှစ်မျိုးလုံး ထွက်ပါတယ်။ ယူဆချက် အရေအတွက်နဲ့ formula ကနေ 20 chunks ရမယ် ဆိုတာ မိမိကိုယ်တိုင် တွက်ပြီး အတည်ပြုနိုင်ပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — Parent-child indexing နဲ့ small-to-big retrieval
 
-Small-to-big retrieval (ရှာဖွေရင်း သေးတဲ့ chunk၊ ပြန်တင်ပြရင်း ကြီးတဲ့ parent) ကို Python dict တွေနဲ့ ပြန်ရေးပါ။ child chunk များမှာ keyword search (`in` စစ်ချက်နဲ့) လုပ်ပြီး အမှတ်အများဆုံး child က parent အပြည့်အစုံကို ပြနိုင်ရပါမယ်။ parent တွေကို paragraphs၊ child တွေက sentences အဖြစ် ယူဆိုက်ပါ။
+Small-to-big retrieval (ရှာဖွေရင်း သေးတဲ့ chunk၊ ပြန်တင်ပြရင်း ကြီးတဲ့ parent) ကို Python dict တွေနဲ့ ပြန်ရေးပါ။ child chunk များမှာ keyword search (`in` စစ်ချက်နဲ့) လုပ်ပြီး အမှတ်အများဆုံး child က parent အပြည့်အစုံကို ပြနိုင်ရပါမယ်။ parent တွေကို paragraphs၊ child တွေက sentences အဖြစ် ယူဆပါ။
 
-**Hints:** parent တစ်ခုကို `{"parent_id", "parent_text", "children"}` ပုံစံနဲ့ သိမ်းပါ။ child ရလဒ်က parent ကို ပြန်ညွှန်ရပါတယ်။ LlamaIndex ရဲ့ ဆီလျော်တဲ့အယ်အုပ်ကို https://docs.llamaindex.ai/en/stable/ မှာ ဖတ်ပါ။
+**Hints:** parent တစ်ခုကို `{"parent_id", "parent_text", "children"}` ပုံစံနဲ့ သိမ်းပါ။ child ရလဒ်က parent ကို ပြန်ညွှန်ရပါတယ်။ LlamaIndex ရဲ့ ဆီလျော်တဲ့ အယူအဆကို https://docs.llamaindex.ai/en/stable/ မှာ ဖတ်ပါ။
 
 **Expected behavior:** ရှာဖွေတဲ့ query က သေးငယ်တဲ့ child ကို တွေ့ပြီး ပြန်တင်တဲ့အခါ ကြီးတဲ့ parent paragraph အပြည့် ထွက်ပါတယ်။ child မှ parent ဆီ ညွှန်ပြတဲ့ ဆက်သွယ်မှုကို လက်တွေ့စစ်ကြည့်နိုင်ပါတယ်။
 

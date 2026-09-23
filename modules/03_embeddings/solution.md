@@ -98,7 +98,7 @@ print("within tolerance 1e-12:", abs(d - c) < 1e-12)
 
 ## လေ့ကျင့်ခန်း ၄ — Matryoshka Dimension ဖြတ်ခြင်း
 
-768-dim ကနေ ရှေ့ 256 ပဲယူပြီး brute-force search နဲ့ recall@5 နိုင်းကြည့်တာပေါ့။ Seed ပါတဲ့ `random.Random(42)` သုံးထားတဲ့အတွက် ရလဒ်က deterministic ဖြစ်ပြီး accuracy လျော့သွားတာကို ကိန်းဂဏန်းနဲ့မြင်ရမယ်နော်။
+768-dim ကနေ ရှေ့ 256 ပဲယူပြီး brute-force search နဲ့ recall@5 နှိုင်းကြည့်တာပေါ့။ Seed ပါတဲ့ `random.Random(42)` သုံးထားတဲ့အတွက် ရလဒ်က deterministic ဖြစ်ပြီး accuracy လျော့သွားတာကို ကိန်းဂဏန်းနဲ့မြင်ရမယ်နော်။
 
 ```python
 # Standard library only: toy Matryoshka truncation vs full-dim recall@5
@@ -135,7 +135,7 @@ print("recall@5:", recall_at_5)
 # recall@5: 0.4
 ```
 
-**အဓိကအယူဆ** — Dimension ဖြတ်လိုက်တဲ့အခါ recall@5 က 0.8 အထိ လျော့သွားပြီး Matryoshka truncation က storage သက်သာေပမယ့် accuracy နည်းနည်း ဆုံးရှုံးတယ်ဆိုတာ မြင်ရပါတယ်။
+**အဓိကအယူဆ** — Dimension ဖြတ်လိုက်တဲ့အခါ recall@5 က 0.8 အထိ လျော့သွားပြီး Matryoshka truncation က storage သက်သာပေမယ့် accuracy နည်းနည်း ဆုံးရှုံးတယ်ဆိုတာ မြင်ရပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — Text Cache နဲ့ Batch Encoding
 
@@ -196,7 +196,7 @@ print("after model change -> hits:", cache.hits, "misses:", cache.misses)
 
 ## လေ့ကျင့်ခန်း ၆ — Multilingual Corpus သတိထားစရာ
 
-မြန်မာစာမှာ combining marks များတဲ့အတွက် NFC normalization က အရေးကြီးပြီး whitespace ရှင်းတာ၊ character limit ဖြတ်တာတွေကို အဆင့်ဆင့် မြင်ရအောင် ရေးထားတာပေါ့။ Truncation မှာ စာလုံးဖြတ်မိရင် စာလုံးနောက်ဆက် combining mark ဖြတ်ချင်းနေနိုင်တဲ့ ကြိုတင်ယူဆချက်လေးကိုလည်း ဖော်ပြထားပါတယ်။
+မြန်မာစာမှာ combining marks များတဲ့အတွက် NFC normalization က အရေးကြီးပြီး whitespace ရှင်းတာ၊ character limit ဖြတ်တာတွေကို အဆင့်ဆင့် မြင်ရအောင် ရေးထားတာပေါ့။ Truncation မှာ စာလုံးဖြတ်မိရင် စာလုံးနောက်ဆက် combining mark ဖြတ်ချင်နိုင်တဲ့ ကြိုတင်ယူဆချက်လေးကိုလည်း ဖော်ပြထားပါတယ်။
 
 ```python
 # BURMESE-DATA-OK: Burmese sample text used as test data.
@@ -252,4 +252,4 @@ for i, t in enumerate(texts, 1):
 # trunc30 : Final example အဆုံး သတ် စာကြော (len=30)
 ```
 
-**အဓိကအယူဆ** — မြန်မာစာ combining marks တွေကြောင့် NFC normalization က cache နဲ့ dedup အတွက် မရှိမဖြစ်လိုအပ်ပြီး character-level truncation က grapheme cluster ကို ဖြတ်ချင်းနေနိုင်တယ်ဆိုတာ ကြိုတင်ယူဆထားရပါတယ်။
+**အဓိကအယူဆ** — မြန်မာစာ combining marks တွေကြောင့် NFC normalization က cache နဲ့ dedup အတွက် မရှိမဖြစ်လိုအပ်ပြီး character-level truncation က grapheme cluster ကို ဖြတ်ချင်နိုင်တယ်ဆိုတာ ကြိုတင်ယူဆထားရပါတယ်။

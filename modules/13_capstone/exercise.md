@@ -4,7 +4,7 @@
 
 ## လေ့ကျင့်ခန်း ၁ — Storage အရွယ် တွက်ပါ
 
-**Task:** 1,000,000 chunks, 768 dimensions, fp32 (4 bytes per value) ဆိုတဲ့ သတ်မှတ်ချက် (assumption) နဲ့ ကုန်းကြမ်း vector data ရဲ့ ကက်ဘိုက်စ် (bytes) ကို တွက်ပြပါ။
+**Task:** 1,000,000 chunks, 768 dimensions, fp32 (4 bytes per value) ဆိုတဲ့ သတ်မှတ်ချက် (assumption) နဲ့ အကြမ်းဖျင်း vector data ရဲ့ ဘိုက်အရေအတွက် (bytes) ကို တွက်ပြပါ။
 
 **Hints:** bytes = chunks × dims × 4 ပါ။ Python `print` နဲ့ ပြပါ။ fp32 ဆိုသည်က တစ်ခုချင်းစီ 4 bytes ယူတဲ့ float အမျိုးအစား ဖြစ်ပါတယ်။
 
@@ -20,11 +20,11 @@
 
 ## လေ့ကျင့်ခန်း ၃ — HNSW-style graph ဆောက်ပြီး search လုပ်ပါ
 
-**Task:** 100 ချက် (2D vector) ကနေ level 0 သာ ပါတဲ့ ရိုးရိုး graph တစ်ခု ဆောက်ပါ။ entry point ကနေ greedy search (အနီးဆုံး အိမ်နီးချို့ကို ဆက်လိုက်တဲ့ နည်း) လုပ်ပါ။
+**Task:** 100 ချက် (2D vector) ကနေ level 0 သာ ပါတဲ့ ရိုးရိုး graph တစ်ခု ဆောက်ပါ။ entry point ကနေ greedy search (အနီးဆုံး အိမ်နီးချင်းကို ဆက်လိုက်တဲ့ နည်း) လုပ်ပါ။
 
-**Hints:** တစ်ချက်ချင်းစီက အနီးဆုံး M=4 ချက်နဲ့ ချိတ်ပါ။ search မှာ လက်ရှိ အကွာအဝေးထက် နီးတဲ့ အိမ်နီးချို့ မတွေ့တော့ရင် ရပ်ပါ။ ဒါက HNSW အတွေးကို အလွယ်ပြတဲ့ version ပါ — real HNSW က multi-layer ဖြစ်ပါတယ် (arXiv:1603.09320)။
+**Hints:** တစ်ချက်ချင်းစီက အနီးဆုံး M=4 ချက်နဲ့ ချိတ်ပါ။ search မှာ လက်ရှိ အကွာအဝေးထက် နီးတဲ့ အိမ်နီးချင်း မတွေ့တော့ရင် ရပ်ပါ။ ဒါက HNSW အတွေးကို အလွယ်ပြတဲ့ version ပါ — real HNSW က multi-layer ဖြစ်ပါတယ် (arXiv:1603.09320)။
 
-**Expected behavior:** query တစ်ခုကို exact nearest neighbor (brute-force နဲ့ တူတဲ့) ရလာသလာု မဟုတ် သလာုကို ပြပါ။ small dataset မှာတော့ များသောအားဖြင့် တူပါတယ်။
+**Expected behavior:** query တစ်ခုကို exact nearest neighbor (brute-force နဲ့ တူတဲ့) ရလာသလား မဟုတ် သလားကို ပြပါ။ small dataset မှာတော့ များသောအားဖြင့် တူပါတယ်။
 
 ## လေ့ကျင့်ခန်း ၄ — Recall@k တိုင်းပါ
 
@@ -36,7 +36,7 @@
 
 ## လေ့ကျင့်ခန်း ၅ — QPS တွက်ပါ
 
-**Task:** exercise ၃ ရဲ့ search ကို query 1,000 ခုမှာ စက်တာ (timing) တိုင်းပါ — `time.perf_counter` သုံးပါ။ ပြီးရင် QPS (Query Per Second — စက္ခန့်တစ်ခါ လက်ခံနိုင်တဲ့ query အရေအတွက်) တွက်ပါ။
+**Task:** exercise ၃ ရဲ့ search ကို query 1,000 ခုမှာ ချိန်တာ (timing) တိုင်းပါ — `time.perf_counter` သုံးပါ။ ပြီးရင် QPS (Query Per Second — စက္ကန့်တစ်ခါ လက်ခံနိုင်တဲ့ query အရေအတွက်) တွက်ပါ။
 
 **Hints:** QPS = 1000 / total_seconds ပါ။ p95 latency (95% က ဒီအချိန်ထက် မကျော်ဘူး) ကိုလည်း sorted latencies ထဲက index `int(0.95 * len)` နဲ့ ထုတ်ပါ။
 

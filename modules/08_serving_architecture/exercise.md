@@ -2,7 +2,7 @@
 
 **Task:** `/search` ဆိုတဲ့ retrieval API endpoint ကို simulate လုပ်ပေမယ့် Python function တစ်ခု ရေးပါ။ function က `(query_vector, top_k, filters)` ကို accept လုပ်ရမယ်။ `filters` မှာ `"tenant_id"` ပါရင် ဒါက ACL-like filter (tenant တစ်ခုစီက ကိုယ့် data ကိုပဲ မြင်ရတဲ့ ကန့်သတ်ချက်) အဖြစ် အသုံးချပါ။
 
-**Hints:** metadata dict list တစ်ခု အလွဲလွဲ (hard-code) လုပ်ပါ။ tenant မတူတဲ့ result တွေကို filter နဲ့ ဖယ်ရှားပါ။ real system မှာဆိုရင် SQL `WHERE` clause နဲ့ filter လုပ်တာပါလို့ comment မှာ ရေးပေးပါ။
+**Hints:** metadata dict list တစ်ခု ကိုယ်တိုင် (hard-code) လုပ်ပါ။ tenant မတူတဲ့ result တွေကို filter နဲ့ ဖယ်ရှားပါ။ real system မှာဆိုရင် SQL `WHERE` clause နဲ့ filter လုပ်တာပါလို့ comment မှာ ရေးပေးပါ။
 
 **Expected behavior:** tenant_id မတူတဲ့ items တွေ ဘယ်တော့မှ မပြပါနဲ့။ top_k ထက်မပိုစေနဲ့။
 
@@ -18,7 +18,7 @@
 
 **Task:** result cache တစ်ခု ရေးပါ။ cache key က (query, filters) နှစ်ခုလုံး ပါဝင်ရမယ်။ query တူပေမယ့် filter မတူရင် cache hit မဖြစ်ရပါဘူး။
 
-**Hints:** key ကို JSON serialize လုပ်ပြီး တည်နေရာပါစေဖို့ သတိထားပါ — dict order က အရေးကြီးပါတယ်။ `sort_keys=True` သုံးပါ။
+**Hints:** key ကို JSON serialize လုပ်ပြီး တည်ငြိမ်စေဖို့ သတိထားပါ — dict order က အရေးကြီးပါတယ်။ `sort_keys=True` သုံးပါ။
 
 **Expected behavior:** query တူ၊ filter တူမှ hit ဖြစ်ရမယ်။ filter ကွာလျှင် miss ဖြစ်ပြီး cache ထဲ entry အသစ် ထည့်ရမယ်။
 
@@ -26,13 +26,13 @@
 
 **Task:** retrieval connection pool class တစ်ခု ရေးပါ။ pool size 3 ရှိမယ်။ `acquire()` / `release()` methods ပါဝင်ရမယ်။ `queue.Queue` သုံးပြီး connection တွေ သိမ်းဆည်းပါ။ acquire တုန်း pool ဗလာ မရှိရင် block ဖြစ်စေပါ။
 
-**Hints:** real system မှာ Postgres connection တစ်ခုချင်းစီက အကန့်အသတ်ရှိပါတယ်။ pool က connection ပြန်လည်အသုံးပြုခြင်းနဲ့ အလွန်အကျွံ ဖွင့်မခံ့စေဖို့ အသုံးဝင်ပါတယ်။ connection တွေက dummy object တွေပါ။
+**Hints:** real system မှာ Postgres connection တစ်ခုချင်းစီက အကန့်အသတ်ရှိပါတယ်။ pool က connection ပြန်လည်အသုံးပြုခြင်းနဲ့ အလွန်အကျွံ ဖွင့်မခံရစေဖို့ အသုံးဝင်ပါတယ်။ connection တွေက dummy object တွေပါ။
 
-**Expected behavior:** acquire ၃ ခါ အောင်မြင်ရမယ်၊ စတုတ္ထအကြိမ်က release မခဏမခင်း စောင့်ရမယ် (timeout နဲ့ စစ်ပါ)။ release ပြီးရင် ရရှိမယ်။
+**Expected behavior:** acquire ၃ ခါ အောင်မြင်ရမယ်၊ စတုတ္ထအကြိမ်က release မလုပ်မချင်း စောင့်ရမယ် (timeout နဲ့ စစ်ပါ)။ release ပြီးရင် ရရှိမယ်။
 
 ## လေ့ကျင့်ခန်း ၅ — pgvector SQL ရေးပါ (အလုပ်မလုပ်ပါဘူး၊ ဖတ်ဖို့ပါ)
 
-**Task:** pgvector သုံးပြီး hybrid filter (tenant + score) ပါတဲ့ SQL query တစ်ခု ရေးပါ။ documents table (id, tenant_id, embedding vector(4), content) ဆိုပြီး ယူဆပါ။ cosine distance နဲ့ top 3 ရွေးပါ။ ဒါက exercise သက်သက် — SQL ကို run မခံ့ပါဘူး။
+**Task:** pgvector သုံးပြီး hybrid filter (tenant + score) ပါတဲ့ SQL query တစ်ခု ရေးပါ။ documents table (id, tenant_id, embedding vector(4), content) ဆိုပြီး ယူဆပါ။ cosine distance နဲ့ top 3 ရွေးပါ။ ဒါက exercise သက်သက် — SQL ကို run မခိုင်းပါဘူး။
 
 **Hints:** `<=>` operator က cosine distance အတွက်ပါ (pgvector README မှာ ဖော်ပြထားပါတယ်)။ `ORDER BY ... LIMIT` သုံးပါ။ စာရင်းအင်း (index) မတပ်ရသေးရင် exact search ပါလို့ comment ရေးပါ။
 

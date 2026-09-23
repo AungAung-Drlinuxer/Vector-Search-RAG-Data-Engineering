@@ -24,7 +24,7 @@ L2-normalized vectors နှစ်ခုအတွက် dot product နဲ့ co
 
 ## လေ့ကျင့်ခန်း ၄ — Matryoshka Dimension ဖြတ်ခြင်း
 
-768-dim vector တစ်ခုကနေ ရှေ့ 256 dimensions ပဲ ယူပြီး ရှာဖွေမှု အမှန်တောင်းမှု (accuracy) နှိုင်းယှဉ်ပါ။ အလွယ်ချောက်စစ်ဆပုံစံ (a toy brute-force search) နဲ့ recall@5 တွက်ပါ။
+768-dim vector တစ်ခုကနေ ရှေ့ 256 dimensions ပဲ ယူပြီး ရှာဖွေမှု တိကျမှု (accuracy) နှိုင်းယှဉ်ပါ။ အလွယ်တကူ စမ်းသပ်ပုံစံ (a toy brute-force search) နဲ့ recall@5 တွက်ပါ။
 
 **Hints:** `v[:256]` နဲ့ dimension ဖြတ်ပါ။ Full 768 ရဲ့ top-5 ကို ground truth အဖြစ်ယူပါ။ Recall@5 = overlap / 5 ပါ။ Vectors ကို seed ပါတဲ့ `random.Random(42)` နဲ့ တည်ဆောက်ပါ (deterministic ဖြစ်စေဖို့)။
 
@@ -32,7 +32,7 @@ L2-normalized vectors နှစ်ခုအတွက် dot product နဲ့ co
 
 ## လေ့ကျင့်ခန်း ၅ — Text Cache နဲ့ Batch Encoding
 
-`EmbeddingCache` class ရေးပါ — dict-based cache နဲ့ `encode_batch(texts)` method ပါဝင်ရမယ်။ Encoding က `hashlib.sha256(text)` ရဲ့ hex digest ရှေ့ 16 လုံးကို stand-in vector အဖြစ်သုံးပါ (နမူနာအလွယ်အကူစား) — `# No real model call at runtime: deterministic stand-in` လို့ comment ထည့်ပါ။
+`EmbeddingCache` class ရေးပါ — dict-based cache နဲ့ `encode_batch(texts)` method ပါဝင်ရမယ်။ Encoding က `hashlib.sha256(text)` ရဲ့ hex digest ရှေ့ 16 လုံးကို stand-in vector အဖြစ်သုံးပါ (နမူနာအလွယ်တကူသုံး) — `# No real model call at runtime: deterministic stand-in` လို့ comment ထည့်ပါ။
 
 **Hints:** Cache မှာ key က (model_name, text) tuple ဖြစ်စေပါ — version ခြားတဲ့အခါ collision မဖြစ်စေဖို့ပါ။ နှစ်ကြိမ် encoding လုပ်ရင် ဒုတိယအကြိမ်မှာ cache hit ဖြစ်ရပါတယ်။
 

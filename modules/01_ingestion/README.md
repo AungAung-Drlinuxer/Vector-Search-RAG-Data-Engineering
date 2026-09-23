@@ -7,7 +7,7 @@
 ## ဒီ module မှာ ဘာသင်မလဲ
 
 - ရင်းမြစ် အမျိုးအစားများ — PDF၊ HTML၊ Markdown၊ database row — ရဲ့ ခြားနားချက်တွေကို နားလည်ပါတယ်။
-- Text extraction လုပ်တဲ့အခါ boilerplate (မိတ္တ၊ footer၊ navigation စတဲ့ မလိုအပ်တဲ့ စာသား) ဖယ်ရှားနည်း သင်ပါတယ်။
+- Text extraction လုပ်တဲ့အခါ boilerplate (header၊ footer၊ navigation စတဲ့ မလိုအပ်တဲ့ စာသား) ဖယ်ရှားနည်း သင်ပါတယ်။
 - Unicode normalization (စာလုံးတွေကို စံတစ်ခုတည်း ညီအောင် ပြောင်းခြင်း) အရေးကြီးပုံကို မြင်ပါတယ်။
 - Hash နဲ့ content fingerprint (အကြောင်းအရာရဲ့ ထင်ရှားတဲ့ လက္ခဏာ) သုံးပြီး duplicate စစ်နည်း ကို Python standard library နဲ့ လက်တွေ့ ရေးပါတယ်။
 - Upsert (ရှိရင် update၊ မရှိရင် insert) နဲ့ delete ရဲ့ အဓိပ္ပာယ်ကို pgvector ဆိုက်ဘက်ကနေ နားလည်ပါတယ်။
@@ -15,7 +15,7 @@
 
 ## သင်ခန်းစာများ
 
-1. `lessons/lesson_01_sources.md` — ရင်းမြစ် အမျိုးအစားများ နဲ့ JSON format ရဲ့ အခန်းကူးနည်း
+1. `lessons/lesson_01_sources.md` — ရင်းမြစ် အမျိုးအစားများ နဲ့ JSON format ရဲ့ အကူးအပြောင်းနည်း
 2. `lessons/lesson_02_extraction.md` — Text ဆွဲထုတ်ခြင်း နဲ့ boilerplate ဖယ်ရှားခြင်း
 3. `lessons/lesson_03_normalisation.md` — Unicode normalization နဲ့ duplicate စစ်ခြင်း (hash)
 4. `lessons/lesson_04_upsert_delete.md` — Incremental update၊ deletion semantics နဲ့ idempotency
