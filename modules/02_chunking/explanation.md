@@ -62,12 +62,12 @@ Production RAG မှာ chunking က data pipeline ရဲ့ ပထမဆုံ
 ## ၂။ Splitter အမျိုးအစားများ — fixed-size၊ recursive၊ token-based၊ semantic
 
 ### ဘာကို ဆိုလိုတာလဲ
-Fixed-size splitter က စာလုံးရေ (character) အရွယ်အတိုင်းအတာအတိုင်း တုံးတုံးပြတ်တာပါတယ်။
-Recursive splitter က paragraph → sentence → word စာခွဲနိုင်တဲ့ သင်္ချာ အဆင့်ဆင့်နဲ့ သဘာဝကျကျ ခွဲတာပါတယ်။
+Fixed-size splitter သည် သတ်မှတ်ထားသော စာလုံးရေ (character count) အတိုင်း တိကျစွာ ဖြတ်တောက်တာ ဖြစ်ပါတယ်။
+Recursive splitter သည် paragraph → sentence → word အဆင့်ဆင့် separator များဖြင့် စာသားကို သဘာဝကျကျ ခွဲထုတ်တာ ဖြစ်ပါတယ်။
 LangChain docs အရ recursive character splitter က separator list ကို အစဉ်လိုက် စမ်းပြီး အကောင်းဆုံး boundary ရွေးတယ်။
 Token-based splitter က tokenizer (စာကို model နားလည်တဲ့ ယူနစ်လေးတွေအဖြစ် ပြောင်းတဲ့ ကိရိယာ) နဲ့ အရေအတွက်ရေတယ်။
 Hugging Face tokenizers docs အရ tokenizer က “raw text into tokens” ပြောင်းပေးတယ်။
-Semantic chunking က စာပိုင်းတွေရဲ့ အဓိပ္ပာယ် ပြောင်းလဲမှုကို ကြည့်ပြီး ခွဲတာပါတယ်။
+Semantic chunking သည် စာသားများ၏ အဓိပ္ပာယ် (semantic meaning) ပြောင်းလဲမှုကို တိုင်းတာပြီး ခွဲထုတ်တာ ဖြစ်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 Fixed-size လွယ်ပေမယ့် စာကြောင်းအလယ်မှာ ပြတ်တတ်တယ်။

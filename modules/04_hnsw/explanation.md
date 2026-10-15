@@ -155,7 +155,7 @@ Faiss wiki မှာ `efSearch` တက်ရင် recall တက်ပြီး 
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Index memory က HNSW graph ထဲမှာ vector တွေနဲ့ link တွေကို သိမ်းဖို့ လိုတဲ့ byte အရေအတွက်ပါ။ ကြမ်းတမ်းတွက်လို့ ရပါတယ်။
+Index memory ဆိုတာ HNSW graph ထဲမှာ vector တွေနဲ့ link တွေကို သိမ်းဆည်းဖို့ လိုအပ်တဲ့ byte အရေအတွက် ဖြစ်ပြီး အကြမ်းဖျင်း ခန့်မှန်း တွက်ချက်နိုင်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 
@@ -165,7 +165,7 @@ RAM မလုံလောက်ရင် index မတည်ဆောက်နိ
 
 ၁။ Vector data memory = N × dim × bytes-per-value နဲ့ တွက်ပါတယ်။
 ၂။ Link memory = N × M × 2 (လမ်းနှစ်ဖက်၊ integer တစ်ခုစီ) နဲ့ ခန့်မှန်းပါတယ်။
-၃။ နှစ်ခုပေါင်းပြီး ကြမ်းတမ်းအရွယ်အစား ထုတ်ပါတယ်။
+၃။ နှစ်ခုပေါင်းပြီး အကြမ်းဖျင်း အရွယ်အစား ခန့်မှန်းပါတယ်။
 
 ### ဥပမာ
 
@@ -200,7 +200,7 @@ pgvector မှာ vector ကတစ်ခါတည်း column ထဲ သိမ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-HNSW က append လုပ်တာ အားနာပြီး၊ point ဖျက်တာက အားနာပါတယ်။ Faiss မှာ dead node တွေကို filter list နဲ့ ချန်ထားတတ်ပါတယ်။ Filtered search က query မှာ condition (ဥပမာ `WHERE category = 'news'`) ပေါ် မူတည်ပြီး candidate လျှော့တာပါ။
+HNSW index တွင် vector အသစ်များ ထပ်ထည့်ခြင်း (insert) ထက် ရှိပြီးသား point များကို ဖျက်ထုတ်ခြင်း (delete) က ပိုမို ရှုပ်ထွေးပြီး overhead များပါတယ်။ Faiss မှာ dead node တွေကို filter list ဖြင့် ချန်ထားတတ်ပါတယ်။ Filtered search က query မှာ condition (ဥပမာ `WHERE category = 'news'`) ပေါ် မူတည်ပြီး candidate လျှော့ချခြင်း ဖြစ်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 

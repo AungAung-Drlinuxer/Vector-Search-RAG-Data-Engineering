@@ -231,7 +231,7 @@ Model upgrade က RAG system တစ်ခုရဲ့ အကြီးမား�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-DAG (Directed Acyclic Graph) ဆိုတာ လုပ်ငန်းတာဝန်များ (task) တွေရဲ့ မှီခိုမှု (dependencies) ကို မကွေးတဲ့ graph အဖြစ် ကြေငြာတဲ့ နည်းပါ — "A ပြီးမှ B စ" ဆိုတဲ့ ချိတ်ဆက်မှုကို code ထဲ ရေးထားတာပါ။ Airflow နဲ့ Dagster က ဒီ DAG တွေကို schedule လုပ်၊ run လုပ်၊ စောင့်ကြည့် (monitor) လုပ်ပေးတဲ့ orchestrator နှစ်ခုပါ။ Vector search pipeline တစ်ခုက သာမန် script (plain script) ထက် DAG အဖြစ် ရေးရင် — extract → clean → chunk → embed → upsert ဆိုတဲ့ အဆင့်တွေရဲ့ ဆက်နွယ်မှု ကို framework က နားလည်ပြီး ပျက်တဲ့နေရာကို ပြန်စဖို့ အလွယ်တကူ ရွေးနိုင်စေပါတယ်။
+DAG (Directed Acyclic Graph) ဆိုတာ task များ၏ dependency (အမှီသဟဲပြုမှု) ကို loop မပတ်သော workflow graph အဖြစ် ကြေငြာသည့် ပုံစံဖြစ်ပါသည် — "A ပြီးမှ B စ" ဆိုတဲ့ ချိတ်ဆက်မှုကို code ထဲ ရေးထားတာပါ။ Airflow နဲ့ Dagster က ဒီ DAG တွေကို schedule လုပ်၊ run လုပ်၊ စောင့်ကြည့် (monitor) လုပ်ပေးတဲ့ orchestrator နှစ်ခုပါ။ Vector search pipeline တစ်ခုက သာမန် script (plain script) ထက် DAG အဖြစ် ရေးရင် — extract → clean → chunk → embed → upsert ဆိုတဲ့ အဆင့်တွေရဲ့ ဆက်နွယ်မှု ကို framework က နားလည်ပြီး ပျက်တဲ့နေရာကို ပြန်စဖို့ အလွယ်တကူ ရွေးနိုင်စေပါတယ်။
 
 Dagster ရဲ့ ထူးခြားချက်က "asset" (software-defined asset) ဆိုတဲ့ သဘော — chunk table, embedding table, index တိုင်းကို ရှေ့ဆက်ထုတ်လုပ်ရမယ့် ထုတ်ကုန် (asset) အဖြစ် ကြေငြာစေပြီး၊ lineage ကို first-class အဖြစ် ပြသပါတယ်။ Airflow ကတော့ task-centric အနေနဲ့ စတင်ခဲ့ပြီး ယနေ့ ဗားရှင်းများမှာ Dataset-based scheduling တွေ ထည့်ပေးထားပါတယ်။
 
