@@ -1,6 +1,6 @@
 # Vector Search & RAG Data Engineering
 
-Vector Search နဲ့ RAG (Retrieval-Augmented Generation — ရှာဖွေမှုနဲ့ ဖြည့်စွက်ပြီး စာတန်းထိုးတဲ့ မော်ဒယ်) Data Engineering အတွက် ကိုယ့်ဘာသာ လေ့လာနိုင်တဲ့ course ပါ။
+Vector Search နဲ့ RAG (Retrieval-Augmented Generation) Data Engineering အတွက် ကိုယ့်ဘာသာ လေ့လာနိုင်တဲ့ course ပါ။
 
 ## လွတ်လပ်မှု (Independence)
 
@@ -48,7 +48,7 @@ Module တစ်ခုစီမှာ file လေးခု ပါဝင်ပါ
 
 - `README.md` — module scope နဲ့ လေ့လာရမယ့် အချက်များ
 - `explanation.md` — သဘောတရား ရှင်းပြချက်၊ code နဲ့ တွက်ချက်မှုများ
-- `exercise.md` — ကိုယ်တိုင် လုပ်ရမယ့် လက်တွေ့ ပျိုးထုတ်ချက်
+- `exercise.md` — ကိုယ်တိုင် လုပ်ရမယ့် လက်တွေ့ လေ့ကျင့်ခန်း
 - `solution.md` — အဖြေနဲ့ ရှင်းလင်းချက်
 
 ## လေ့လာပုံ နည်းလမ်း
@@ -77,7 +77,7 @@ Module တွေကို အစီအစဉ်အတိုင်း တစ်�
 
 ## သတိပြုရန်
 
-ဒီ course ထဲက number တွေအားလုံးက ၂ မျိုးထဲမှ တစ်မျိုး ဖြစ်ပါတယ် — (က) သင်ခန်းစာထဲက ဖော်ပြထားတဲ့ formula နဲ့ တွက်ထုတ်ထားတာ၊ (ခ) module scope ထဲက နာမည်တပ်ထားတဲ့ တရားဝင် documentation ကနေ ကောက်နုတ်ထားတာပါ။ Recall value၊ latency၊ QPS၊ memory size တို့ကို မတင်းကား ဖန်တီးထားခြင်း မရှိပါ။ Index ရဲ့ recall နဲ့ behaviour က corpus အရွယ်အစား၊ parameter တန်ဖိုးတွေနဲ့ engine version အပေါ် မူတည်ပါတယ်။ ဒါကြောင့် ကိုယ်ပိုင်ဒေတာပေါ်မှာ ကိုယ်တိုင် တိုင်းတာဖို့ လိုပါတယ်။ LLM call တွေက runtime မှာ တကယ် မဖြစ်ပါ — scripted deterministic stand-in သာ သုံးထားပါတယ်။
+ဒီ course ထဲက number တွေအားလုံးက ၂ မျိုးထဲမှ တစ်မျိုး ဖြစ်ပါတယ် — (က) သင်ခန်းစာထဲက ဖော်ပြထားတဲ့ formula နဲ့ တွက်ထုတ်ထားတာ၊ (ခ) module scope ထဲက နာမည်တပ်ထားတဲ့ တရားဝင် documentation ကနေ ကောက်နုတ်ထားတာပါ။ Recall value၊ latency၊ QPS၊ memory size တို့ကို လုပ်ကြံ တီထွင်ထားခြင်း မရှိပါ။ Index ရဲ့ recall နဲ့ behaviour က corpus အရွယ်အစား၊ parameter တန်ဖိုးတွေနဲ့ engine version အပေါ် မူတည်ပါတယ်။ ဒါကြောင့် ကိုယ်ပိုင်ဒေတာပေါ်မှာ ကိုယ်တိုင် တိုင်းတာဖို့ လိုပါတယ်။ LLM call တွေက runtime မှာ တကယ် မဖြစ်ပါ — scripted deterministic stand-in သာ သုံးထားပါတယ်။
 
 ## ဒီ course ကို ဘယ်လို သုံးမလဲ
 

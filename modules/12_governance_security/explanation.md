@@ -3,7 +3,7 @@
 ဒီ module မှာ retrieval system တစ်ခုကို ဘယ်လို လုံခြုံအောင် ထိန်းသိမ်းမလဲ ဆိုတာကို လေ့လာရတယ်။
 ရည်ညွှန်းထားတဲ့ တရားဝင် documentation တွေကတော့ [PostgreSQL Row Security](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)၊ [PostgreSQL Text Search Controls](https://www.postgresql.org/docs/current/textsearch-controls.html) နဲ့ [Ragas docs](https://docs.ragas.io/) တို့ ဖြစ်ပါတယ်။
 
-## Subtopic 1 — Embedding ထဲ ကျန်နေတဲ့ PII (အချက်အလက် စာရင်းမှန်)
+## Subtopic 1 — Embedding ထဲ ကျန်နေတဲ့ PII (Personally Identifiable Information)
 
 ### ဘာကို ဆိုလိုတာလဲ
 
@@ -62,7 +62,7 @@ Store တစ်ခုလုံးကို စစ်ပြီး rebuild လု�
 အစပိုင်းမှာ စစ်တာက နောက်ပိုင်းမှာ ပြင်တာထက် ပို လွယ်တယ်။
 Data privacy ဥပဒေတွေနဲ့လည်း ကိုက်ညီအောင် လိုအပ်တယ်။
 
-## Subtopic 2 — Row-Level Security ဖြင့် Document ACL (ခွင့်ပြုချက် စာရင်း)
+## Subtopic 2 — Row-Level Security ဖြင့် Document ACL (Access Control List)
 
 ### ဘာကို ဆိုလိုတာလဲ
 
@@ -130,7 +130,7 @@ RAG system မှာ search index နဲ့ ACL filter က တစ်ပြို
 Filter ကို မေ့ရင် user တစ်ယောက်က မလုပ်သင့်တဲ့ document ကို ရှာတွေ့သွားမယ်။
 Postgres RLS က အဲဒါကို database အဆင့်မှာ အာမခံပေးတယ်။
 
-## Subtopic 3 — Multi-tenant Isolation (သုံးစွဲသူ များ ခွဲခြားခြင်း)
+## Subtopic 3 — Multi-tenant Isolation (Tenant များ ခွဲခြားခြင်း)
 
 ### ဘာကို ဆိုလိုတာလဲ
 

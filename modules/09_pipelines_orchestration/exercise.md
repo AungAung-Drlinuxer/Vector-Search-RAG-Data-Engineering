@@ -40,7 +40,7 @@ Embedding version ပြောင်းတဲ့အခါ migration အဆင့
 
 ## လေ့ကျင့်ခန်း ၅ — DAG dependency ကို topological sort နဲ့ ဖြေရှင်းပါ
 
-Airflow နဲ့ Dagster က task တွေကို DAG (directed acyclic graph — ညွှန်ပြမှု စွန်းမရှိတဲ့ graph) အဖြစ် မှတ်ယူပါတယ်။
+Airflow နဲ့ Dagster က task တွေကို DAG (Directed Acyclic Graph — task dependency graph) အဖြစ် မှတ်ယူပါတယ်။
 
 **Task:** Task dependency table တစ်ခုကနေ run order တွက်ပေးတဲ့ topological sort function ရေးပါ။
 

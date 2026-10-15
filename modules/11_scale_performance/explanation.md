@@ -8,7 +8,7 @@
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Quantization (quantization — vector ထဲက ကိန်းတွေကို ပိုသေးတဲ့ ပုံစံနဲ့ သိမ်းတဲ့နည်း) က vector memory အရွယ်ကို လျှော့ပေးတဲ့ နည်းပါတယ်။ Scalar quantization က float32 (32 bit) အစား int8 (8 bit) သို့မဟုတ် binary (1 bit) နဲ့ သိမ်းတာပါ။ Product Quantization (PQ) က dimension တွေကို အပိုင်းခွဲပြီး အပိုင်းတိုင်းကို codebook (codebook — ကိန်းအစုကို ကိုယ်စားပြတဲ့ စာရင်း) နဲ့ သိမ်းတာပါ။
+Quantization ဆိုတာ vector ထဲက တန်ဖိုးတွေကို precision လျှော့ချပြီး memory အရွယ်အစား သက်သာအောင် သိမ်းဆည်းတဲ့ နည်းလမ်း ဖြစ်ပါတယ်။ Scalar quantization က float32 (32 bit) အစား int8 (8 bit) သို့မဟုတ် binary (1 bit) နဲ့ သိမ်းတာပါ။ Product Quantization (PQ) က dimension တွေကို subvector အပိုင်းခွဲကာ codebook ဖြင့် သိမ်းဆည်းတာ ဖြစ်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 
@@ -20,7 +20,7 @@ Vector တစ်ခုက fp32 မှာ dimension တစ်ခုကို 4 by
 ၂။ Scalar quantization မှာ float တန်ဖိုးကို int အဆင့်ထဲ မြှောက်ပြီး သိမ်းပါတယ်။
 ၃။ Binary quantization မှာ ပုစ္ဆာသင်္ချာသဘောနဲ့ အနှုတ်/အပေါင်း သာ သိမ်းပါတယ်။
 ၄။ PQ မှာ dimension တွေကို subvector အပိုင်းလိုက် ခွဲပါတယ်။
-၅။ Subvector တိုင်းကို အနီးဆုံး centroid (centroid — အလယ်က ကိုယ်စားကိန်း) တစ်ခုနဲ့ ရည်ညွှန်းပါတယ်။
+၅။ Subvector တိုင်းကို အနီးဆုံး centroid (cluster center) တစ်ခုနဲ့ ကိုယ်စားပြုပါတယ်။
 ၆။ Memory သက်သာပေမယ့် recall နည်းနိုင်တဲ့ အပေးအယူ ရှိတယ်ဆိုတာကို လက်ခံရပါမယ်။
 
 ### ဥပမာ
@@ -61,7 +61,7 @@ Qdrant ရဲ့ quantization guide (https://qdrant.tech/documentation/guides/qu
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Recall (recall — မှန်တဲ့အဖြေတွေကို ဘယ်နှုန်းထက်ထက် ပြန်တွေ့တယ် ဆိုတဲ့ အညွှန်း) နဲ့ memory usage က တစ်ခုတည်း မဟုတ်ပါ။ Quantization ပြင်းရင် memory ကျပေမယ့် အချို့အဖြေတွေ ပျောက်သွားနိုင်ပါတယ်။ ဒါကြောင့် oversampling (oversampling — လိုအပ်တဲ့ထက် ပိုရှာပြီး နောက်မှ ပြန်စစ်တဲ့နည်း) သုံးတတ်ပါတယ်။
+Recall (ရှာဖွေမှု တိကျနှုန်း) နဲ့ memory usage က တစ်ခုတည်း မဟုတ်ပါ။ Quantization ပြင်းရင် memory ကျပေမယ့် အချို့အဖြေတွေ ပျောက်သွားနိုင်ပါတယ်။ ဒါကြောင့် oversampling (လိုအပ်သည်ထက် ပိုရှာပြီး re-scoring ပြန်လုပ်သည့်နည်း) သုံးတတ်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 
@@ -124,7 +124,7 @@ Qdrant docs မှာ quantization သုံးတဲ့အခါ re-scoring အ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-PQ (Product Quantization — vector တစ်ခုကို အပိုင်းခွဲပြီး အပိုင်းတိုင်းကို codebook နဲ့ သိမ်းတဲ့နည်း) က Jégou et al. 2011 စာတမ်း (https://arxiv.org/abs/0903.2314) က မိတ်ဆက်ခဲ့တဲ့ နည်းပါတယ်။ FAISS wiki (https://github.com/facebookresearch/faiss/wiki) မှာလည်း `IndexIVFPQ` လိုမျိုးတွေနဲ့ တရားဝင် support လုပ်ပါတယ်။
+Product Quantization (PQ) က Jégou et al. 2011 စာတမ်း (https://arxiv.org/abs/0903.2314) က မိတ်ဆက်ခဲ့တဲ့ နည်းပါတယ်။ FAISS wiki (https://github.com/facebookresearch/faiss/wiki) မှာလည်း `IndexIVFPQ` လိုမျိုးတွေနဲ့ တရားဝင် support လုပ်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 
@@ -196,7 +196,7 @@ FAISS wiki မှာ PQ က memory အများဆုံးသက်သာတ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Dimension reduction (dimension reduction — vector ရဲ့ dimension အရေအတွက်ကို လျှော့တဲ့နည်း) က memory နဲ့ compute နှစ်ခုလုံး သက်သာစေပါတယ်။ PQ မှာ subvector အပိုင်းရေ `m` ကို လျှော့တာဟာလည်း ဒီနည်းနဲ့ တူတူ ဆင်တာပါပဲ။
+Dimension Reduction (dimension လျှော့ချခြင်း) က memory နဲ့ compute နှစ်ခုလုံး သက်သာစေပါတယ်။ PQ မှာ subvector အပိုင်းရေ `m` ကို လျှော့တာဟာလည်း ဒီနည်းနဲ့ တူတူ ဆင်တာပါပဲ။
 
 ### ဘာကြောင့် လဲ
 
@@ -249,19 +249,19 @@ Qdrant docs မှာ တစ်ဖက်က quantization နဲ့ တစ်ဖ�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Sharding (sharding — data တွေကို server အများအပြားထဲ ကျဲထည့်တဲ့နည်း) က data တစ်ခုတည်း မဆံ့တော့တဲ့အခါ အလုပ်ခွဲယူဖို့ သုံးပါတယ်။ Index rebuild (rebuild — ဒေတာအားလုံးပြန်စုပြီး index အသစ်တည်ဆောက်တဲ့အလုပ်) နဲ့ bulk load ရဲ့ နည်းလမ်းတွေကလည်း ဒီဇိုးရီမှာ ထိုင်ပါတယ်။
+Sharding ဆိုတာ data တွေကို node/server အများအပြားထဲ ခွဲဝေသိမ်းဆည်းသည့် နည်းလမ်းဖြစ်ပါတယ်။ Index rebuild နဲ့ bulk load ရဲ့ နည်းလမ်းတွေကလည်း ဒီခေါင်းစဉ်အောက်တွင် အကျုံးဝင်ပါတယ်။
 
 ### ဘာကြောင့် လဲ
 
-Index တစ်ခုကို insert တစ်ခုချင်းနဲ့ တည်ဆောက်ရင် တစ်ခုနဲ့တစ်ခု ကြားမှာ လမ်းကြောင်းတွေ ထပ်တိုးရလို့ အလုပ်များပါတယ်။ Data အားလုံးကို အရင်တင်ပြီးမှ index ဆောက်ရင် (build after load) အမြန်ဆုံး ဖြစ်ပါတယ်။ pgvector README (https://github.com/pgvector/pgvector#performance) မှာလည်း data load ပြီးမှ index create လုပ်ဖို့ အကြံပေးထားပါတယ်။ Server တစ်လုံးကို data တစ်ခုတည်း များလာရင် memory နဲ့ QPS (QPS — စက္ကန့်တစ်ခါမှာ မေးခွန်း ဘယ်နှစ်ခု အဖြေပေးနိုင်လဲ) ကို မတက်နိုင်တော့ပါဘူး။
+Index တစ်ခုကို insert တစ်ခုချင်းနဲ့ တည်ဆောက်ရင် တစ်ခုနဲ့တစ်ခု ကြားမှာ လမ်းကြောင်းတွေ ထပ်တိုးရလို့ အလုပ်များပါတယ်။ Data အားလုံးကို အရင်တင်ပြီးမှ index ဆောက်ရင် (build after load) အမြန်ဆုံး ဖြစ်ပါတယ်။ pgvector README (https://github.com/pgvector/pgvector#performance) မှာလည်း data load ပြီးမှ index create လုပ်ဖို့ အကြံပေးထားပါတယ်။ Server တစ်လုံးထဲ ဒေတာ များပြားလာပါက memory မလုံလောက်ခြင်းနှင့် QPS (Queries Per Second) မတက်နိုင်တော့ခြင်းများ ကြုံရပါတယ်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Data တွေကို shard key (shard key — ဒေတာတစ်ခု ဘယ် server ထဲ သွားမလဲ ဆုံးဖြတ်ပေးတဲ့ သော့) နဲ့ ခွဲပါတယ်။
+၁။ Data တွေကို shard key (partition key) ဖြင့် ခွဲခြားပါတယ်။
 ၂။ ရှာတဲ့အခါ shard တိုင်းကို ဝင်ရှာပြီး အဖြေတွေ ပြန်ပေါင်းပါတယ်။
 ၃။ Bulk load မှာ ဒေတာအားလုံးကို အရင်တင်ပါတယ်။
 ၄။ Index ကို ဒေတာအားလုံး ပြီးမှ တည်ဆောက်ပါတယ်။
-၅။ ရံဖန်ရံခါ index ကို rebuild လုပ်ပြီး အင်မြင်ခံကောင်းအောင် ထိန်းပါတယ်။
+၅။ ရံဖန်ရံခါ index ကို rebuild လုပ်ပြီး query performance ကောင်းမွန်အောင် ထိန်းသိမ်းပါတယ်။
 
 ### ဥပမာ
 

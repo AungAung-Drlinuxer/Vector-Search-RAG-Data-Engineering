@@ -76,7 +76,7 @@ Vector search နဲ့ keyword search ကို ပေါင်းစပ်န�
 
 ## M7 — `07_reranking/` — Reranking နှင့် Query ပြောင်းလဲခြင်း
 
-Bi-encoder (embedding ချင်း နှိုင်းတဲ့ မော်ဒယ်) နဲ့ cross-encoder (query နဲ့ document ကို တွဲဖက် ဖတ်တဲ့ မော်ဒယ်) ကွာခြားချက်ကို သင်ပါတယ်။ Reranking ရဲ့ latency ကုန်ကျစရိတ်၊ top-k ရွေးချယ်မှု၊ HyDE (Hypothetical Document Embedding — တွေးဆင်းခြင်း စာတု နဲ့ ရှာတဲ့နည်း)၊ multi-query expansion နဲ့ MMR (Maximal Marginal Relevance — အတူတူ ရလဒ် လျှော့ပြီး စုံစုံလင်းလင်း ရအောင် ရွေးတဲ့နည်း) တွေ ပါပါတယ်။ LLM နေရာမှာ deterministic stand-in သုံးပြပါမယ်။
+Bi-encoder (embedding ချင်း နှိုင်းတဲ့ မော်ဒယ်) နဲ့ cross-encoder (query နဲ့ document ကို တွဲဖက် ဖတ်တဲ့ မော်ဒယ်) ကွာခြားချက်ကို သင်ပါတယ်။ Reranking ရဲ့ latency ကုန်ကျစရိတ်၊ top-k ရွေးချယ်မှု၊ HyDE (Hypothetical Document Embedding)၊ multi-query expansion နဲ့ MMR (Maximal Marginal Relevance — ထပ်နေသော ရလဒ်များကို လျှော့ချပြီး အဖြေ စုံလင်စေရန် ရွေးသည့်နည်း) တွေ ပါပါတယ်။ LLM နေရာမှာ deterministic stand-in သုံးပြပါမယ်။
 
 ဒီ module ပြီးရင် လုပ်နိုင်ရမည့်အရာ — Retrieval ရလဒ်ကို ပြန်စဉ်တဲ့ rerank အဆင့်တစ်ခု ဒီဇိုင်းနိုင်ရမယ်။ HyDE နဲ့ multi-query တွေကို ဘယ်အချိန် သုံးမလဲ ဆုံးဖြတ်နိုင်ရမယ်။
 
@@ -165,6 +165,6 @@ Ingest → chunk → embed → index → retrieve → rerank → evaluate အဆ
 
 ## Capstone
 
-Capstone မှာ ကိုယ်ရွေးချယ်တဲ့ corpus တစ်ခုအတွက် စုံစုံလင်းလင်း RAG retrieval stack တစ်ခု ဒီဇိုင်းရမယ်ပါတယ်။ ပါရမည် အချက်တွေက — ingestion plan၊ chunking strategy နဲ့ အကြောင်းပြချက်၊ embedding model ရွေးချယ်မှုနှင့် dimension၊ index အမျိုးအစားနှင့် parameter၊ hybrid search နှင့် reranking ဆုံးဖြတ်ချက်၊ evaluation စီမံချက် (golden set နှင့် metric)၊ storage/QPS/ကုန်ကျစရိတ် တွက်ချက်မှု၊ နှင့် governance (ACL၊ retention၊ PII) အစီအစဉ်တို့ ဖြစ်ပါတယ်။
+Capstone မှာ ကိုယ်ရွေးချယ်တဲ့ corpus တစ်ခုအတွက် ပြည့်စုံသော RAG retrieval stack တစ်ခု ဒီဇိုင်းရပါမယ်။ ပါရမည် အချက်တွေက — ingestion plan၊ chunking strategy နဲ့ အကြောင်းပြချက်၊ embedding model ရွေးချယ်မှုနှင့် dimension၊ index အမျိုးအစားနှင့် parameter၊ hybrid search နှင့် reranking ဆုံးဖြတ်ချက်၊ evaluation စီမံချက် (golden set နှင့် metric)၊ storage/QPS/ကုန်ကျစရိတ် တွက်ချက်မှု၊ နှင့် governance (ACL၊ retention၊ PII) အစီအစဉ်တို့ ဖြစ်ပါတယ်။
 
 တင်ပြချက်မှာ ကိန်းဂဏန်းတိုင်းအတွက် formula ဒါမှမဟုတ် official doc ကို ညွှန်ပြရပါမယ်။ ဒီဇိုင်းကို အဖွဲ့နဲ့ ဆန်းစစ်ပြီး အားနည်းချက်ကို မှတ်တမ်းတင်ထားရင် လေးစားခံရတဲ့ အလုပ်တစ်ခု ဖြစ်ပါတယ်။

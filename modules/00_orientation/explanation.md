@@ -1,7 +1,7 @@
 # M0 — RAG Data Engineering ရဲ့ မြေပုံ၊ Pipeline အဆင့်များနှင့် Vector Search ကို ဘယ်အချိန်သုံးမလဲ
 
 ဒီ module က ဒီ course ရဲ့ ပထမဆုံး အခြေခံသင်ခန်းစာ ဖြစ်ပါတယ်။
-RAG (Retrieval-Augmented Generation — ရှာဖွေမှုနဲ့ ပေါင်းစပ်ထားတဲ့ စာကြောင်း ထုတ်ပေးမှု) ရဲ့ မြေပုံကို ကြည့်ပါမယ်။
+RAG (Retrieval-Augmented Generation — အချက်အလက် ရှာဖွေပြီးမှ အဖြေထုတ်ပေးသည့် စနစ်) ရဲ့ မြေပုံကို ကြည့်ပါမယ်။
 အားလုံးရဲ့ အခြေခံက official documentation တွေပဲ ဖြစ်ပါတယ် — pgvector, LlamaIndex, LangChain ရဲ့ open docs တွေပါ။
 
 ---
@@ -26,7 +26,7 @@ LlamaIndex docs မှာလည်း RAG ကို အဆင့်ခွဲပ�
 
 ၁။ **ingest** — document (PDF, web page, database record) တွေကို စနစ်ထဲ ယူလာပါတယ်။
 ၂။ **chunk** — စာရှည်ကြီးကို အပိုင်းလေးတွေ ဖြတ်ပါတယ် (chunk ဆိုတာ စာအပိုင်းလေး ဖြစ်ပါတယ်)။
-၃။ **embed** — chunk တစ်ခုချင်းစီကို vector (ကိန်းတန်း — အမှတ်အသားတွေရဲ့ အစဉ်) အဖြစ် ပြောင်းပါတယ်။
+၃။ **embed** — chunk တစ်ခုချင်းစီကို vector (numeric embedding) အဖြစ် ပြောင်းပါတယ်။
 ၄။ **index** — vector တွေကို vector store ထဲ သိမ်းပါတယ်။
 ၅။ **retrieve** — မေးခွန်းကို vector အဖြစ် ပြောင်းပြီး ဆင်တူတဲ့ chunk တွေကို ရှာပါတယ်။
 ၆။ **rerank** — ရှာတွေ့တဲ့ chunk တွေကို အရေးကြီးစွာ ပြန်စီပါတယ်။
