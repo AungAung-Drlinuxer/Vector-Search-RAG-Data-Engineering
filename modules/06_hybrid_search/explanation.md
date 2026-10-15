@@ -84,7 +84,122 @@ RAG system တိုင်းမှာ keyword လမ်းက လိုအပ�
 
 ---
 
-## Subtopic 2 — Trigram Similarity
+## Subtopic 2 — BM25 Ranking (စကားလုံး တူညီမှု အမှတ်ပေးခြင်း)
+
+### ဘာကို ဆိုလိုတာလဲ
+
+BM25 (Best Matching 25 — Okapi BM25) ဆိုတာ query ထဲက စကားလုံးတွေ ပါဝင်ပုံ အခြေခံပြီး
+document တစ်ခုချင်းစီကို အမှတ်ပေးတဲ့ **ranking function** ဖြစ်ပါတယ်။ probabilistic
+information retrieval သီအိုရီ (Robertson & Zaragoza) ကနေ ဆင်းသက်လာပြီး
+Elasticsearch၊ OpenSearch (Lucene) တို့ရဲ့ **default ranking algorithm** ဖြစ်ပါတယ်။
+PostgreSQL ရဲ့ `ts_rank` နဲ့ အလုပ်လုပ်ပုံ မတူပါ — BM25 မှာ document အရှည်
+(length normalization) နဲ့ စကားလုံး ထပ်တလဲလဲ ပါဝင်မှု (term frequency saturation)
+ကို သင်္ချာနဲ့ ထိန်းချုပ်ပေးပါတယ်။
+
+### ဘာကြောင့် လဲ
+
+ရိုးရိုး term count (စကားလုံး ရေတွက်) နဲ့ အမှတ်ပေးရင် ပြဿနာ နှစ်ခု ရှိပါတယ် —
+
+1. **စကားလုံး ထပ်တလဲလဲ ပါရုံနဲ့ အမှတ် ဆက်တက်နေမယ်** — "quick" ၁၀ ကြိမ် ပါတဲ့
+   document က ၁ ကြိမ် ပါတာထက် ၁၀ ဆ ကောင်းတာ မဟုတ်ပါဘူး။
+2. **စာရှည် document တွေ အားသာမယ်** — စာရှည်ရင် စကားလုံး ပါဖို့ အခွင့်အလမ်း
+   ပိုများလို့ ရေတွက်ရုံနဲ့ဆို မျှတမှု မရှိပါဘူး။
+
+BM25 က ဒီနှစ်ခုလုံးကို ဖြေရှင်းပါတယ် — tf ကို သတ်မှတ်ထားတဲ့ အမြင့်ဆုံး အထိသာ
+တက်ခွင့်ပြု (saturation) ပြီး document အရှည်ကို corpus ပျမ်းမျှ အရှည်နဲ့ ချိန်ပေးပါတယ်။
+tf-idf ထက် ရလဒ် ပိုကောင်းတဲ့ အကြောင်းရင်းလည်း ဒါပါပဲ။
+
+### ဘယ်လို အလုပ်လုပ်လဲ
+
+Query ထဲက စကားလုံး တစ်လုံးချင်းစီအတွက် အောက်ပါ ပုံသေနည်း အတိုင်း တွက်ပြီး
+စုစုပေါင်း ပေါင်းပါတယ် —
+
+```
+score(D, Q) = Σ IDF(qᵢ) · (f(qᵢ,D) · (k1 + 1))
+                         / (f(qᵢ,D) + k1 · (1 − b + b · |D| / avgdl))
+
+IDF(qᵢ) = ln(1 + (N − n(qᵢ) + 0.5) / (n(qᵢ) + 0.5))
+```
+
+| သင်္ကေတ | အဓိပ္ပာယ် |
+|---|---|
+| `f(qᵢ,D)` | document D ထဲ စကားလုံး qᵢ ပါဝင်ရေ (term frequency) |
+| `|D|` | document D ရဲ့ စကားလုံး အရေအတွက် |
+| `avgdl` | corpus ထဲက document တွေရဲ့ ပျမ်းမျှ စကားလုံး အရေအတွက် |
+| `N` | corpus ထဲက document အရေအတွက် |
+| `n(qᵢ)` | စကားလုံး qᵢ ပါတဲ့ document အရေအတွက် |
+| `k1` | tf saturation ထိန်းချုပ်မှု — ပုံမှန် 1.2–2.0 |
+| `b` | length normalization ထိန်းချုပ်မှု — 0 (မထိန်း) မှ 1 (အပြည့်ထိန်း)၊ ပုံမှန် 0.75 |
+
+IDF (inverse document frequency) က ရှားပါးစကားလုံးကို ပိုအလေးပေးပါတယ် — corpus
+တစ်ခုလုံးမှာ ပါတဲ့ စကားလုံး (ဥပမာ "the") က IDF နည်းပြီး ရှားတဲ့ စကားလုံးက များပါတယ်။
+
+**tf-idf vs BM25 vs ts_rank နှိုင်းယှဉ်ချက်**
+
+| အချက် | tf-idf | BM25 | PostgreSQL `ts_rank` |
+|---|---|---|---|
+| tf handling | ရိုးရိုး မြှောက် | saturation (`k1`) | weights ဖြင့် ထိန်း |
+| document အရှည် | မထိန်း | normalization (`b`) | ပါ/မပါ အလိုက် ပြောင်း |
+| ဘယ်မှာ သုံးလဲ | အခြေခံ ဥပမာများ | Elasticsearch/OpenSearch default | PostgreSQL full-text |
+
+### ဥပမာ
+
+```python
+# Deterministic offline demo of Okapi BM25, standard library only.
+# No database is used here. k1=1.5, b=0.75 are typical values.
+import math
+
+docs = {
+    'd1': 'postgres vector search with pgvector',
+    'd2': 'postgres full text search ranking with tsvector and tsquery in postgres',
+    'd3': 'vector search ranking comparison',
+}
+query = ['postgres', 'ranking']
+k1, b = 1.5, 0.75
+
+tokens = {d: t.split() for d, t in docs.items()}
+N = len(docs)
+avgdl = sum(len(t) for t in tokens.values()) / N
+df = {q: sum(1 for t in tokens.values() if q in t) for q in query}
+
+def idf(q):
+    return math.log(1 + (N - df[q] + 0.5) / (df[q] + 0.5))
+
+def bm25_score(d):
+    total = 0.0
+    for q in query:
+        f = tokens[d].count(q)
+        denom = f + k1 * (1 - b + b * len(tokens[d]) / avgdl)
+        total += idf(q) * (f * (k1 + 1)) / denom if f else 0.0
+    return total
+
+# Expected output:
+# avgdl = 6.6667 | df = {'postgres': 2, 'ranking': 2}
+# d1 total = 0.5296
+# d2 total = 0.9190
+# d3 total = 0.5732
+# ranking: d2 > d3 > d1
+```
+
+ရှင်းလင်းချက် — d2 က စကားလုံး နှစ်လုံးစလုံး ပါလို့ ထိပ်က ရောက်ပါတယ်။ 'ranking'
+စကားလုံး တစ်လုံးချင်း ကြည့်ရင် d2 (စာရှည်) က 0.3636 ပဲ ရပြီး d3 (စာတို) က
+0.5732 ရပါတယ် — တူညီတဲ့ tf=1 ဖြစ်ပေမယ့် length normalization ကြောင့်
+စာတို document က အမှတ် ပိုရတာပါ။
+
+### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+
+- **Elasticsearch/OpenSearch** ရဲ့ default ranking က BM25 ဖြစ်လို့ keyword search
+  engine သုံးရင် ဒီသင်္ချာ နားလည်ထားရင် score တွေ ရှင်းပါတယ်။
+- **PostgreSQL** က native BM25 မပေးပါ — `ts_rank` ကွဲပါတယ်။ Lucene အခြေခံ
+  extension များ (ဥပမာ ParadeDB `pg_search`) က PostgreSQL ထဲ BM25 index
+  ယူဆောင်လာပေးပါတယ်။
+- **Hybrid search** မှာ BM25 က lexical lane (စကားလုံး လမ်း) ရဲ့ အမှတ်ပေးစနစ် ဖြစ်ပြီး
+  dense vector က semantic lane (အဓိပ္ပာယ် လမ်း) ဖြစ်ပါတယ် — နှစ်လမ်း score/rank
+  ကို Subtopic 4 (normalization) နှင့် Subtopic 5 (RRF) နဲ့ ပေါင်းပါတယ်။
+- Sparse neural retriever များ (ဥပမာ SPLADE) က BM25 ရဲ့ lexical အားသာချက်ကို
+  neural နည်းနဲ့ ချဲ့ထွင်တာ ဖြစ်ပါတယ် — နောက်ပိုင်း ခေါင်းစဉ်များတွင် ဆက်လေ့လာနိုင်ပါတယ်။
+
+## Subtopic 3 — Trigram Similarity
 
 ### ဘာကို ဆိုလိုတာလဲ
 
@@ -144,7 +259,7 @@ User တွေ စာလုံးပေါင်း မှားတတ်ပါ�
 
 ---
 
-## Subtopic 3 — Score Normalization (အမှတ်ပေးချက် တူညီအောင် လုပ်ခြင်း)
+## Subtopic 4 — Score Normalization (အမှတ်ပေးချက် တူညီအောင် လုပ်ခြင်း)
 
 ### ဘာကို ဆိုလိုတာလဲ
 
@@ -196,7 +311,7 @@ print("normalized weighted sum:", {d: round(v, 3) for d, v in final.items()})
 
 ---
 
-## Subtopic 4 — Reciprocal Rank Fusion (RRF)
+## Subtopic 5 — Reciprocal Rank Fusion (RRF)
 
 ### ဘာကို ဆိုလိုတာလဲ
 

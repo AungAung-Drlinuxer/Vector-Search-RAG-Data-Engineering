@@ -34,7 +34,36 @@ Trigram (စာလုံး ၃ လုံးတွဲ) similarity က စာလ�
 
 **Expected behavior:** `"postgres"` vs `"postgresql"` က similarity တန်ဖိုးတစ်ခု ရပါတယ် (arithmetic ကို ကိုယ်တိုင် တွက်ပြပါ)။ `"postgres"` vs `"banana"` က 0 နဲ့ နီးပါတယ်။ တွက်ချက်မှု အဆင့်ဆင့်ကို ပရင့်ထုတ်ပြပါ။
 
-## လေ့ကျင့်ခန်း ၄ — Weighted sum မှာ score normalization ရဲ့ အရေးကြီးမှု
+## လေ့ကျင့်ခန်း ၄ — BM25 score တွက်ခြင်း
+
+BM25 က keyword search engine တွေ (Elasticsearch/OpenSearch) ရဲ့ default ranking
+ဖြစ်ပါတယ်။ ဒီလေ့ကျင့်ခန်းမှာ ပုံသေနည်းကို လက်နဲ့ တွက်ကြည့်ပါမယ်။
+
+**Task:** အောက်ပါ corpus အတွက် query `['quick', 'fox']` ရဲ့ BM25 score တွေ
+တွက်ပြီး document များကို အမှတ် အမြင့်စီ စီပါ — `k1=1.2`, `b=0.75` သုံးပါ။
+
+```
+d1: 'the quick brown fox'
+d2: 'the quick quick fox sleeps in the warm sun'
+d3: 'a sleepy fox in the barn'
+```
+
+အဆင့်များ — (၁) စကားလုံး ခွဲပြီး document အလိုက် အရှည်နဲ့ `avgdl` တွက်ပါ။
+(၂) query စကားလုံး တစ်လုံးချင်းအတွက် `df` (ပါတဲ့ document ရေ) ရှာပြီး IDF တွက်ပါ။
+(၃) ပုံသေနည်းအတိုင်း တစ်လုံးချင်း score ထုတ်ပြီး ပေါင်းပါ။
+
+**Hints:** `math.log` ကို သုံးပါ — `math.log(1 + (N - df + 0.5) / (df + 0.5))`။
+`f(q, D)` က document ထဲ စကားလုံး ထပ်ပါရင် ရေတွက်ပါ (d2 မှာ `quick` ၂ ကြိမ်)။
+denominator မှာ document အလိုက် `|D| / avgdl` ပြန်တွက်ရမှာ မမေ့ပါနဲ့။
+
+**Expected behavior:**
+- `avgdl = 6.3333`၊ `df(quick) = 2`၊ `df(fox) = 3`
+- `idf(quick) = 0.470004`၊ `idf(fox) = 0.133531`
+- စုစုပေါင်း: `d1 = 0.7106`၊ `d2 = 0.6917`၊ `d3 = 0.1365` — ranking: **d1 > d2 > d3**
+- Observation တစ်ကြောင်း ရေးပါ — d2 မှာ `quick` ၂ ကြိမ် ပါပေမယ့် ဘာကြောင့်
+  d1 အောက် ရောက်သွားလဲ (saturation + length normalization)။
+
+## လေ့ကျင့်ခန်း ၅ — Weighted sum မှာ score normalization ရဲ့ အရေးကြီးမှု
 
 Vector score နဲ့ BM25 score (စာလုံးရှာမှုရဲ့ ranking score) က scale မတူပါ။ normalization (အတိုင်းအတာ ညီမျှအောင်လုပ်တဲ့နည်း) မလုပ်ရင် ပေါင်းတဲ့အခါ တစ်ဖက်က အလွန်ကိုင်းပါတယ်။
 
@@ -44,7 +73,7 @@ Vector score နဲ့ BM25 score (စာလုံးရှာမှုရဲ့
 
 **Expected behavior:** နည်း (၁) မှာ BM25 ကြီးတဲ့ document က ထိပ်မှာ ရောက်ပါတယ်။ နည်း (၂) မှာ ranking က ပြောင်းသွားပါတယ်။ ဒီနှိုင်းယှဉ်ချက်က normalization ဘာကြောင့် လိုအပ်တယ်ဆိုတာ ပြပါတယ်။
 
-## လေ့ကျင့်ခန်း ၅ — Reciprocal Rank Fusion (RRF) အခြေခံ
+## လေ့ကျင့်ခန်း ၆ — Reciprocal Rank Fusion (RRF) အခြေခံ
 
 RRF (rank အားဖြင့် ပေါင်းတဲ့နည်း) က score scale ကို မှားစရာ မရှိပါဘူး — rank ပေါ် အခြေခံပါတယ်။ Elasticsearch/OpenSearch တို့မှာ ဒီ parameter `k` နဲ့ အလုပ်လုပ်ပါတယ်။
 
@@ -54,7 +83,7 @@ RRF (rank အားဖြင့် ပေါင်းတဲ့နည်း) က 
 
 **Expected behavior:** doc A က vector rank 1၊ keyword rank 3 ဖြစ်ပြီး doc B က vector rank 4၊ keyword rank 1 ဆိုရင် — `k=60` နဲ့ A ရဲ့ RRF က `1/61 + 1/63` ဖြစ်ပြီး B ရဲ့ RRF က `1/64 + 1/61` ဖြစ်ပါတယ်။ နောက်ဆုံး ranking က B ပို တက်သွားပုံ ပြပါ။
 
-## လေ့ကျင့်ခန်း ၆ — Full hybrid pipeline: နှစ်လမ်းဖြန့်ပြီး RRF နဲ့ ပေါင်းခြင်း
+## လေ့ကျင့်ခန်း ၇ — Full hybrid pipeline: နှစ်လမ်းဖြန့်ပြီး RRF နဲ့ ပေါင်းခြင်း
 
 ဒီနောက်ဆုံး လေ့ကျင့်ခန်းက တကယ့် hybrid search (vector နဲ့ keyword နှစ်လမ်း ပေါင်းရှာတာ) ရဲ့ သေးသေးလေး မော်ဒယ်ပါ။
 

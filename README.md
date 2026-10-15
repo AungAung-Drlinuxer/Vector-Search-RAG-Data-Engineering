@@ -29,7 +29,7 @@ RAG system တစ်ခုကို data engineer အနေနဲ့ တည်�
 - `03_embeddings/` — M3 — Embedding model ရွေးချယ်မှု၊ dimension၊ distance metric၊ caching
 - `04_hnsw/` — M4 — HNSW index အတွင်းပိုင်း၊ parameter၊ recall၊ memory
 - `05_pgvector/` — M5 — PostgreSQL + pgvector schema၊ operator၊ index၊ tuning
-- `06_hybrid_search/` — M6 — Full-text၊ trigram နဲ့ RRF ပေါင်းစပ်ခြင်း
+- `06_hybrid_search/` — M6 — Full-text၊ BM25၊ trigram နှင့် RRF ပေါင်းစပ်ခြင်း
 - `07_reranking/` — M7 — Cross-encoder၊ HyDE၊ multi-query၊ MMR
 - `08_serving_architecture/` — M8 — Retrieval API၊ cache၊ pgvector vs vector DB
 - `09_pipelines_orchestration/` — M9 — Batch/streaming ingestion၊ backfill၊ migration
