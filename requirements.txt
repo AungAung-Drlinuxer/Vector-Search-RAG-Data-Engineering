@@ -1,0 +1,7 @@
+# Core Labs: Python standard library only (no external packages required)
+#
+# Optional packages for live database testing with PostgreSQL & pgvector:
+psycopg[binary]>=3.1.18
+pgvector>=0.2.5
+numpy>=1.26.0
+pytest>=8.0.0

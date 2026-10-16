@@ -50,7 +50,7 @@ SQL နမူနာများသည် PostgreSQL + pgvector stack ကို �
 
 ## Folder Structure
 
-Module တစ်ခုစီတွင် file ၄ ခု ပါဝင်သည် —
+Module တစ်ခုစီတွင် file ၅ ခု ပါဝင်သည် —
 
 | File | အကြောင်းအရာ |
 |---|---|
@@ -58,6 +58,23 @@ Module တစ်ခုစီတွင် file ၄ ခု ပါဝင်သည�
 | `explanation.md` | သဘောတရား ရှင်းလင်းချက်၊ formula၊ deterministic code example |
 | `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း |
 | `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
+| `lab.py` | Local machine ပေါ်တွင် တိုက်ရိုက် run ၍ test လုပ်နိုင်သော executable lab |
+
+## Hands-on Labs & Local Testing
+
+Course တစ်ခုလုံးတွင် ပါဝင်သော algorithm များနှင့် pipeline အားလုံးကို local တွင် automated test ပြုလုပ်နိုင်ရန် lab environment ပြင်ဆင်ထားသည် (အသေးစိတ်ကို `LABS_GUIDE.md` တွင် ဖတ်ရှုပါ) —
+
+```bash
+# Core Labs အားလုံး (၈၅ ခု) ကို ချက်ချင်း run ပြီး စစ်ဆေးရန် (Python standard library only)
+python run_all_labs.py
+
+# သီးခြား module တစ်ခုတည်း စမ်းသပ်ရန်
+python modules/01_ingestion/lab.py
+
+# PostgreSQL + pgvector live database ဖြင့် စမ်းသပ်ရန်
+docker compose up -d
+python modules/05_pgvector/live_db_test.py
+```
 
 ## လေ့လာမှု နည်းလမ်း
 
