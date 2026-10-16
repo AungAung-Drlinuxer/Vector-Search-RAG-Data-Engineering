@@ -1,14 +1,14 @@
 # M0 — RAG Data Engineering ရဲ့ မြေပုံ
 
-ဒီ module က RAG (Retrieval-Augmented Generation) pipeline ရဲ့ အဆင့် ၈ ခုကို ခြေဆန့်ပြီး သင်ကြားပေးပါတယ်။
+ဒီ module သည် RAG (Retrieval-Augmented Generation) pipeline ၏ အဆင့် ၈ ခုကို အနှံ့အပြား သုံးသပ်ထားသည်။
 
 ## ဒီ module မှာ ဘာသင်မလဲ
 
-- RAG ဆိုတာ ဘာလဲ၊ ဘာကြောင့် လိုအပ်လဲ ဆိုတာကို အရင် နားလည်ပါမယ်။
-- Pipeline အဆင့် ၈ ခု — ingest (data ယူတဲ့ အဆင့်) ကနေ evaluate (အရည်အသွေး တိုင်းတာတဲ့ အဆင့်) အထိ။
-- Vector search, keyword search, hybrid search တို့ကို ဘယ်အချိန် ရွေးရမလဲ။
-- Latency (စောင့်ရတဲ့ အချိန်) နဲ့ ကုန်ကျစရိတ် အတိုင်းအတာများ။
-- Data engineer တာဝန်နဲ့ model engineer တာဝန် ခွဲခြားနည်း။
+- RAG ၏ အဓိပ္ပာယ်နှင့် လိုအပ်ချက်အကြောင်းရင်းများ။
+- Pipeline အဆင့် ၈ ခု — ingest (data ရယူသည့်အဆင့်) မှ evaluate (အရည်အသွေး တိုင်းတာသည့်အဆင့်) အထိ။
+- Vector search၊ keyword search၊ hybrid search တို့၏ ရွေးချယ်မှု စံနှုန်းများ။
+- Latency နှင့် ကုန်ကျစရိတ် အတိုင်းအတာများ။
+- Data engineer တာဝန်နှင့် model engineer တာဝန် ခွဲခြားသတ်မှတ်နည်း။
 
 ## သင်ခန်းစာများ
 
@@ -24,20 +24,20 @@
 
 ## လိုအပ်ချက်များ (Prerequisites)
 
-- Python အခြေခံ — function ရေးတတ်ရင် လုံလောက်ပါတယ်။
-- List, dict, loop သုံးနိုင်ရမယ်။
-- SQL အခြေခံ (PostgreSQL) က အထောက်အကူ ရှိပေမယ့် မဖြစ်မနေ မလိုပါဘူး။
-- ဒီ course က offline standard-library Python ပဲ သုံးပါတယ်။ ဒေတာဘေ့စ် မချိတ်ပါဘူးနော်။
+- Python အခြေခံ — function ရေးနိုင်ရုံဖြင့် လုံလောက်သည်။
+- List၊ dict၊ loop အသုံးပြုနိုင်ရမည်။
+- SQL အခြေခံ (PostgreSQL) ရှိပါက အထောက်အကူ ဖြစ်သော်လည်း မဖြစ်မနေ မလိုအပ်ပါ။
+- ဒီ course သည် offline standard-library Python ကိုသာ အသုံးပြုသည်။ Database connection မပါဝင်ပါ။
 
 ## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
 
-- ကုမ္ပဏီရဲ့ document တွေကို LLM နဲ့ ဖြေရမယ့် စနစ် ဆောက်ချင်ရင်။
-- RAG project ကို စီမံခန့်ခွဲမယ့် data engineer ဖြစ်ချင်ရင်။
-- ဘယ် search အမျိုးအစား ရွေးရမလဲ ဆုံးဖြတ်ရမယ့် နေရာမှာ ရှိနေရင်။
+- ကုမ္ပဏီ document များကို LLM ဖြင့် ဖြေဆိုစေမည့် စနစ် တည်ဆောက်မည်ဖြစ်ပါက။
+- RAG project ကို စီမံခန့်ခွဲမည့် data engineer အခန်းကဏ္ဍအတွက်။
+- Search architecture အမျိုးအစား ဆုံးဖြတ်ရမည့် တာဝန်ရှိပါက။
 
 ## ကိုးကား
 
-ဒီ course က official open documentation ကနေ ရေးထားတဲ့ မူရင်းလေ့လာစာ သင်ခန်းစာ ဖြစ်ပါတယ်။ စီးပွားဖြစ် course တစ်ခုခုကို ကူးယူ ရေးထားတာ မဟုတ်ပါဘူး။
+ဒီ course သည် official open documentation များကို အခြေခံ၍ ရေးသားထားသော မူရင်း လေ့လာစာ သင်ခန်းစာ ဖြစ်သည်။ စီးပွားဖြစ် course တစ်ခုခုမှ ကူးယူထားခြင်း မဟုတ်ပါ။
 
 - pgvector (PostgreSQL vector extension): https://github.com/pgvector/pgvector
 - LlamaIndex docs: https://docs.llamaindex.ai/en/stable/

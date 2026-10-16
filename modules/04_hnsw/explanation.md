@@ -1,24 +1,24 @@
 # M4 — HNSW Index အတွင်းပိုင်း: Parameter၊ Recall နှင့် Memory
 
-ဒီ module မှာ HNSW index (Hierarchy of Navigable Small World — vector တွေကို graph ပေါ်မှာ ရှာတဲ့ data structure) ရဲ့ အတွင်းပိုင်းကို လေ့လာပါမယ်။ အခြေခံအားဖြင့် paper ဖြစ်တဲ့ [Malkov & Yashunin, 2016](https://arxiv.org/abs/1603.09320)၊ [pgvector](https://github.com/pgvector/pgvector) နဲ့ [Faiss wiki](https://github.com/facebookresearch/faiss/wiki) တွေကနေ ယူထားတာပါ။ ဒါက original လေ့လာသင်ယူမှု material ဖြစ်ပြီး official documentation တွေကနေ ရေးထားတာပါ။ အချိန်ပြည့် runtime မှာ database ချိတ်တာ မဟုတ်ပါ — Python standard library နဲ့ပဲ mechanics တွေကို ပြန်ဆောက်ပြပါမယ်။
+ဤ module တွင် HNSW (Hierarchical Navigable Small World) index ၏ အတွင်းပိုင်း mechanics ကို လေ့လာသည်။ အခြေခံ အချက်အလက်များကို [Malkov & Yashunin, 2016](https://arxiv.org/abs/1603.09320)၊ [pgvector](https://github.com/pgvector/pgvector) နှင့် [Faiss wiki](https://github.com/facebookresearch/faiss/wiki) တို့မှ ယူထားပြီး၊ official documentation များအပေါ် အခြေခံသည့် original လေ့လာစာ ဖြစ်သည်။ Database ကို runtime တွင် ချိတ်ဆက်ခြင်း မပြုဘဲ Python standard library ဖြင့် mechanics များကို ပြန်လည် တည်ဆောက်ပြသည်။
 
 ## Subtopic ၁ — Multi-layer Graph သဘောတရား
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-HNSW ဆိုတာ layer အများကြီးဆင့်ထားတဲ့ graph ပါ။ အပေါ် layer တွေမှာ point အနည်းငယ်ပဲ ရှိပြီး၊ အောက်ဆုံး layer မှာ point အားလုံး ရှိပါတယ်။ Query တစ်ခုကို အပေါ်ကနေ အောက်ကို ဆင်းရှာတာပါ။
+HNSW သည် layer ပေါင်းများစွာ ဆင့်ထားသော graph တစ်ခု ဖြစ်သည်။ Upper layer များတွင် node အနည်းငယ်သာ ပါဝင်ပြီး bottom layer တွင် node အားလုံး ပါဝင်သည်။ Query တစ်ခုကို uppermost layer မှ စတင်၍ layer တစ်ဆင့်ချင်း ဆင်း၍ ရှာဖွေသည်။
 
 ### ဘာကြောင့် လဲ
 
-Graph ထဲမှာ point သန်းနဲ့ချီရှိရင် တစ်ခြမ်းဖြတ်ရှာတာ တစ်ချက်ချင်းသွားရင် နှေးပါတယ်။ Layer တွေခွဲထားရင် အပေါ် layer မှာ အဝေးဝေးကို ကြီးကြီးခုန်ပြီး ရောက်နိုင်ပါတယ်။ အောက် layer မှာ အနီးကို အနည်းငယ်သာ ရှာရတော့ လမ်းတိုသွားပါတယ်။
+Node သန်းချီ ပါဝင်သော flat graph တစ်ခုတွင် greedy search တစ်ဆင့်ချင်း လျှောက်ရပါက hop အရေအတွက် များပြီး latency မြင့်သည်။ Layer ခွဲထားခြင်းဖြင့် sparse ဖြစ်သော upper layer တွင် အကွာအဝေး ခုန်ကျော်မှု ကြီးမားပြီး၊ dense ဖြစ်သော lower layer တွင် local refinement သာ လုပ်ရသဖြင့် စုစုပေါင်း hop အရေအတွက် လျော့ကျသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Point တိုင်းကို အောက် layer အားလုံးမှာ ထည့်ပါတယ်။
-၂။ ဘယ် layer အထိတက်မလဲဆိုတာ ကျပန်း ဖြတ်တာက ဆုံးဖြတ်ပါတယ် (paper မှာ "exponential decay" လို့ ခေါ်ပါတယ်)။
-၃။ အပေါ် layer မှာ အစပြု point ကနေ ရှာပါတယ်။
-၄။ ရှာတွေ့တဲ့ အကောင်းဆုံး point ကို အောက် layer ရဲ့ အစပြု point အဖြစ် ယူပါတယ်။
-၅။ အောက်ဆုံး layer မှာ အနီးနားကို အသေးစိတ် ရှာပါတယ်။
+၁။ Node တိုင်းကို bottom layer (layer 0) တွင် ထည့်သည်။
+၂။ Node တစ်ခု၏ အမြင့်ဆုံး layer ကို exponential decay probability ဖြင့် ကျပန်း သတ်မှတ်သည် (paper ၏ layer assignment distribution)။
+၃။ Search ကို အမြင့်ဆုံး layer ၏ entry point မှ စတင်သည်။
+၄။ Layer တစ်ခုတွင် ရှာဖွေတွေ့ရှိသော အနီးဆုံး node ကို နောက် layer ၏ entry point အဖြစ် လွှဲပြောင်းသည်။
+၅။ Bottom layer တွင် candidate အသေးစိတ် ရှာဖွေမှု ပြုလုပ်သည်။
 
 ### ဥပမာ
 
@@ -54,25 +54,25 @@ for l in sorted(layers):
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-pgvector မှာ `m` parameter နဲ့ layer အရေအတွက်က index ရဲ့ ပုံသဏ္ဌာန်ကို ဆုံးဖြတ်ပါတယ်။ အပေါ် layer တွေက ရှာဖွေမှုရဲ့ speed ကို ချုပ်ကိုင်ပါတယ်။ နားလည်မှ ကောင်းရွေးနိုင်ပါမယ်။
+pgvector တွင် `m` parameter နှင့် layer ဖွဲ့စည်းပုံက index ၏ graph topology ကို သတ်မှတ်ပြီး၊ upper layer များက search speed ကို အဓိက ထိန်းချုပ်သည်။ ဤ mechanics ကို နားလည်မှသာ parameter ကို မှန်ကန်စွာ ရွေးချယ်နိုင်သည်။
 
 ## Subtopic ၂ — M နှင့် ef_construction (Build Parameter)
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-`M` (Faiss မှာ `M`) က point တစ်ခုချင်းရဲ့ connection အရေအတွက်ရဲ့ အမြင့်ဆုံး နယ်နိမိတ်ပါ။ `ef_construction` (pgvector မှာ `ef_construction`) က build လုပ်စဉ် တစ်ဆင့်မှာ စစ်ဆေးမယ့် ကန့်သတ်ချက်ပါ။
+`M` (Faiss တွင် `M`၊ pgvector တွင် `m`) သည် node တစ်ခု၏ neighbor connection အရေအတွက် upper bound ဖြစ်သည်။ `ef_construction` သည် build လုပ်စဉ် insertion တစ်ခုအတွက် ထားရှိမည့် candidate list ၏ အရွယ်အစား ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-`M` နည်းရင် graph က တစ်ဖက်စီ ချိုင်ဆက်မှု နည်းပြီး recall ကျပါတယ်။ `M` များရင် memory နဲ့ build time တက်ပါတယ်။ `ef_construction` နည်းရင် အိမ်နီးချင်း ရွေးတဲ့အခါ မှားနိုင်ပါတယ်။ အများရင် build နှေးပါတယ်။ ဒါတွေက build အရည်အသွေးရဲ့ ချိန်ညှိမှု ဖြစ်တယ်။
+`M` နည်းပါက graph connectivity ကျဆင်းပြီး recall ကျသည်။ `M` များပါက memory footprint နှင့် build time တက်သည်။ `ef_construction` နည်းပါက neighbor ရွေးချယ်မှု မတိကျဘဲ graph quality ကျသည်။ များပါက build time တက်သည်။ ဤ parameter များသည် build quality နှင့် build cost ကြား ချိန်ညှိမှု ဖြစ်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Point အသစ်တစ်ခု ဝင်လာပါတယ်။
-၂။ အပေါ် layer ကနေ greedy search နဲ့ အနီးဆုံး point ကို ရှာပါတယ်။
-၃။ `ef_construction` အတိုင်း candidate အရေအတွက် စုပါတယ်။
-၄။ အနီးဆုံး `M` ခုကို ချိုင်ဆက်ချင်း အဖြစ် ယူပါတယ်။
-၅။ Graph မှာ ချိတ်ဆက်ချက်တွေကို ပြန်စစ်ပြီး ကျော်လွန်ရင် ဖြတ်ပါတယ်။
+၁။ Node အသစ်တစ်ခု ထည့်သွင်းသည်။
+၂။ အမြင့်ဆုံး layer မှ စ၍ greedy search ဖြင့် အနီးဆုံး node ကို ရှာသည်။
+၃။ `ef_construction` အရွယ်အစားအထိ candidate စုဆောင်းသည်။
+၄။ အနီးဆုံး `M` ခုကို neighbor edge အဖြစ် ယူသည်။
+၅။ Neighbor အရေအတွက် upper bound ကျော်လွန်ပါက edge များကို ပြန်လည် ဖြတ်တောက်သည်။
 
 ### ဥပမာ
 
@@ -100,24 +100,24 @@ print("neighbors:", sorted(neighbors))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-pgvector documentation မှာ `m` default 16 ဖြစ်ပြီး၊ `ef_construction` default 64 ဖြစ်တယ်လို့ ဖော်ပြထားပါတယ်။ `m` တက်ရင် index ကြီးပြီး recall တက်နိုင်ပါတယ်။ Data အရွယ်အစားနဲ့ ချိန်ပြီး ရွေးရပါမယ်။
+pgvector documentation အရ `m` default သည် 16၊ `ef_construction` default သည် 64 ဖြစ်သည်။ `m` တိုးပါက index size တက်ပြီး recall တက်နိုင်သည်။ Dataset size နှင့် latency requirement အပေါ် အခြေခံ၍ ရွေးချယ်ရသည်။
 
 ## Subtopic ၃ — ef_search၊ Recall နှင့် Latency
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-`ef_search` (Faiss မှာ `efSearch`၊ pgvector မှာ `hnsw.ef_search`) က query ရှာစဉ် ထားရမယ့် candidate list အရွယ်အစားပါ။ Recall@k (top-k ထဲ အမှန်ဘယ်နှရှိလဲဆိုတဲ့ အချိုး) က ef_search တက်တာနဲ့ တက်ပါတယ်။
+`ef_search` (Faiss တွင် `efSearch`၊ pgvector တွင် `hnsw.ef_search`) သည် query-time search တွင် ထားရှိမည့် candidate list ၏ အရွယ်အစား ဖြစ်သည်။ Recall@k (top-k ရလဒ်တွင် ground truth ပါဝင်မှု အချိုး) သည် ef_search တိုးသည်နှင့်အမျှ တက်သည်။
 
 ### ဘာကြောင့် လဲ
 
-ef_search နည်းရင် စစ်တဲ့ node နည်းပြီး မြန်ပေမယ့် အမှန်ရလဒ် လွတ်သွားနိုင်ပါတယ်။ ef_search များရင် ပိုတိတိကျကျ ရသော်လည်း query နှေးလာပါတယ်။ ဒါက accuracy နဲ့ speed ကြားရဲ့ အပေးအယူ ဖြစ်တယ်။
+ef_search နည်းပါက evaluate လုပ်သော node အရေအတွက် နည်းပြီး latency နိမ့်သော်လည်း true neighbor များ လွတ်သွားနိုင်သည်။ ef_search များပါက recall တက်သော်လည်း query latency တက်သည်။ ဤသည်မှာ accuracy နှင့် speed ကြား trade-off ဖြစ်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Query vector ကို ယူပါတယ်။
-၂။ ရှာဖွေတဲ့ အခါ ef_search အရွယ်အတိုင်း candidate အုပ်စု ထားပါတယ်။
-၃။ Candidate စုထဲကနေ top-k ကို ထုတ်ပြပါတယ်။
-၄။ Ground truth နဲ့ တိုက်ဆိုင်ပြီး recall@k တွက်ပါတယ်။
+၁။ Query vector ကို ယူသည်။
+၂။ Search တွင် ef_search အရွယ်အစားရှိ candidate list ထိန်းထားသည်။
+၃။ Candidate list ထဲမှ top-k ကို ထုတ်ပြန်သည်။
+၄။ Ground truth နှင့် နှိုင်းယှဉ်၍ recall@k တွက်ချက်သည်။
 
 ### ဥပမာ
 
@@ -149,23 +149,23 @@ print("recall@%d =" % k, hits / k)
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Faiss wiki မှာ `efSearch` တက်ရင် recall တက်ပြီး search time လည်း တက်တယ်လို့ ရှင်းပြထားပါတယ်။ Production မှာ target recall အတွက် အကောင်းဆုံး ef_search ကို ရှာပြီး သတ်မှတ်တာ အရေးကြီးပါတယ်။ pgvector မှာတော့ `SET hnsw.ef_search = 100;` လိုမျိုး ချိန်နိုင်ပါတယ်။
+Faiss wiki အရ `efSearch` တိုးပါက recall တက်ပြီး search time လည်း တက်သည်။ Production တွင် target recall အတွက် ef_search ကို တိုင်းတာ၍ သတ်မှတ်ရသည်။ pgvector တွင် `SET hnsw.ef_search = 100;` ဖြင့် session-level ချိန်ညှိနိုင်သည်။
 
 ## Subtopic ၄ — Index Memory တွက်နည်း
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Index memory ဆိုတာ HNSW graph ထဲမှာ vector တွေနဲ့ link တွေကို သိမ်းဆည်းဖို့ လိုအပ်တဲ့ byte အရေအတွက် ဖြစ်ပြီး အကြမ်းဖျင်း ခန့်မှန်း တွက်ချက်နိုင်ပါတယ်။
+Index memory ဆိုသည်မှာ HNSW graph အတွင်း vector data နှင့် link data သိမ်းဆည်းရန် လိုအပ်သော byte ပမာဏ ဖြစ်ပြီး အကြမ်းဖျင်း ခန့်မှန်း တွက်ချက်နိုင်သည်။
 
 ### ဘာကြောင့် လဲ
 
-RAM မလုံလောက်ရင် index မတည်ဆောက်နိုင်ပါ။ ကြိုတွက်နိုင်ရင် hardware စီမံကိန်း တိကျမှ စရိတ်သက်သာပါတယ်။ Faiss wiki မှာ graph structure တစ်ခုမှာ link တွေကို integer တွေနဲ့ သိမ်းတယ်လို့ ဖော်ပြထားပါတယ်။
+maintenance_work_mem မလုံလောက်ပါက index build သည် disk spill ဖြစ်ပြီး build time သိသိသာသာ တိုးမည်။ ကြိုတင် တွက်ချက်နိုင်ပါက hardware sizing တိကျပြီး ကုန်ကျစရိတ် သက်သာသည်။ Faiss wiki အရ graph structure တွင် link များကို integer အဖြစ် သိမ်းဆည်းသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Vector data memory = N × dim × bytes-per-value နဲ့ တွက်ပါတယ်။
-၂။ Link memory = N × M × 2 (လမ်းနှစ်ဖက်၊ integer တစ်ခုစီ) နဲ့ ခန့်မှန်းပါတယ်။
-၃။ နှစ်ခုပေါင်းပြီး အကြမ်းဖျင်း အရွယ်အစား ခန့်မှန်းပါတယ်။
+၁။ Vector data memory = N × dim × bytes-per-value။
+၂။ Link memory = N × M × 2 (bidirectional edge၊ integer တစ်ခုစီ) ဟု ခန့်မှန်းသည်။
+၃။ နှစ်ခု ပေါင်း၍ စုစုပေါင်း အရွယ်အစား ခန့်မှန်းသည်။
 
 ### ဥပမာ
 
@@ -194,24 +194,24 @@ print("total: ", total / 1e9, "GB (approximate, before OS overhead)")
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-pgvector မှာ vector ကတစ်ခါတည်း column ထဲ သိမ်းတဲ့အတွက် index နဲ့ table နှစ်ခုလုံးရဲ့ အရွယ်ကို တွက်ရပါမယ်။ fp32 အစား half-precision ဒါမှမဟုတ် dimension လျှော့တာတွေက memory သက်သာစေနိုင်ပါတယ်။
+pgvector တွင် vector များကို table column တစ်ခုတည်း၌ သိမ်းဆည်းသဖြင့် storage estimation သည် table data နှင့် index structure နှစ်ခုလုံးကို ထည့်သွင်းတွက်ချက်ရသည်။ fp32 အစား half-precision သုံးခြင်း သို့မဟုတ် dimension လျှော့ချခြင်းဖြင့် memory footprint လျှော့ချနိုင်သည်။
 
-## Subtopic ၅ — Delete/Update နဲ့ Filtered Search ရဲ့ သက်ရောက်မှု
+## Subtopic ၅ — Delete/Update နှင့် Filtered Search ရဲ့ သက်ရောက်မှု
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-HNSW index တွင် vector အသစ်များ ထပ်ထည့်ခြင်း (insert) ထက် ရှိပြီးသား point များကို ဖျက်ထုတ်ခြင်း (delete) က ပိုမို ရှုပ်ထွေးပြီး overhead များပါတယ်။ Faiss မှာ dead node တွေကို filter list ဖြင့် ချန်ထားတတ်ပါတယ်။ Filtered search က query မှာ condition (ဥပမာ `WHERE category = 'news'`) ပေါ် မူတည်ပြီး candidate လျှော့ချခြင်း ဖြစ်ပါတယ်။
+HNSW index တွင် insert ထက် delete က ပိုမို ရှုပ်ထွေးပြီး overhead များသည်။ Faiss သည် dead node များကို filter list ဖြင့် search မှ ချန်လှပ်ထားသည်။ Filtered search ဆိုသည်မှာ query ၏ condition (ဥပမာ `WHERE category = 'news'`) အပေါ် မူတည်၍ candidate စုကို ကန့်သတ်ခြင်း ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Graph node တစ်ခု ဖျက်လိုက်ရင် ချိတ်ဆက်ချက်တွေ ပျက်ပြီး ရှာဖွေလမ်းကြောင်း ရှုပ်နိုင်ပါတယ်။ ဒါကြောင့် point တွေကို တကယ်ဖျက်ထုတ်ဖို့အစား mark လုပ်ပြီး နောက်မှ rebuild လုပ်တာ ပိုများပါတယ်။ Filter ကများရင်လည်း ကျန် candidate နည်းသွားပြီး recall ကျတတ်ပါတယ်။
+Graph node တစ်ခုကို ဖျက်လိုက်ပါက ၎င်း၏ edge များ ပျက်ပြီး search path connectivity ထိခိုက်နိုင်သည်။ ထို့ကြောင့် node များကို ချက်ချင်း မဖျက်ဘဲ dead mark လုပ်၍ နောက်ပိုင်းတွင် rebuild လုပ်သည့် နည်းလမ်းက ပိုများသည်။ Filter selectivity မြင့်ပါက ကျန်ရှိသော candidate နည်းသွားပြီး recall ကျဆင်းနိုင်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Delete လုပ်ချင်တဲ့ point ကို dead list ထဲ ထည့်ပါတယ်။
-၂။ Search လုပ်တဲ့အခါ dead list ထဲပါရင် ခဏ skip လုပ်ပါတယ်။
-၃။ Dead များလာရင် index အသစ် rebuild လုပ်ပါတယ်။
-၄။ Filtered search မှာ filter ကို ကျော်လွန်တဲ့ candidate တွေကို ထည့်တွက်ပါတယ်။
+၁။ Delete လုပ်မည့် node ကို dead list ထဲ ထည့်သည်။
+၂။ Search အတွင်း dead list ပါဝင်သော node ကို skip လုပ်သည်။
+၃။ Dead node အချိုးအစား မြင့်လာပါက index ကို rebuild လုပ်သည်။
+၄။ Filtered search တွင် filter condition ကို ကျော်သော candidate များကိုသာ ထည့်သွင်းသည်။
 
 ### ဥပမာ
 
@@ -242,15 +242,15 @@ print(search(2, "news"))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-pgvector မှာ update လုပ်ဖို့ အလွယ်ဆုံးလမ်းက row အသစ် insert ပြီး အဟောင်း delete တာပါ။ RAG pipeline မှာ document တွေ မကြာခဏ ပြောင်းလဲရင် index rebuild plan လိုပါတယ်။ Filter များတဲ့ use case မှာ `hnsw.iterative_scan` စတာတွေကို pgvector documentation မှာ ဖတ်ကြည့်ပါ။
+pgvector တွင် update လုပ်ရန် လက်တွေ့ကျသော နည်းလမ်းမှာ row အသစ် insert ပြီး အဟောင်းကို delete လုပ်ခြင်း ဖြစ်သည်။ RAG pipeline တွင် document များ မကြာခဏ ပြောင်းလဲပါက index rebuild plan လိုအပ်သည်။ Filter များသော use case အတွက် `hnsw.iterative_scan` ကဲ့သို့သော feature များကို pgvector documentation တွင် ဖတ်ရှုသင့်သည်။
 
 ## အနှစ်ချုပ်
 
-- HNSW က multi-layer graph ပါ — အပေါ် layer က အဝေးခုန်၊ အောက် layer က အနီးရှာပါ။
-- `m` က connection နယ်နိမိတ်၊ `ef_construction` က build အရည်အသွေးပါ — များရင် build နှေးပြီး memory တက်ပါတယ်။
-- `ef_search` က query အချိန်မှာ recall နဲ့ latency ကို ချိန်ပါတယ်။
-- Memory က vector data (N × dim × bytes) နဲ့ link တွေ နှစ်ခါ ပေါင်းပြီး ခန့်မှန်းလို့ ရပါတယ်။
-- Delete/update က graph ကို ပျက်စေနိုင်တာကြောင့် dead-marking နဲ့ rebuild နည်းတွေ သုံးပါတယ်။
-- Filtered search မှာ candidate နည်းသွားရင် recall ကျတတ်တာကို သတိထားပါ။
+- HNSW သည် multi-layer graph ဖြစ်သည် — upper layer တွင် အကွာအဝေး ခုန်ကျော်၊ lower layer တွင် local search ပြုလုပ်သည်။
+- `m` သည် connection upper bound၊ `ef_construction` သည် build quality parameter — တိုးပါက build time နှင့် memory တက်သည်။
+- `ef_search` သည် query-time တွင် recall နှင့် latency ကို ချိန်ညှိသည်။
+- Memory ကို vector data (N × dim × bytes) နှင့် link data (bidirectional) ပေါင်း၍ ခန့်မှန်းနိုင်သည်။
+- Delete/update သည် graph connectivity ကို ထိခိုက်စေသဖြင့် dead-marking နှင့် rebuild နည်းလမ်းများ သုံးသည်။
+- Filtered search တွင် candidate နည်းသွားပါက recall ကျဆင်းနိုင်သည်။
 
 **Official sources:** [HNSW paper](https://arxiv.org/abs/1603.09320) · [pgvector](https://github.com/pgvector/pgvector) · [Faiss wiki](https://github.com/facebookresearch/faiss/wiki)

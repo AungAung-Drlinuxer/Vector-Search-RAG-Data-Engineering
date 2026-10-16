@@ -1,33 +1,20 @@
-# M7 — Reranking နှင့် Query ပြောင်းလဲခြင်း
+# M7 — Reranking & Query Transformation
 
-ဒီ module မှာ retrieval ရလဒ်ကို ပိုကောင်းအောင် လုပ်နိုင်တဲ့ နည်းလမ်းတွေကို လေ့လာကြမယ်။
-Official documentation တွေကတော့ https://sbert.net/ , https://arxiv.org/abs/2212.10496 , https://docs.ragas.io/ တို့ ဖြစ်ပါတယ်။
-ဒီသင်ခန်းစာတွေက original study material ပါ။ အားလုံးက standard-library Python နဲ့ အော့ဖ်လိုင်း အလုပ်လုပ်ပါတယ်။
+Retrieval architecture တွင် first-stage retriever (vector search သို့မဟုတ် hybrid search) သည် high recall ကို ဦးတည်ပြီး second-stage reranker သည် high precision ကို ဦးတည်သည်။ ဤ module တွင် bi-encoder နှင့် cross-encoder ၏ computational trade-offs၊ latency modeling၊ HyDE၊ multi-query expansion နှင့် MMR diversity selection တို့ကို programmatic နည်းလမ်းဖြင့် လေ့လာမည်။
 
 ---
 
-## ၁။ Bi-encoder နှင့် Cross-encoder
+## ၁။ Bi-encoder နှင့် Cross-encoder Architecture
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Bi-encoder က query နဲ့ document ကို သီးသန့် vector အဖြစ် ပြောင်းပေးတဲ့ model ပါ။
-Cross-encoder က query နဲ့ document နှစ်ခုကို တစ်ပေါင်းတည်း ထည့်ပြီး relevance score တစ်ခုတည်း ထုတ်ပေးတဲ့ model ပါ။
+Bi-encoder သည် query နှင့် document များကို သီးခြား neural networks (သို့မဟုတ် shared-weight Siamese network) ဖြင့် independent vector representations အဖြစ် encode လုပ်ပြီး vector distance (cosine similarity) ဖြင့် နှိုင်းယှဉ်သည်။ Cross-encoder သည် query နှင့် document ကို single sequence အဖြစ် concatenate လုပ်ပြီး full self-attention layer များမှတစ်ဆင့် joint relevance score တစ်ခုတည်းကို ထုတ်ပေးသည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Bi-encoder တစ်ခုတည်းနဲ့ပဲ ရှာရင် အချက်အလက်တွေ လွဲသွားတတ်ပါတယ်။
-Query နဲ့ document ကို သီးသန့် embed လုပ်လို့ စကားလုံးအဓိပ္ပာယ် တိုက်ဆိုင်မှု လုံးဝ မပေါ်နိုင်လို့ပါ။
-ဒါကြောင့် ပိုတိကျတဲ့ အမှတ်ပေးတဲ့ cross-encoder ကို နောက်ဆင့်မှာ သုံးကြတာပါ။
+Bi-encoder သည် document vectors များကို offline ကြိုတင်တွက်ချက်၍ vector database တွင် HNSW index ဖြင့် သိမ်းဆည်းထားနိုင်သဖြင့် query latency နည်းပါးပြီး million-scale corpus များတွင် scalable ဖြစ်သည်။ သို့ရာတွင် query tokens နှင့် document tokens အကြား cross-attention interaction မရှိသဖြင့် fine-grained token-level matching တွင် precision အားနည်းနိုင်သည်။ Cross-encoder သည် token-level interactions အားလုံးကို attention matrix တွင် တိုက်ရိုက်တွက်ချက်သဖြင့် precision သိသိသာသာ မြင့်မားသော်လည်း O(N) candidate-level inference cost ရှိပြီး pre-computation မပြုလုပ်နိုင်ပေ။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
-
-၁။ Bi-encoder က query ကို vector တစ်ခု ထုတ်ပါတယ်။
-၂။ Document အားလုံးရဲ့ vector ကို အရင်ကတည်းက သိမ်းထားပါတယ်။
-၃။ Cosine similarity နဲ့ အနီးစပ်ဆုံး ရှာပါတယ်။
-၄။ Cross-encoder က query နဲ့ document စာကို တွဲပြီး score တစ်ခုတည်း ထုတ်ပါတယ်။
-၅။ SBert docs မှာ ဒီနှစ်မျိုးကို cross-encoder/re-ranker နဲ့ bi-encoder လို့ ခေါ်ပါတယ်။
-
-### ဥပမာ
+### Python Demonstration
 
 ```python
 # Toy stand-in: a real cross-encoder would score (query, passage) jointly.
@@ -57,37 +44,23 @@ for p, v in zip(passages, d_vecs):
 # cooking rice recipes: bi=0.156, cross=0.000
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Production Considerations
 
-Bi-encoder က vector database တွေနဲ့ တွဲဖက်လို့ ရပါတယ်။
-ဒါပေမယ့် နောက်ဆုံး ranking က အနီးစပ်ဆုံးပဲ ဖြစ်နေတတ်ပါတယ်။
-Cross-encoder က တိတိကျပေမယ့် document တိုင်းကို တစ်ခုချင်း တွက်ရလို့ နှေးတတ်ပါတယ်။
-ဒါကြောင့် အမြန်ရှာပြီးမှ တိကျတဲ့ ပြန်စီမယ့် နည်းလမ်း လိုအပ်တာပါ။
+Two-stage retrieval pipeline များတွင် bi-encoder ဖြင့် large corpus မှ top-K candidates (ဥပမာ K=50 သို့မဟုတ် 100) ကို retrieve လုပ်ပြီးမှ cross-encoder ဖြင့် high-precision reranking ပြုလုပ်ကာ top-N (ဥပမာ N=5 သို့မဟုတ် 10) ကို LLM generation context သို့ ပို့ဆောင်သည့် pattern ကို အသုံးပြုသည်။ SBERT documentation (https://sbert.net/) တွင် cross-encoder pretrained models များကို အသေးစိတ် ဖော်ပြထားသည်။
 
 ---
 
-## ၂။ Reranking Latency ကုန်ကျစရိတ် နှင့် Top-k ရွေးချယ်ခြင်း
+## ၂။ Reranking Latency Cost Modeling နှင့် Top-k Budgeting
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Reranking ဆိုတာ အမြန်ရှာထားတဲ့ ရလဒ်ပေါ်မှာ ပိုတိကျတဲ့ model နဲ့ ပြန် rank လုပ်တာပါ။
-Top-k ဆိုတာ rerank လုပ်မယ့် အရင်ဆုံး candidate အရေအတွက်ကို ဆိုလိုတာပါ။
+Reranking အဆင့်သည် second-stage inference overhead ကို မလွဲမသွေ ဖြစ်ပေါ်စေသည်။ Top-k candidate size ကြီးမားလာသည်နှင့်အမျှ query p95/p99 latency linear အချိုးအစားအတိုင်း မြင့်တက်လာသည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Reranking မလုပ်ဘဲ ရှာတဲ့အခါ အရေးကြီးတဲ့ စာသားတွေ အောက်ဆင့်ထဲ ရောက်နေတတ်ပါတယ်။
-ကျနော်တို့က top-N လောက်ပဲ LLM ကို ပြမယ်ဆိုရင် အဲဒါတွေ ပျောက်သွားနိုင်ပါတယ်။
-ဒါပေမယ့် k ကြီးလေ rerank များလေ နှောင့်နှေးလေ ဖြစ်ပါတယ်။
+Cross-encoder inference သည် model parameters နှင့် candidate sequence length အပေါ် မူတည်၍ compute-intensive ဖြစ်သည်။ Reranker ထံသို့ candidate အရေအတွက် မည်မျှ forward လုပ်မည်ကို SLA budget (ဥပမာ < 200 ms total latency) နှင့် target recall တိုးတက်မှုအပေါ် အခြေခံ၍ budget သတ်မှတ်ရသည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
-
-၁။ Vector search နဲ့ candidate N ခု အမြန်ရှာပါတယ်။
-၂။ အဲဒီထဲကမှ top-k ခုကိုပဲ reranker ထဲ ထည့်ပါတယ်။
-၃။ Reranker က တစ်စုံချင်း score ထုတ်ပါတယ်။
-၄။ Score အမြင့်ဆုံးအတိုင်း ပြန်စီပါတယ်။
-၅။ ကျနော်တို့က k နဲ့ N ကို ကိန်းဂဏန်းနဲ့ တွက်ပြီး ဆုံးဖြတ်ရပါတယ်။
-
-### ဥပမာ
+### Latency Estimation Formula
 
 ```python
 # Assumption: reranking one candidate costs 10 ms (a made-up, clearly-labelled number).
@@ -107,35 +80,23 @@ for n in (20, 50, 200, 1000):
 # N=1000 -> rerank time ~ 10000 ms per query
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Production Considerations
 
-k က အရမ်းကြီးရင် query တစ်ခုချင်းစီမှာ စောင့်ရအချိန် တက်သွားပါတယ်။
-k က အရမ်းသေးရင် ကောင်းတဲ့ candidate ထဲမှာ မပါတော့ပဲ အရည်အသွေးကျပါတယ်။
-တွက်တာကတော့ ပထမဆုံး ခန့်မှန်းချက်ပါ။ ကိုယ်တိုင် system မှာ measure လုပ်ပြီးမှ ဆုံးဖြတ်ရပါတယ်။
+Batch inference API များ သို့မဟုတ် lightweight rerankers (ဥပမာ BGE-Reranker-Large, Cohere Rerank) သုံးစွဲသည့်တိုင် candidate အရေအတွက်ကို 30–100 ကြား ကန့်သတ်ထားခြင်းသည် cost-to-recall trade-off အတွက် standard practice ဖြစ်သည်။
 
 ---
 
-## ၃။ HyDE — Hypothetical Document Embedding
+## ၃။ HyDE — Hypothetical Document Embeddings
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-HyDE ဆိုတာ query အတွက် "ဖြစ်နိုင်တဲ့ အဖြေစာ" တစ်ခုကို အရင် ဖန်တီးပြီး၊ အဲဒါရဲ့ embedding နဲ့ ရှာတဲ့ နည်းပါ။
+HyDE (Hypothetical Document Embeddings) သည် user ၏ short question query ကို အခြေခံ၍ zero-shot LLM prompting ဖြင့် hypothetical (စိတ်ကူးယဉ်) answer document တစ်ခုကို ကြိုတင် generate လုပ်ပြီး အဆိုပါ generated document ၏ embedding vector ဖြင့် corpus documents များကို retrieve လုပ်သည့် နည်းလမ်းဖြစ်သည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-User ရဲ့ question က တိုတောင်းပြီး အဖြေစာနဲ့ အသုံးအနှုန်း မတူတတ်ပါတယ်။
-Question နဲ့ answer document က vector space မှာ ဝေးကြနိုင်တာပါ။
-အဖြေစာ တစ်ခုကို အရင်စဉ်းစားထုတ်ရင် question-document ကွာဟချက်က သေးသွားနိုင်ပါတယ်။
+Question များနှင့် Answer documents များသည် vector embedding space တွင် lexical/syntactic structure မတူညီသဖြင့် semantic distance ကွာဟချက် (asymmetric retrieval gap) ဖြစ်ပေါ်နိုင်သည်။ HyDE သည် query space ကို document-like space သို့ projection လုပ်ပေးသဖြင့် factual documents များနှင့် cosine similarity ပိုမိုမြင့်မားစေသည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
-
-၁။ User query ကိုယူပါတယ်။
-၂။ LLM တစ်ခုနဲ့ hypothetical answer တစ်ခု ရေးခိုင်းပါတယ်။
-၃။ အဲဒီ hypothetical document ကို embed လုပ်ပါတယ်။
-၄။ အဲဒီ vector နဲ့ document collection ထဲမှာ ရှာပါတယ်။
-၅။ ရလဒ်တွေကို ပုံမှန်အတိုင်း rerank လုပ်ပါတယ်။
-
-### ဥပမာ
+### Python Demonstration
 
 ```python
 # Deterministic stand-in for the LLM step: a fixed template, no real model call.
@@ -158,36 +119,23 @@ print("Embedding:", embed(hyp))
 # Embedding: [6, 8, 1, 6, 1]
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Production Considerations
 
-HyDE က question ပုံစံ query တွေမှာ အထူးသဖြင့် အကူအညီဖြစ်နိုင်ပါတယ်။
-ဒါပေမယ့် ဖန်တီးတဲ့ အဖြေစာက မှားနေရင် ရလဒ်လည်း မှားနိုင်ပါတယ်။
-ဒါကြောင့် HyDE ရလဒ်ကို နောက်ဆုံး rerank နဲ့ စစ်ဆေးသင့်ပါတယ်။
+HyDE သည် LLM generation latency တစ်ဆင့် ထပ်တိုးစေပြီး hypothetical answer တွင် hallucination ပါဝင်ပါက retrieval drift ဖြစ်ပေါ်နိုင်သောကြောင့် high-ambiguity domain queries များတွင်သာ selectively သုံးသင့်သည်။
 
 ---
 
-## ၄။ Multi-query Expansion နှင့် Fusion (RRF)
+## ၄။ Multi-Query Expansion နှင့် Reciprocal Rank Fusion (RRF)
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Multi-query ဆိုတာ user query တစ်ခုကို မတူတဲ့ phrasing တွေအဖြစ် ပြောင်းပြီး အားလုံးနဲ့ ရှာတာပါ။
-Fusion ဆိုတာ ရလဒ်စာရင်း တွေကို တစ်ခုတည်း ပေါင်းစပ်တာပါ။
+Multi-query expansion သည် single query တစ်ခုကို alternative phrasings/paraphrases များအဖြစ် prompt ဖြင့် generate ပြုလုပ်ပြီး query တစ်ခုချင်းစီအတွက် candidate rankings များကို retrieve ပြုလုပ်ကာ Reciprocal Rank Fusion (RRF) ဖြင့် ပေါင်းစပ်သည့် pattern ဖြစ်သည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Query တစ်ခုတည်းက wording တစ်မျိုးတည်းပဲ ဖမ်းနိုင်ပါတယ်။
-Document တစ်ခုက အခေါ်အဝေါ် အမျိုးမျိုးနဲ့ ရေးထားနိုင်ပါတယ်။
-Query အမျိုးမျိုးနဲ့ ရှာရင် ဖမ်းတွေ့နိုင်ခြေ တက်ပါတယ်။
+User ၏ query wording သည် corpus document ထဲရှိ phrasing နှင့် match မဖြစ်နိုင်သည့် vocabulary mismatch ပြဿနာကို query variations များဖြင့် mitigate လုပ်နိုင်သည်။ RRF formula `score = Σ [1 / (k + rank)]` သည် score distribution calibration မလိုအပ်ဘဲ rank positions အပေါ်တွင်သာ အခြေခံသဖြင့် variance နည်းပါးသည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
-
-၁။ Query တစ်ခုကို variant တွေအဖြစ် ပြောင်းပါတယ်။
-၂။ Variant တစ်ခုချင်းစီနဲ့ ရှာပါတယ်။
-၃။ ရလဒ်စာရင်းတစ်ခုစီမှာ document တွေရဲ့ rank ကို ယူပါတယ်။
-၄။ Reciprocal Rank Fusion (RRF) နဲ့ score တွေ ပေါင်းပါတယ်။
-၅။ RRF score မြင့်တဲ့အတိုင်း ပြန်စီပါတယ်။
-
-### ဥပမာ
+### Python Demonstration
 
 ```python
 # RRF: score(d) = sum over lists of 1 / (k + rank(d)), with a fixed k.
@@ -218,37 +166,23 @@ for d in fused:
 # doc_c: rrf=0.0484
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-
-Multi-query fusion က recall တက်အောင် ကူညီနိုင်ပါတယ်။
-Query decomposition က ရှုပ်တဲ့ မေးခွန်းတွေကို သေးသေးလေး အပိုင်းလေးတွေအဖြစ် ခွဲပါတယ်။
-ဒါက ရှုပ်ထွေးတဲ့ မေးခွန်းတွေမှာ ပိုတိကျတဲ့ retrieval ပေးနိုင်ပါတယ်။
-ဒါပေမယ့် query အရေအတွက် တက်လေ search cost လည်း တက်လေပါ။
-
 ---
 
-## ၅။ MMR — Maximal Marginal Relevance ဖြင့် Diversity
+## ၅။ MMR (Maximal Marginal Relevance) ဖြင့် Diversity Optimization
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-MMR ဆိုတာ သက်ဆိုင်တဲ့ document တွေကို သူတို့ချင်း ထပ်နေမှုနည်းအောင် ရွေးတဲ့ နည်းပါ။
-Diversity ဆိုတာ ရလဒ်တွေက အခြေအနေအမျိုးမျိုးကနေ လာတာကို ဆိုလိုတာပါ။
+MMR သည် query relevance နှင့် already-selected documents များကြား redundancy (similarity) ကို ချိန်ညှိ၍ context pool အတွင်း diverse candidates များကို ရွေးချယ်ပေးသော greedy selection algorithm ဖြစ်သည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Formulation
 
-Document တွေ အချင်းချင်း အလွန်တူနေရင် ရလဒ်က တစ်မျိုးတည်း ထပ်နေပါတယ်။
-User က အချက်အလက် နေရာအမျိုးမျိုးကနေ သိချင်တာပါ။
-MMR က relevance နဲ့ diversity နှစ်ခုလုံးကို ချိန်ပြီး ရွေးပေးပါတယ်။
+$$MMR = \operatorname{argmax}_{d_i \in R \setminus S} \left[ \lambda \cdot \operatorname{Sim}(d_i, q) - (1 - \lambda) \cdot \max_{d_j \in S} \operatorname{Sim}(d_i, d_j) \right]$$
 
-### ဘယ်လို အလုပ်လုပ်လဲ
+- `λ = 1`: Pure relevance selection (near-duplicates အများအပြား ပါဝင်နိုင်သည်)
+- `λ = 0`: Maximum diversity selection
+- `0 < λ < 1`: Relevance နှင့် novelty အကြား balanced trade-off
 
-၁။ Candidate တွေနဲ့ query ရဲ့ relevance ကို တွက်ပါတယ်။
-၂။ ရွေးထားပြီးသား document တွေနဲ့ candidate တိုင်းရဲ့ similarity ကို တွက်ပါတယ်။
-၃။ MMR = relevance − lambda × (max similarity to already-selected) ဆိုပြီး တွက်ပါတယ်။
-၄။ MMR အမြင့်ဆုံး candidate ကို ရွေးပါတယ်။
-၅။ လိုအပ်တဲ့ အရေအတွက်ရောက်တဲ့အထိ ပြန်လည် repetition လုပ်ပါတယ်။
-
-### ဥပမာ
+### Python Demonstration
 
 ```python
 # MMR picks items balancing relevance to the query and dissimilarity
@@ -288,17 +222,10 @@ print(mmr_select(query, docs, 3))
 # ['near_dup_1', 'near_dup_2', 'different']
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+## Summary Checklist
 
-RAG pipeline တစ်ခုမှာ သက်ဆိုင်တဲ့ context တူညီတဲ့ စာသားတွေ ပိုမိုများပါက အဖြေက တစ်ဖက်စောင်း ဖြစ်သွားနိုင်ပါတယ်။
-MMR က ထပ်နေတဲ့ chunk တွေကို ဖယ်ပြီး အချက်အလက် ကျယ်ဝန်းအောင် လုပ်ပေးပါတယ်။
-Retrieval quality ကို ragas (https://docs.ragas.io/) လို tool တွေနဲ့တော့ တိုင်းတာစစ်ဆေးရပါတယ်။
-
----
-
-## အနှစ်ချုပ်
-
-- Bi-encoder က အမြန် vector ရှာပါတယ်၊ cross-encoder က query-document တွဲပြီး တိတိကျ score ထုတ်ပါတယ်။
-- Reranking က k ကြီးလေ နှောင့်နှေးလေပါ၊ ကျနော်ကြာလေ အရည်အသွေးတက်နိုင်လေပါ၊ trade-off ကို တွက်ပြီး ရွေးရပါတယ်။
-- HyDE က အဖြေစာ စဉ်းစားပြီး အဲဒါနဲ့ရှာတာပါ၊ question-answer wording ကွာဟချက်ကို လျှော့ပေးပါတယ်။
-- Multi-query နဲ့ RRF fusion က query variant တွေ အားလုံးကို ပေါင်းစည်းပေးပါတယ်။
+- Bi-encoder သည် first-stage recall အတွက် scalable ဖြစ်ပြီး Cross-encoder သည် second-stage precision reranking အတွက် သင့်လျော်သည်။
+- Reranking candidate size (top-k) ကို SLA latency budget နှင့် ချိန်ညှိ၍ 30–100 ကြား ထားရှိပါ။
+- HyDE သည် asymmetric query-document semantics ကို ဖြေရှင်းသော်လည်း inference latency နှင့် hallucination risk ရှိသည်။
+- Multi-query expansion သည် vocabulary mismatch ကို ဖြေရှင်းရန် RRF fusion ဖြင့် ပေါင်းစပ်သည်။
+- MMR သည် redundant duplicate chunks များကို penalize လုပ်၍ prompt context diversity ကို မြှင့်တင်ပေးသည်။

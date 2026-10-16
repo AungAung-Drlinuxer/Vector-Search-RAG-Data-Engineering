@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — ef_search ပြောင်းပြီး recall တိုင်းချက်
 
-Brute-force cosine search ကို gold အဖြေအဖြစ် ယူပြီး `ef_search` ကို ၁၀၊ ၂၅၊ ၅၀ လုပ်ကြည့်တဲ့အခါ recall@10 ဘယ်လိုပြောင်းလဲ ကြည့်ပါတယ်။
+Brute-force cosine search ကို gold answer အဖြစ် ယူ၍ `ef_search` ကို ၁၀၊ ၂၅၊ ၅၀ သတ်မှတ်သောအခါ recall@10 ပြောင်းလဲမှုကို တိုင်းတာသည်။
 
 ```python
 import math
@@ -21,7 +21,6 @@ def cosine(a, b):
     nb = math.sqrt(sum(y * y for y in b))
     return dot / (na * nb)
 
-
 query = [1.0, 0.0, 0.0]
 ranked = sorted(docs, key=lambda item: cosine(query, item[1]), reverse=True)
 gold = [name for name, _ in ranked[:10]]
@@ -40,11 +39,11 @@ for ef in (10, 25, 50):
 # ef_search=50  candidates scored=12  recall@10=1.00
 ```
 
-**အဓိကအယူအဆ** — `ef_search` တက်ရင် recall တက်ပေမဲ့ score လုပ်ရတဲ့ candidate အရေအတွက်လည်း တက်တာမို့ recall နဲ့ latency က အပေးအယူ ဖြစ်ပါတယ်။
+**အဓိကအယူအဆ** — `ef_search` တိုးပါက recall တက်သော်လည်း score လုပ်ရသော candidate အရေအတွက်လည်း တက်သဖြင့် recall နှင့် latency သည် trade-off ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — M parameter ရဲ့ သက်ရောက်မှု
 
-Node တစ်ခုချင်းစီမှာ edge အများဆုံး M ခု ထားတဲ့အခါ edge အရေအတွက်နဲ့ graph memory ဘယ်လောက်တက်လဲ တွက်ကြည့်ပါတယ်။
+Node တစ်ခုလျှင် edge အများဆုံး M ခု သတ်မှတ်သောအခါ edge အရေအတွက်နှင့် graph memory တိုးပွားမှုကို တွက်ချက်သည်။
 
 ```python
 # Edge-count model for M: each node keeps at most M neighbours, so edges ~= nodes * M.
@@ -61,11 +60,11 @@ for m in (5, 15, 30):
 # M=30  edges= 30000  graph memory= 0.23 MiB
 ```
 
-**အဓိကအယူအဆ** — M က edge အရေအတွက်ကို တိုက်ရိုက် တိုးစေတာမို့ memory နဲ့ build time ကို ထိပါတယ်။
+**အဓိကအယူအဆ** — M သည် edge အရေအတွက်ကို တိုက်ရိုက် တိုးစေသဖြင့် memory footprint နှင့် build time ကို သက်ရောက်မှု ရှိသည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Index memory တွက်နည်း
 
-Chunk ၁ သန်း၊ 768 dimension အတွက် vector storage နဲ့ HNSW graph memory ကို ပေါင်းတွက်ပြပါတယ်။
+Chunk ၁ သန်း၊ 768 dimension အတွက် vector storage နှင့် HNSW graph memory ကို ပေါင်း၍ တွက်ချက်သည်။
 
 ```python
 # Index memory: vector storage plus the HNSW graph layer.
@@ -84,11 +83,11 @@ for m in (16, 32):
 # M=32  vectors=  2.86 GiB  graph= 0.24 GiB  total=  3.10 GiB
 ```
 
-**အဓိကအယူအဆ** — Index memory ကို vector အပိုင်းနဲ့ graph အပိုင်း ခွဲတွက်တာက capacity planning ရဲ့ အခြေခံပါ။
+**အဓိကအယူအဆ** — Index memory ကို vector အပိုင်းနှင့် graph အပိုင်း ခွဲ၍ တွက်ချက်ခြင်းသည် capacity planning ၏ အခြေခံ ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Multi-layer graph simulation
 
-Layer နှစ်လွှာ ရှိတဲ့ graph တစ်ခုမှာ အပေါ်လွှာကနေ အောက်လွှာကို ဆင်းလာတဲ့ hop အရေအတွက် simulate လုပ်ပြပါတယ်။
+Layer နှစ်လွှာရှိ graph တစ်ခုတွင် upper layer မှ lower layer သို့ ဆင်းရောက်သော hop အရေအတွက်ကို simulate လုပ်သည်။
 
 ```python
 # Two-layer graph: greedy descent from the upper layer into the lower one (toy graph).
@@ -119,11 +118,11 @@ print("upper layer entry -> target (wrong layer):", hops(layer1, "entry", "targe
 # upper layer entry -> target (wrong layer): -1
 ```
 
-**အဓိကအယူအဆ** — Layer ခွဲထားတာက အဝေးကို ခုန်ပြီး ရောက်စေတာမို့ hop အရေအတွက် လျော့ပြီး အမြန်ဖြစ်စေပါတယ်။
+**အဓိကအယူအဆ** — Layer ခွဲခြင်းဖြင့် အကွာအဝေး ခုန်ကျော်နိုင်သဖြင့် စုစုပေါင်း hop အရေအတွက် လျော့ကျပြီး search မြန်ဆန်သည်။
 
 ## လေ့ကျင့်ခန်း ၅ — Filtered search ရဲ့ recall ဆုံးရှုံးမှု
 
-Tenant filter ထည့်တဲ့အခါ traversal ရောက်နိုင်တဲ့ candidate လျော့သွားပြီး recall ဘယ်လိုပြောင်းလဲ တိုင်းကြည့်ပါတယ်။
+Tenant filter ထည့်သွင်းသောအခါ traversal မှ ရောက်ရှိနိုင်သော candidate လျော့နည်းပြီး recall ပြောင်းလဲမှုကို တိုင်းတာသည်။
 
 ```python
 # Filtered search: a tenant filter removes candidates the unfiltered traversal would have returned.
@@ -137,7 +136,6 @@ def recall(tenant=None, k=5):
     pool = [n for n in graph_order if tenant is None or tenant_of[n] == tenant]
     seen = pool[:k]
     return len(set(seen) & set(gold)) / k, len(pool)
-
 
 r, n = recall()
 print(f"no filter       : reachable={n:2d}  recall@5={r:.2f}")
@@ -154,22 +152,20 @@ print("      so recall must be judged against a tenant-scoped gold set, not the 
 #       so recall must be judged against a tenant-scoped gold set, not the global one.
 ```
 
-**အဓိကအယူအဆ** — Filter က permission အတွက် မဖြစ်မနေလိုပြီး၊ recall ကို tenant-scoped gold set နဲ့ တိုင်းရပါတယ်။
+**အဓိကအယူအဆ** — Filter သည် permission safety အတွက် မဖြစ်မနေ လိုအပ်ပြီး၊ recall ကို tenant-scoped gold set ဖြင့် တိုင်းတာရသည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Delete/update ရဲ့ ဆိုးကျိုးနဲ့ restore စစ်ဆေးခြင်း
 
-Node delete လုပ်ပြီးနောက် recall ကျဆင်းတာနဲ့ rebuild လုပ်ပြီးနောက် ပြန်ကောင်းလာတာကို တိုင်းပြပါတယ်။
+Node delete ပြုလုပ်ပြီးနောက် recall ကျဆင်းမှုနှင့် rebuild ပြုလုပ်ပြီးနောက် ပြန်လည် ကောင်းမွန်မှုကို တိုင်းတာပြသည်။
 
 ```python
 # Delete/update: removing a node shrinks what the traversal can reach; a rebuild restores recall.
 present = {f"n{i}": True for i in range(6)}
 gold = {"n0", "n1", "n2", "n3", "n4"}
 
-
 def graph_recall(state, k=5):
     reachable = [n for n, alive in state.items() if alive][:k]
     return len(set(reachable) & gold) / k
-
 
 before = graph_recall(present)
 for dead in ("n4", "n3"):
@@ -185,4 +181,4 @@ print(f"after rebuild : recall@5={graph_recall(rebuilt):.2f}")
 # after rebuild : recall@5=1.00
 ```
 
-**အဓိကအယူအဆ** — Delete/update များလာရင် graph အရည်အသွေး ကျတာမို့ ပြန်ဆောက်တဲ့ (rebuild) အစီအစဉ် ထားရပါတယ်။
+**အဓိကအယူအဆ** — Delete/update များလာပါက graph quality ကျဆင်းသဖြင့် rebuild အစီအစဉ် ထားရှိရသည်။

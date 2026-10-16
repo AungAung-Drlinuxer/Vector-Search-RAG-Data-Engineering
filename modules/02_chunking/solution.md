@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Fixed-size chunking ကို လက်တွေ့စမ်းကြည့်ပါ
 
-Fixed-size chunking ဆိုတာ စာသားကို စာလုံးအရေအတွက် အတိအကျနဲ့ ဖြတ်တာပါ။ ဒီ code မှာ ကိုယ်တိုင်ရေးထားတဲ့ စာသားကို ၅၀ စာလုံးစီနဲ့ ဖြတ်ပြထားတာပါ။ chunk တိုင်းရဲ့ အရွယ်အတိအကျကို len() နဲ့ စစ်ကြည့်လို့ ရပါတယ်နော်။
+Fixed-size chunking သည် စာသားကို စာလုံးအရေအတွက် အတိအကျဖြင့် ဖြတ်တောက်ခြင်း ဖြစ်သည်။ ဒီ code တွင် စာသားကို word ၅၀ စီဖြင့် ခွဲခြမ်းထားသည်။ Chunk တစ်ခုစီ၏ word count ကို `len()` ဖြင့် စစ်ဆေးနိုင်သည်။
 
 ```python
 # Fixed-size chunking: split text into chunks of exactly 50 words each.
@@ -35,11 +35,11 @@ for idx, chunk in enumerate(chunks):
 # ---
 ```
 
-**အဓိကအယူဆ** — Fixed-size chunking က ရိုးရိုးရှင်းရှင်း မြန်ပေမယ့် စာကြောင်းနယ်နိမိတ် မထိန်းနိုင်တဲ့အတွက် အဓိပ္ပာယ် ပျက်ကွဲမှု ခံရတတ်ပါတယ်။
+**အဓိကအယူဆ** — Fixed-size chunking သည် အကောင်အထည်ဖော်ရ လွယ်ကူပြီး မြန်ဆန်သော်လည်း sentence boundary ကို ထိန်းသိမ်းနိုင်ခြင်း မရှိသဖြင့် boundary တွင် အဓိပ္ပာယ် ပြတ်တောက်မှု ဖြစ်ပေါ်နိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — Overlap ထည့်ပြီး စာကြောင်းပျက်မှု ကာကွယ်ပါ
 
-Overlap မပါတဲ့ chunking မှာ ဝါကျတစ်ချောင်း နှစ်ပိုင်းကွဲသွားတာ မြင်ရပြီး၊ overlap ထည့်ရင် ထပ်နေတဲ့ စာလုံးများကြောင့် အဓိပ္ပာယ် ဆက်နေတာ မြင်ရပါတယ်။ step ကို `chunk_size - overlap` သုံးရတာ အရေးကြီးပါတယ်နော်။
+Overlap မပါသော chunking တွင် စာကြောင်းတစ်ကြောင်း chunk နှစ်ခုကြား ကွဲသွားပြီး၊ overlap ပါဝင်ပါက ထပ်နေသော စာလုံးများက boundary ကို ချိတ်ဆက်ပေးသည်။ Step ကို `chunk_size - overlap` ဖြင့် သတ်မှတ်ရန် အရေးကြီးသည်။
 
 ```python
 # Compare fixed-size chunking with and without overlap.
@@ -80,11 +80,11 @@ for idx, c in enumerate(with_overlap):
 # chunk 0: The deployment pipeline failed because the embedding service timed out and the retry logic was missing from the worker script.
 ```
 
-**အဓိကအယူဆ** — Overlap က chunk နယ်နိမိတ်မှာ စာသား ထပ်ဆောင်းပေးခြင်းအားဖြင့် ဝါကျပျက်ကွဲမှုကို သက်သာစေပြီး retrieval အရည်အသွေး ပိုကောင်းစေပါတယ်။
+**အဓိကအယူဆ** — Overlap သည် chunk boundary တွင် စာသား ထပ်ဆောင်းပေးခြင်းဖြင့် boundary ပြတ်တောက်မှုကို လျှော့ချပြီး retrieval quality ကို မြှင့်တင်ပေးသည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Recursive text splitting အလုပ်လုပ်ပုံ ပြန်ရေးပါ
 
-Recursive splitter က separator စာရင်းကို အဆင့်ဆင်းပြီး ဝါကျနယ်နိမိတ်ကို ဖြတ်တောက် ထိန်းပေးတဲ့ နည်းပါ။ separator တစ်ခုမကျော်ရင် နောက်တစ်ခုဆီ ဆင်းသွားတဲ့ logic ကို ဒီ function မှာ မြင်နိုင်ပါတယ်နော်။
+Recursive splitter သည် separator list ကို ဦးစားပေးအစဉ်လိုက် အဆင့်ဆင်းအသုံးပြုပြီး သဘာဝ boundary တွင် ခွဲထုတ်သည်။ Separator တစ်ခု မကိုက်ညီပါက နောက်တစ်ခုသို့ ဆင်းသွားသော logic ကို ဒီ function တွင် တွေ့နိုင်သည်။
 
 ```python
 # Reimplementation of recursive text splitting (LangChain-style, simplified).
@@ -154,11 +154,11 @@ for entry in log:
 # used separator ' ' (level 3)
 ```
 
-**အဓိကအယူဆ** — Separator တွေကို သဘာဝအမှတ်အသား အစဉ်အလိုက် အဆင့်ဆင်းသုံးတဲ့ recursive splitting က ဝါကျပျက်မှုကို သိသိသာသာ လျှော့ပေးပါတယ်။
+**အဓိကအယူဆ** — Separator များကို သဘာဝ granularity အစဉ်လိုက် အဆင့်ဆင်းအသုံးပြုသော recursive splitting သည် စာကြောင်းပြတ်တောက်မှုကို သိသာစွာ လျှော့ချပေးသည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Token-based chunking နဲ့ ဂဏန်းခြင်း
 
-Token နဲ့ စာလုံးရဲ့ ကွာခြားချက်ကို simple tokenizer တစ်ခုနဲ့ တွက်ပြပြီး၊ chunk အရေအတွက်ကို formula `1 + ceil((total - chunk) / (chunk - overlap))` နဲ့ တွက်ပါတယ်။ 10,000 tokens၊ chunk 512၊ overlap 64 ဆိုရင် 20 chunks ရတာကို ကိုယ်တိုင် အတည်ပြုနိုင်ပါတယ်နော်။
+Token နှင့် စာလုံး၏ ကွာခြားချက်ကို simple tokenizer တစ်ခုဖြင့် တွက်ချက်ပြပြီး၊ chunk အရေအတွက်ကို formula `1 + ceil((total - chunk) / (chunk - overlap))` ဖြင့် တွက်ချက်ထားသည်။ 10,000 tokens၊ chunk size 512၊ overlap 64 အတွက် 20 chunks ရရှိကြောင်း ကိုယ်တိုင် တွက်ချက်အတည်ပြုနိုင်သည်။
 
 ```python
 # Token counting and chunk-count arithmetic (stdlib only, deterministic stand-in tokenizer).
@@ -201,11 +201,11 @@ print(f"simulated chunk count: {simulated}")
 # simulated chunk count: 23
 ```
 
-**အဓိကအယူဆ** — Model ရဲ့ context window နဲ့ ကိုက်အောင် chunk size ကို token အရ တွက်သင့်ပြီး၊ overlap ပါတဲ့ formula နဲ့ ကြိုတွက်လို့ ရပါတယ်။
+**အဓိကအယူဆ** — Model ၏ context window နှင့် ကိုက်ညီစေရန် chunk size ကို token unit ဖြင့် သတ်မှတ်သင့်ပြီး၊ overlap ပါဝင်သော formula ဖြင့် chunk အရေအတွက်ကို ကြိုတင်တွက်ချက်နိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၅ — Parent-child indexing နဲ့ small-to-big retrieval
 
-Small-to-big retrieval မှာ ရှာဖွေတဲ့ချိန်မှာ သေးတဲ့ child chunk တွေနဲ့ စစ်ပြီး၊ ပြန်တင်တဲ့အခါ ကြီးတဲ့ parent paragraph အပြည့်အစုံ ထုတ်ပေးပါတယ်။ child ရလဒ်က `parent_id` နဲ့ parent ဆီ ပြန်ညွှန်တဲ့ ဆက်သွယ်မှုကို ဒီ code မှာ လက်တွေ့စစ်ကြည့်လို့ ရပါတယ်နော်။
+Small-to-big retrieval တွင် ရှာဖွေမှုကို child chunk များဖြင့် ပြုလုပ်ပြီး၊ ပြန်လည်ထုတ်ပြရာတွင် parent paragraph အပြည့်အစုံကို ထုတ်ပေးသည်။ Child ရလဒ်သည် `parent_id` ဖြင့် parent သို့ ပြန်လည်ညွှန်းဆိုသော ဆက်သွယ်မှုကို ဒီ code တွင် စစ်ဆေးနိုင်သည်။
 
 ```python
 # Small-to-big retrieval simulated with plain dicts (no LLM, deterministic keyword scoring).
@@ -255,11 +255,11 @@ search("re-ranks candidate chunks", children, parents)
 # The retrieval layer scores candidate chunks with cosine similarity and re-ranks them before generation.
 ```
 
-**အဓိကအယူဆ** — ရှာဖွေမှု precision ကို သေးတဲ့ child ကနေ ရယူပြီး ပြန်တင်တဲ့ context ကို ကြီးတဲ့ parent ကနေ ပေးတဲ့ small-to-big နည်းက နှစ်ဘက်စလုံး အားသာစေပါတယ်။
+**အဓိကအယူဆ** — Retrieval precision ကို child chunk အသေးများမှ ရယူပြီး generation context ကို parent chunk အကြီးများမှ ပေးသော small-to-big နည်းသည် နှစ်ဘက်စလုံးတွင် အားသာချက် ရရှိစေသည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Chunk metadata ဒီဇိုင်းနဲ့ permission filter
 
-Chunk metadata မှာ `source`, `section`, `page`, `permission`, `chunk_index` တွေ ပါစေရပြီး၊ retrieval မှာ permission မကိုက်တဲ့ user အတွက် secret document ကို filtered-out လုပ်ပြပါတယ်။ cosine similarity အစစ်အစား deterministic keyword score နဲ့ အစားထိုးထားပါတယ်နော်။
+Chunk metadata တွင် `source`, `section`, `page`, `permission`, `chunk_index` field များ ပါဝင်ပြီး၊ retrieval အဆင့်တွင် permission မကိုက်ညီသော user အတွက် secret document ကို filtered-out လုပ်သည်။ Cosine similarity အစား deterministic keyword score ကို အသုံးပြုထားသည်။
 
 ```python
 # Chunk metadata schema + permission-filtered retrieval simulation (deterministic keyword score).
@@ -308,4 +308,4 @@ for user, allowed in [("admin", {"public", "finance"}), ("guest", {"public"})]:
 #   public_handbook.pdf p4 sec=Onboarding perm=public idx=1 :: Access requests are filed through the standard ticketing wor...
 ```
 
-**အဓိကအယူဆ** — Permission စတဲ့ metadata ကို index အဆင့်မှာ filter လုပ်တာဟဲ့ access control ကို retrieval ရလဒ်မှာ တိုက်ရိုက် အာမခံပေးပါတယ်။
+**အဓိကအယူဆ** — Permission ကဲ့သို့သော metadata ကို index အဆင့်တွင် filter လုပ်ခြင်းသည် access control ကို retrieval ရလဒ်၌ တိုက်ရိုက် အာမခံပေးသည်။

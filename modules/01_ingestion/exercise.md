@@ -1,73 +1,57 @@
-## လေ့ကျင့်ခန်း ၁ — JSON ဒေတာအမျိုးအစား သိမ်းတယ်
+## လေ့ကျင့်ခန်း ၁ — JSON Data Serialization & Canonicalization
 
-PostgreSQL ရဲ့ `json` နဲ့ `jsonb` ကွာခြားချက်ကို မှတ်စာရေးပါတယ်။
-ဒီနောက် Python `dict` တစ်ခုကို JSON string အဖြစ် `json.dumps` နဲ့ ပြောင်းပြပါတယ်။
-ဒါက ingest pipeline ထဲ `json` column မှာ ဘာ data သွားမလဲ ကြိုမြင်ရတာပါ။
+PostgreSQL `json` နှင့် `jsonb` column များ၏ storage mechanism ကွာခြားချက်ကို သုံးသပ်ပြီး Python `dict` မှ canonical JSON format သို့ `json.dumps` ဖြင့် serialize လုပ်သည့် logic ကို ရေးသားပါ။
 
-**Hints:** https://www.postgresql.org/docs/current/datatype-json.html ကို ဖတ်ပါတယ်။
-`json` က input text ကို အတိုင်းသိမ်းတယ်၊ `jsonb` က parsed binary format ပါတယ်။
+**Hints:** PostgreSQL official documentation (https://www.postgresql.org/docs/current/datatype-json.html) ကို ကိုးကားပါ။ `json` သည် input raw text အတိုင်း သိမ်းဆည်းပြီး `jsonb` သည် whitespace normalization နှင့် key deduplication ပြုလုပ်ထားသော parsed binary format ဖြစ်သည်။
 
-**Expected behavior:** `{"doc_id": 1, "lang": "my"}` ဆိုတဲ့ dict ကို
-`json.dumps` နဲ့ string ပြနိုင်ရတယ်။ key တွေမှာ quote တွေပါရတယ်။
+**Expected behavior:** `{"doc_id": 1, "lang": "my"}` dictionary ကို serialize လုပ်ပြီး format နှင့် key formatting ကို အတည်ပြုနိုင်ရမည်။
 
-## လေ့ကျင့်ခန်း ၂ — Text extraction နဲ့ boilerplate ဖယ်တယ်
+---
 
-ပေးထားတဲ့ HTML string တစ်ခုကနေ tag တွေဖြုတ်ပြီး text ထုတ်ပါတယ်။
-`<nav>` နဲ့ `<footer>` အတွင်းက text တွေက boilerplate ပါ။
-ဒါတွေကို မဖြုတ်ခင် marker နဲ့ အစားထိုးပြီး၊ နောက်မှ ဖယ်ပါတယ်။
+## လေ့ကျင့်ခန်း ၂ — Text Extraction နှင့် Targeted Boilerplate Removal
 
-**Hints:** `re.sub(r'<[^>]+>', ' ', html)` နဲ့ tag တွေဖျက်လို့ရတယ်။
-Boilerplate ကို marker `[[BOILER]]` နဲ့ အစားထိုးပြီး နောက်မှ အဲဒီ marker ရှိတဲ့ အပိုင်းကို ဖျက်ပါတယ်။
+HTML document တစ်ခုမှ `<nav>` နှင့် `<footer>` tags များအတွင်းရှိ boilerplate စာသားများကို ဖယ်ရှားပြီး `<main>` အကြောင်းအရာကိုသာ plain text အဖြစ် clean ထုတ်ယူပါ။
 
-**Expected behavior:** nav/footer text မပါတဲ့ စိတ်ချရတဲ့ plain text ရရတယ်။
-Main content text ကိုတော့ ကျန်ရစ်ရတယ်။
+**Hints:** Regex substitution (`re.sub`) ဖြင့် boilerplate block များကို temporary marker (`[[BOILER]]`) ဖြင့် အစားထိုးပြီးမှ tag stripping ပြုလုပ်ခြင်းသည် content pollution ကို တားဆီးပေးသည်။
 
-## လေ့ကျင့်ခန်း ၃ — Unicode normalization လုပ်တယ်
+**Expected behavior:** Navigation link များနှင့် copyright footer များ မပါရှိဘဲ core content သာ ကျန်ရှိသော normalized text string ရရှိရမည်။
 
-Burmese text နှစ်ကြောင်းကို `unicodedata.normalize` နဲ့ နှိုင်းယှဉ်ပါတယ်။
-NFC form က composed form ဖြစ်တာကြောင့် တူညီမှု စစ်ဖို့ သုံးတာပါ။
-Normalize မလုပ်ခင် မတူနိုင်တဲ့ string တွေကို ပြပါတယ်။
+---
 
-**Hints:** `unicodedata.normalize('NFC', s)` ကို သုံးပါတယ်။
-`unicodedata.name()` နဲ့ codepoint နာမည်တွေ ကြည့်လို့ရတယ်။
+## လေ့ကျင့်ခန်း ၃ — Unicode Normalization (NFC)
 
-**Expected behavior:** Normalize မလုပ်ခင် `==` မှာ False ဖြစ်နိုင်ပြီး၊
-NFC လုပ်ပြီးရင် True ဖြစ်ရတယ်။ ရှင်းလင်းတဲ့ ရလဒ်ကို print လုပ်ပါတယ်။
+Visually တူညီသော်လည်း byte sequence ကွဲပြားသော string များကို `unicodedata.normalize` ဖြင့် NFC (Canonical Decomposition, followed by Canonical Composition) format သို့ ပြောင်းလဲ နှိုင်းယှဉ်ပါ။
 
-## လေ့ကျင့်ခန်း ၄ — Duplicate စစ်ဖို့ content fingerprint သုံးတယ်
+**Hints:** `unicodedata.normalize('NFC', text)` ကို သုံးပါ။ `ord()` နှင့် `unicodedata.name()` ဖြင့် underlying codepoints များကို စစ်ဆေးနိုင်သည်။
 
-Document ငါးပိုင်းကို SHA-256 hash နဲ့ fingerprint ထုတ်ပါတယ်။
-တူညီတဲ့ content နှစ်ခုကို ရောထားပါတယ်။
-Hash တွေကို set ထဲထည့်ပြီး duplicate တွေကို ဖော်ပြပါတယ်။
+**Expected behavior:** Pre-normalization တွင် equality check (`==`) သည် `False` ဖြစ်ပြီး NFC normalization ပြုလုပ်ပြီးနောက် `True` ဖြစ်ရမည်။
 
-**Hints:** `hashlib.sha256(text.encode('utf-8')).hexdigest()` က fingerprint ပါတယ်။
-Normalize လုပ်ပြီးမှ hash လုပ်တာက whitespace ကွာခြားမှုကိုလည်း ဖမ်းပေးတယ်။
+---
 
-**Expected behavior:** Document ငါးခုမှာ unique content ၃ မျိုးပဲရတယ်။
-Duplicate group တွေကို doc id နဲ့ တွဲပြရတယ်။
+## လေ့ကျင့်ခန်း ၄ — Content Fingerprinting ဖြင့် Exact Duplicate Detection
 
-## လေ့ကျင့်ခန်း ၅ — Incremental update စစ်တယ်
+Corpus အတွင်းရှိ documents များကို whitespace normalization ပြုလုပ်ပြီး SHA-256 hash ဖြင့် fingerprint ထုတ်ယူကာ duplicate content များကို grouping ပြုလုပ်ပါ။
 
-ဒါနောက် chunk တွေကို (doc_id, text) အဖြစ် ရောက်လာတယ်။
-Fingerprint နဲ့ ရှေ့အဆင့်က မှတ်ထားတဲ့ state နဲ့ နှိုင်းပါတယ်။
-အသစ်၊ ပြောင်းလဲ၊ ဖျက်ရမည့် အုပ်စုသုံးမျိုးကို ခွဲပါတယ်။
+**Hints:** `hashlib.sha256(text.encode('utf-8')).hexdigest()` ကို အသုံးပြုပါ။ Dictionary တွင် fingerprint ကို key အဖြစ် သတ်မှတ်၍ document IDs များကို bucket လုပ်ပါ။
 
-**Hints:** State က dict — key က doc_id၊ value က fingerprint ပါတယ်။
-New = state မှာမရှိ၊ changed = fingerprint မတူ၊ deleted = state မှာရှိပေမယ့် input မှာမရှိပါ။
+**Expected behavior:** Document ၅ ခုတွင် duplicate ဖြစ်နေသော group များကို ခွဲခြားဖော်ထုတ်နိုင်ပြီး unique content count ကို တိကျစွာ ရရှိရမည်။
 
-**Expected behavior:** ရလဒ်က `new: [3]`, `changed: [2]`, `deleted: [5]` လိုမျိုး ပါတယ်။
-ပေးထားတဲ့ input နဲ့ state အပေါ် မူတည်ပြီး အတိအကျရရတယ်။
+---
 
-## လေ့ကျင့်ခန်း ၆ — Idempotent upsert နဲ့ delete pipeline
+## လေ့ကျင့်ခန်း ၅ — Incremental Update Diff Engine
 
-Pipeline function တစ်ခုကို ရေးပါတယ်။
-Batch တစ်ခုကို လက်ခံပြီး upsert နဲ့ delete ကို အလုံးစုံ လုပ်ပေးရတယ်။
-Batch တစ်ခုကို နှစ်ခါ ပြေးလိုက်ရင် ရလဒ် အတူတူပဲ ဖြစ်ရတယ်။
-ဒါက idempotency (ထပ်ပြေးလည်း ရလဒ်မပြောင်း) ပါ။
+လက်ရှိ pipeline state (doc_id -> fingerprint) နှင့် အသစ်ရောက်ရှိလာသော batch ကို နှိုင်းယှဉ်၍ `new`, `changed`, `deleted` set ၃ ခုကို ခွဲခြားသတ်မှတ်ပါ။
 
-**Hints:** SQL upsert က `INSERT ... ON CONFLICT (doc_id) DO UPDATE SET ...` ပါတယ်။
-pgvector target ဖြစ်နေလို့ `RETURNING` နဲ့ သက်ဆိုင်ရာကို ချိတ်မပြပါနှင့် — comment နဲ့ ရှင်းပြပါတယ်။
-DAG scheduling အကြောင်းက https://airflow.apache.org/docs/ မှာ ရှိတာပါ၊ prose နဲ့ ရှင်းပါတယ်။
+**Hints:** State တွင် မရှိသေးပါက `new`၊ fingerprint ကွဲပြားပါက `changed`၊ state တွင် ရှိသော်လည်း batch တွင် မပါဝင်တော့ပါက `deleted` အဖြစ် categorize လုပ်ပါ။
 
-**Expected behavior:** Batch တစ်ခုကို အရင်ပြေးတုန်းက state ရရတယ်။
-Batch ကို ဒုတိယအကြိမ် ထပ်ပြောလိုက်တော့ ဘာမှ ပြောင်းလဲသွားတာမရှိပါနှင့်။
+**Expected behavior:** Target batch အတွက် `new`, `changed`, `deleted` ID list များကို သီးခြားစီ တိကျစွာ output ထုတ်ပေးရမည်။
+
+---
+
+## လေ့ကျင့်ခန်း ၆ — Idempotent Upsert & Delete Pipeline
+
+Batch တစ်ခုကို ထပ်ခါတလဲလဲ execute လုပ်သော်လည်း database state မပြောင်းလဲစေမည့် idempotent pipeline function တစ်ခုကို implement လုပ်ပါ။
+
+**Hints:** State mutation ပြုလုပ်ရာတွင် content fingerprint ပြောင်းလဲမှသာ write ပြုလုပ်သည့် check ထည့်သွင်းပါ။ PostgreSQL ၏ `INSERT ... ON CONFLICT (doc_id) DO UPDATE` semantics နှင့် ကိုက်ညီရမည်။
+
+**Expected behavior:** ပထမအကြိမ် execution တွင် writes များဖြစ်ပေါ်ပြီး ဒုတိယအကြိမ် ထပ်မံ execute ပြုလုပ်ချိန်တွင် write count သည် 0 ဖြစ်ကာ final state သည် identical ဖြစ်နေရမည်။

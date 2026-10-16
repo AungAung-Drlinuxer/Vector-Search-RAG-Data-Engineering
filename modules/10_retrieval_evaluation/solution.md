@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Golden set ဖွဲ့ပါ
 
-Golden set ဆိုတာ query တစ်ခုအတွက် မှန်ရမယ့် chunk id တွေကို စာရင်းချထားတဲ့ အဘိဓာန်လေးပါပဲ။ အောက်မှာ query သုံးခုနဲ့ ဖွဲ့ပြထားတယ်နော်။
+Golden set သည် query တစ်ခုအတွက် relevant chunk id များကို စုစည်းထားသော mapping ဖြစ်သည်။ အောက်တွင် query သုံးခုဖြင့် တည်ဆောက်ပြထားသည်။
 
 ```python
 # Build a minimal golden set: query string -> list of correct chunk ids.
@@ -20,11 +20,11 @@ for q, ids in golden.items():
 # pricing for the api -> ['doc4#chunk2', 'doc4#chunk5', 'doc1#chunk1'] list
 ```
 
-**အဓိကအယူဆ** — Golden set က နောက်ပိုင်း metric အားလုံးရဲ့ အခြေခံအမှန်တာ ဖြစ်လို့ query နဲ့ မှန်တဲ့ chunk id တွေကို ရိုးရိုးသလေး ဒိုင်းအထဲ သိမ်းထားရတယ်။
+**အဓိကအယူဆ** — Golden set သည် နောက်ပိုင်း metric အားလုံး၏ ground truth အခြေခံဖြစ်သဖြင့် query → relevant chunk id mapping ကို structured format ဖြင့် သိမ်းဆည်းရသည်။
 
 ## လေ့ကျင့်ခန်း ၂ — recall@k တွက်ပါ
 
-recall@k က top-k အထဲ မှန်တာ ဘယ်လောက် ပြန်ရလဲကို တိုင်တာပါပဲ၊ relevant စာရင်းက ခံမထိုးရင် 0.0 ပြန်ဖို့ သတိထားပါတယ်။
+recall@k သည် relevant အားလုံးအနက် top-k အတွင်း ပြန်ရောက်လာသည့် coverage အချိုးဖြစ်ပြီး၊ relevant စာရင်း empty ဖြစ်ပါက 0.0 return ပြန်ရန် edge case ကို ကိုင်တွယ်ထားသည်။
 
 ```python
 def recall_at_k(retrieved, relevant, k):
@@ -46,11 +46,11 @@ print(recall_at_k(r, [], 4))
 # 0.0
 ```
 
-**အဓိကအယူဆ** — recall@k က relevant အားလုံးထဲမှာ top-k နဲ့ ဘယ်လောက် ဖုံးလွှမ်းလဲကို ပြပေမယ့် မှားတာတွေပါလာလား ဆိုတာကိုတော့ မပြပါဘူး။
+**အဓိကအယူဆ** — recall@k သည် relevant set အပေါ် top-k ၏ coverage ကိုသာ တိုင်းတာပြီး irrelevant result များ ရောဝင်မှုကို တိုင်းတာခြင်း မရှိပါ။
 
 ## လေ့ကျင့်ခန်း ၃ — precision@k နဲ့ MRR တွက်ပါ
 
-precision@k က top-k ထဲမှာ မှန်တာ ဘယ်လောက် ရှိလဲ၊ MRR က ပထမဆုံး မှန်တဲ့ result အဆင့်ရဲ့ ပြောင်းပုံကို တိုင်တာပါတယ်၊ rank က 1 ကစပါတယ်နော်။
+precision@k သည် top-k အတွင်း relevant အချိုးကို တိုင်းတာပြီး၊ MRR သည် ပထမဆုံး relevant result ၏ rank reciprocal ဖြစ်သည် — rank သည် 1-based ဖြစ်သည်။
 
 ```python
 import math
@@ -82,11 +82,11 @@ print(mrr(["a", "c"], ["b"]))
 # 0.0
 ```
 
-**အဓိကအယူဆ** — MRR က ပထမဆုံး hit တစ်ခုတည်းရဲ့ အဆင့်ကိုပဲ ကြည့်တာမို့ "ရှာတွေ့တဲ့ အဖြေ နှေးသလော" ကို ဖမ်းနိုင်တယ်။
+**အဓိကအယူဆ** — MRR သည် ပထမဆုံး hit တစ်ခုတည်း၏ rank ကိုသာ အခြေခံသဖြင့် ပထမဆုံး relevant result မည်မျှနောက်ကျမှ ရောက်သည်ကို rank-sensitive အဖြစ် ဖမ်းယူနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၄ — nDCG@k တွက်ပါ
 
-nDCG@k က တကယ့် ranking ရဲ့ DCG ကို ideal ranking ရဲ့ IDCG နဲ့ နှိုင်းချိတ် တိုင်းတာတာပါ၊ rank နိမ့်ရင် gain နည်းသွားအောင် log နဲ့ ချိန်ပါတယ်။
+nDCG@k သည် actual ranking ၏ DCG ကို ideal ranking ၏ IDCG ဖြင့် normalize လုပ်သော ratio ဖြစ်ပြီး၊ rank ကျဆင်းလျှင် gain ကို log discount ဖြင့် လျှော့ချသည်။
 
 ```python
 import math
@@ -116,11 +116,11 @@ print(round(ndcg_at_k(r, ["d"], 4), 4))
 # 0.4307
 ```
 
-**အဓိကအယူဆ** — nDCG က မှန်တာတွေ အဆင့်အလိုက် ဘယ်နေရာမှာ ပေါ်လဲ ထည့်စဉ်းစားလို့ ranking quality ကို ပိုပြီး အသိမာစား ဖမ်းနိုင်တယ်။
+**အဓိကအယူဆ** — nDCG သည် relevant hit များ၏ rank position ကို အလေးချိန်ဖြင့် ထည့်သွင်းတွက်ချက်သဖြင့် ranking quality ကို position-insensitive metric များထက် ပိုမိုတိကျစွာ ဖမ်းယူနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၅ — document-level အကဲဖြတ်ခြင်း ပြောင်းပါ
 
-document-level မှာ `#` ရှေ့ပိုင်းက doc id အဖြစ် ယူပြီး အဲဒီ document က top-k ထဲ ပါလာရင် relevant chunk တစ်ခုချင်းစီ ရှာတွေ့တယ်လို့ မှတ်ပါတယ်။
+Document-level evaluation တွင် `#` ၏ ရှေ့အပိုင်းကို doc id အဖြစ် ယူပြီး၊ relevant chunk တစ်ခု၏ document သည် top-k အတွင်း ပါဝင်ပါက ထို chunk ကို covered အဖြစ် ရေတွက်သည်။
 
 ```python
 def recall_at_k_doc(retrieved, relevant, k):
@@ -139,11 +139,11 @@ print(round(recall_at_k_doc(retrieved, relevant, 3), 4))
 # 0.6667
 ```
 
-**အဓိကအယူဆ** — RAG မှာ သုံးသူက ကြည့်တာ chunk မဟုတ်ဘဲ တစ်ခုလုံးရဲ့ အဖြေဖြစ်လို့ document-level recall က စွမ်းဆောင်ရည် အမှန်တစ်ခု ပိုနီးစေတယ်။
+**အဓိကအယူဆ** — RAG တွင် LLM context သည် chunk တစ်ခုချင်းစီထက် document အဆင့် content ပေါ် မူတည်လေ့ရှိသဖြင့် document-level recall သည် user-facing answer quality နှင့် ပိုမိုနီးစပ်သော proxy metric ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Regression gate နဲ့ drift စစ်ပါ
 
-Regression gate က baseline metric တွေနဲ့ နှိုင်းယှဉ်ကြည့်ပြီး တစ်ခုမျှ ကျရင် တားဆီးပေးတာပါ၊ CI ထဲ ထည့် run ခြင်းက drift ကို အလိုအလျောက် ဖမ်းပေးတယ်နော်။
+Regression gate သည် current metric များကို baseline နှင့် နှိုင်းယှဉ်ပြီး metric တစ်ခုခု ကျဆင်းပါက fail ပြန်ပေးသည်။ CI pipeline အတွင်း run ခြင်းဖြင့် drift ကို အလိုအလျောက် detect လုပ်နိုင်သည်။
 
 ```python
 def regression_gate(baseline, current):
@@ -170,4 +170,4 @@ print(regression_gate(baseline, current_good))
 # True
 ```
 
-**အဓိကအယူဆ** — Metric တွေကို baseline နဲ့ နေရာတကျ ယှဉ်ပြီး gate ချတာက data ဒါမှမဟုတ် model ပြောင်းတဲ့အခါ တိတ်တိတ် ကျသွားတဲ့ regression ကို CI မှာ ဖမ်းနိုင်ပါတယ်။
+**အဓိကအယူဆ** — Metric များကို baseline နှင့် စနစ်တကျ နှိုင်းယှဉ်၍ gate ချခြင်းဖြင့် data သို့မဟုတ် model ပြောင်းလဲမှုကြောင့် တဖြည်းဖြည်း ကျဆင်းလာသော silent regression ကို CI တွင် အလိုအလျောက် ဖမ်းယူနိုင်သည်။

@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Pipeline အဆင့်များကို အစီအစဉ်ချမယ်
 
-RAG pipeline ရဲ့ အဆင့် ၈ ခုကို မှန်ကန်တဲ့ အစီအစဉ်နဲ့ စီပြီး အဆင့်တစ်ခုချင်း ဘာကြောင့် အဲဒီနေရာမှာ ရှိရတယ်ဆိုတာ ရှင်းပြပါမယ်။ အောက်က code က အဆင့်တွေကို စီပြီး တစ်ခုချင်း အကြောင်းပြချက် ထုတ်ပြပါတယ်နော်။
+RAG pipeline ၏ stage ၈ ခုကို sequence အတိုင်း စီစဉ်ထားပြီး stage တစ်ခုချင်းစီ၏ architectural dependency ကို ဖော်ပြထားသည်။ အောက်ပါ code သည် sequence နှင့် ရွေးချယ်မှု အကြောင်းပြချက်ကို ပြသသည်။
 
 ```python
 # Correct order of the 8 RAG pipeline stages, with a one-line reason each.
@@ -30,11 +30,11 @@ print("Full order:", " -> ".join(s for s, _ in pipeline))
 # Full order: ingest -> chunk -> embed -> index -> retrieve -> rerank -> generate -> evaluate
 ```
 
-**အဓိကအယူဆ** — Pipeline အဆင့်တွေက အစီအစဉ်မှန်မှ ရလဒ်ကို တိုင်းတာလို့ ရပါတယ်။
+**အဓိကအယူအဆ** — Pipeline stage များသည် dependency အလိုက် အစဉ်လိုက် ချိတ်ဆက်နေပြီး evaluation မပါရှိပါက tuning ပြုလုပ်ရန် benchmark မရှိနိုင်ပါ။
 
 ## လေ့ကျင့်ခန်း ၂ — Chunk ဆိုတာ ဘာလဲ ရေးဖော်မယ်
 
-Chunk ဆိုတာ document ကြီးတစ်ခုကနေ ခွဲထုတ်လိုက်တဲ့ စာပိုဒ်ငယ် အပိုင်းသေးပါ။ ရှာတဲ့အခါ ဒီအပိုဒ်ငယ်တွေကို တစ်ခုချင်း ရှာပြီး LLM ဆီ ပို့တာပါနော်။ Chunk အရွယ်အစား အလွန်သေးတာနဲ့ အလွန်ကြီးတာရဲ့ အားသာချက် အားနည်းချက်ကို ဇယားနဲ့ ပြပါမယ်။
+Chunk သည် document တစ်ခုမှ embed လုပ်၍ retrieve ပြန်နိုင်သော atomic retrieval unit ဖြစ်သည်။ Chunk size အလွန်သေးငယ်ခြင်းနှင့် အလွန်ကြီးမားခြင်းတို့၏ trade-off နှိုင်းယှဉ်ချက်ကို အောက်ပါ script တွင် ဖော်ပြထားသည်။
 
 ```python
 # Define a chunk in our own words, then compare very small vs very large chunks.
@@ -71,11 +71,11 @@ print("unrelated maintenance text, so the similarity score gets watered down.")
 # unrelated maintenance text, so the similarity score gets watered down.
 ```
 
-**အဓိကအယူဆ** — Chunk အရွယ်အစားက search တိကျမှုနဲ့ context ပြည့်မှု နှစ်ခုကြားမှာ ညှိရတဲ့ ကိစ္စပါ။
+**အဓိကအယူအဆ** — Chunk size ရွေးချယ်မှုသည် retrieval precision နှင့် context completeness ကြား အဓိက trade-off ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Cosine similarity ကို Python နဲ့ တွက်မယ်
 
-Cosine similarity က vector နှစ်ခုရဲ့ ထောင့်ကို တိုင်းတာတာပါ။ Formula က `(a · b) / (||a|| * ||b||)` ပါ။ `math` module နဲ့ တွက်ပြီး a နဲ့ b၊ a နဲ့ c ရဲ့ similarity ထုတ်ပါမယ်။
+Cosine similarity သည် vector နှစ်ခုကြား angle ၏ cosine တန်ဖိုးကို တိုင်းတာခြင်း ဖြစ်ပြီး formula မှာ `(a · b) / (||a|| * ||b||)` ဖြစ်သည်။ Standard library `math` ဖြင့် dot product နှင့် vector norm တွက်ချက်ထားသည်။
 
 ```python
 # Cosine similarity with only the standard library.
@@ -101,11 +101,11 @@ print(f"cosine(a, c) = {sim_ac:.4f}")   # 45 degrees -> ~0.7071
 # cosine(a, c) = 0.7071
 ```
 
-**အဓိကအယူဆ** — pgvector ရဲ့ `<=>` operator လိုမျိုး တိုင်းတာမှုတွေဟာ ဒီ formula အတိုင်း ထောင့်အရ နီးနီးတူမှု တွက်ပေးတာပါ။
+**အဓိကအယူအဆ** — pgvector ၏ `<=>` distance operator ကဲ့သို့သော distance calculation များသည် ဤ mathematical definition အတိုင်း vector angle အပေါ် အခြေခံ၍ distance တိုင်းတာခြင်း ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Vector search နဲ့ keyword search ရွေးမယ်
 
-Query သုံးခုအတွက် ဘယ် search အမျိုးအစား သင့်တော်လဲ ရွေးပြီး latency နဲ့ ရလဒ် အရည်အသွေး နှစ်ခုစလုံးနဲ့ အကြောင်းပြပါမယ်နော်။
+Query သုံးခု၏ လက္ခဏာအလိုက် သင့်လျော်သော search modality (keyword, vector, hybrid) ကို latency နှင့် result quality trade-off အပေါ် အခြေခံ၍ ဆုံးဖြတ်ထားသည်။
 
 ```python
 # BURMESE-DATA-OK: Burmese sample text used as test data.
@@ -147,11 +147,11 @@ for query, choice, reason in decisions:
 # reason:  The topic ('travel tips') is semantic, but '2024' and 'Myanmar' are exact filters; hybrid (vector + keyword, e.g., fused with RRF) gets fresh and precise results at a moderate latency.
 ```
 
-**အဓိကအယူဆ** — စာလုံးအတိအက ကိုက်ရမရနဲ့ သဘောတရားနီးစာ ရှာရမလဲဆိုတာကို query အရ ဆုံးဖြတ်ရပါတယ်။
+**အဓိကအယူအဆ** — Exact token match လိုအပ်သော query များအတွက် inverted index သုံးပြီး semantic paraphrase လိုအပ်ပါက dense vector search သုံးကာ နှစ်မျိုးလုံး လိုအပ်ပါက hybrid search ကို ရွေးချယ်ရသည်။
 
 ## လေ့ကျင့်ခန်း ၅ — Chunking ရဲ့ memory အရွယ်အစား တွက်မယ်
 
-fp32 ဆိုတာ dimension တစ်ခုကို 4 byte ယူတာပါ။ ဒါဆို chunk တစ်ခု `768 * 4` bytes နဲ့ 1,000,000 chunks ရဲ့ စုစုပေါင်း GB ကို အဆင့်ဆင့် တွက်ပြပါမယ်။
+fp32 encoding တွင် dimension တစ်ခုလျှင် 4 bytes သုံးစွဲသဖြင့် dimension 768 ပါသော chunk တစ်ခုသည် `768 * 4 = 3072 bytes` ယူသည်။ 1,000,000 chunks အတွက် raw vector storage ကို အောက်ပါ script ဖြင့် အဆင့်ဆင့် တွက်ချက်ပြထားသည်။
 
 ```python
 # Step-by-step embedding memory math, standard library only.
@@ -172,11 +172,11 @@ print(f"total GB             = {total_bytes} / {gb} = {total_gb:.2f} GB")
 # total GB             = 3072000000 / 1073741824 = 2.86 GB
 ```
 
-**အဓိကအယူဆ** — Embedding storage က dimension အရေအတွက်နဲ့ chunk အရေအတွက် နှစ်ခုလုံးပေါ် တန်းတင်တက်သွားတာပါ။
+**အဓိကအယူအဆ** — Raw vector storage သည် chunk count နှင့် dimension နှစ်ခုလုံးနှင့် linear အချိုးကျ တိုးပွားသည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Reciprocal Rank Fusion ကို ကိုယ်တိုင်ဆောက်မယ်
 
-Vector ranking နဲ့ keyword ranking နှစ်ခုကို RRF formula `1/(k+rank)` နဲ့ ပေါင်းပြီး နောက်ဆုံး ranking ထုတ်ပါမယ်။ Database မချိတ်ပါဘူး — pgvector hybrid search ရဲ့ အတုအစား သဘောသဘာဝပါနော်။
+Vector ranking နှင့် keyword ranking နှစ်ခုကို RRF formula `score = Σ 1 / (k + rank)` ဖြင့် ပေါင်းစပ်၍ single fused ranking ထုတ်ယူသည်။ Standard library pure Python ဖြင့် implement လုပ်ထားသည်။
 
 ```python
 # Reciprocal Rank Fusion: merge two rankings, k=60, standard library only.
@@ -203,4 +203,4 @@ print("Final ranking:", " > ".join(final_ranking))
 # Final ranking: doc_a > doc_b > doc_c > doc_d
 ```
 
-**အဓိကအယူဆ** — Ranking နှစ်ခုကို score အရ ပေါင်းလိုက်တာက hybrid search ရဲ့ ရိုးရိုးရှင်းရှင်း နည်းလမ်းကောင်းပါ။
+**အဓိကအယူအဆ** — RRF သည် raw score calibration မလိုအပ်ဘဲ rank positions သာ အသုံးပြုသဖြင့် scale မတူသော retrieval lane များကို ပေါင်းစပ်ရာတွင် robust ဖြစ်သည်။

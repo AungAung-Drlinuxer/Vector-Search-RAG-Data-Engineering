@@ -1,29 +1,29 @@
 # M2 — Chunking မဟာဗျူဟာများနှင့် Metadata ဒီဇိုင်း
 
-ဒီ module မှာ document ကို အပိုင်းလေးတွေခွဲတဲ့ နည်း (chunking) နဲ့ အပိုင်းတစ်ခုချင်းဆီ metadata တွဲတဲ့ ဒီဇိုင်းကို လေ့လာကြမယ်နော်။
-ရည်ညွှန်းချက် — LangChain Text Splitters concept docs, LlamaIndex docs, Hugging Face Tokenizers docs တွေပါ။
+ဒီ module တွင် document များကို chunk များအဖြစ် ခွဲခြမ်းခြင်းနှင့် chunk တစ်ခုစီအတွက် metadata ဒီဇိုင်းချခြင်းကို လေ့လာသည်။
+ရည်ညွှန်းအရင်းအမြစ်များ — LangChain Text Splitters concept docs, LlamaIndex docs, Hugging Face Tokenizers docs။
 
 ## ၁။ Chunking ဆိုတာ ဘာလဲ နှင့် ဘာကြောင့် လိုအပ်လဲ
 
 ### ဘာကို ဆိုလိုတာလဲ
-Chunking ဆိုတာ document ရှည်ကြီးကို အပိုင်းငယ်လေးတွေ (chunks) အဖြစ် ခွဲတာပါတယ်။
-Vector search မှာ ခွဲလိုက်တဲ့ အပိုင်းတစ်ခုချင်းစီကို embedding vector အဖြစ် ပြောင်းပြီး သိမ်းတယ်။
-LangChain docs က text splitter တွေကို “long text into smaller chunks” ပြောင်းတဲ့ tool လို့ ဖွင့်ဆိုပါတယ်။
+Chunking သည် document တစ်ခုကို embed လုပ်၍ retrieve ပြန်နိုင်သော retrieval unit (chunk) များအဖြစ် ခွဲခြမ်းခြင်း ဖြစ်သည်။
+Vector search တွင် chunk တစ်ခုစီကို embedding vector အဖြစ် ပြောင်းလဲပြီး index ထဲ သိမ်းဆည်းသည်။
+LangChain docs က text splitter များကို “long text into smaller chunks” ပြောင်းလဲပေးသော tool အဖြစ် သတ်မှတ်ထားသည်။
 
 ### ဘာကြောင့် လဲ
-ပထမ — embedding model တွေမှာ input အရှည် အကန့်အသတ်ရှိတယ်။
-Document တစ်ခုလုံးကို တစ် vector နဲ့ သိမ်းလိုက်ရင် အဓိပ္ပာယ် အားလုံး တစ်နေရာတည်း ပြွမ်းသွားတယ်။
-ဥပမာ — စာ ၅၀ ကြောင်းစာမှာ အဖြေတစ်ကြောင်းပဲ ပါရင်၊ vector တစ်ခုတည်းက အဖြေကို မြုပ်ကွယ်ပစ်တယ်။
-ဒုတိယ — retrieval ပြန်ဖတ်ရတဲ့ အချိန်မှာ အပိုင်းသေးသေးလေ အဖြေနဲ့ ဆိုင်တဲ့ အပိုင်းရ လွယ်တယ်။
-ဒါပေမယ့် သေးလွန်းရင် အချက်အလက် ပိုင်းခြားခံရပြီး အဓိပ္ပာယ် လျော့သွားတယ်။
-ဒါကြောင့် chunk အရွယ်က retrieval အရည်အသွေးနဲ့ တိုက်ရိုက်ဆက်နွယ်ပါတယ်။
+ပထမ — embedding model များတွင် maximum input length ကန့်သတ်ချက် ရှိသည်။
+Document တစ်ခုလုံးကို vector တစ်ခုတည်းဖြင့် embed လုပ်ပါက အဓိပ္ပာယ်အားလုံး vector တစ်ခုအတွင်း ပြွမ်းသွားပြီး retrieval resolution ကျဆင်းသည်။
+ဥပမာ — စာကြောင်း ၅၀ ပါဝင်သော document တွင် အဖြေစာကြောင်း တစ်ကြောင်းသာ ပါဝင်ပါက၊ vector တစ်ခုတည်းက အဖြေ၏ signal ကို ပျမ်းမျှပြုလုပ်လိုက်သကဲ့သို့ ဖြစ်သွားသည်။
+ဒုတိယ — retrieval အဆင့်တွင် chunk သေးလေ answer နှင့် သက်ဆိုင်သော အပိုင်းကို တိကျစွာ ရရှိလေ ဖြစ်သည်။
+သို့သော် chunk သေးလွန်းပါက context ပြတ်တောက်ပြီး အဓိပ္ပာယ် လျော့နည်းသွားသည်။
+ထို့ကြောင့် chunk size သည် retrieval quality နှင့် တိုက်ရိုက် ဆက်နွယ်နေသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
-၁။ Raw document ကို ယူတယ်။
-၂။ ခွဲပုံစံ (fixed-size၊ recursive၊ token-based) တစ်မျိုးရွေးတယ်။
-၃။ Overlap (နောက်အပိုင်းနဲ့ ထပ်တဲ့ အပိုင်း) ဆိုင်ရာ အရွယ်သတ်မှတ်တယ်။
-၄။ Chunk တစ်ခုချင်းကို embedding ပြောင်းပြီး store ထဲထည့်တယ်။
-၅။ ရှာတဲ့အခါ query vector နဲ့ chunk vectors တွေကို နှိုင်းရတယ်။
+၁။ Raw document ကို ယူသည်။
+၂။ Chunking strategy (fixed-size၊ recursive၊ token-based) တစ်မျိုး ရွေးချယ်သည်။
+၃။ Overlap size ကို သတ်မှတ်သည်။
+၄။ Chunk တစ်ခုစီကို embed လုပ်ပြီး store ထဲ ထည့်သည်။
+၅။ Query အချိန်တွင် query vector နှင့် chunk vector များကို similarity အရ နှိုင်းယှဉ်သည်။
 
 ### ဥပမာ
 
@@ -55,33 +55,33 @@ for i, c in enumerate(chunks):
 ```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-Production RAG မှာ chunking က data pipeline ရဲ့ ပထမဆုံး အဆင့်ပါ။
-ဒီအဆင့်မှာ မှားရင် အောက်ဘက် retrieval၊ reranking၊ generation အားလုံး မှားသွားတယ်။
-အကောင်းဆုံး embedding model ရှိထားတောင် ခွဲမှားရင် အဖြေ မှန်အောင် မရနိုင်ဘူးနော်။
+Production RAG တွင် chunking သည် data pipeline ၏ ပထမဆုံး အဆင့် ဖြစ်သည်။
+ဒီအဆင့်တွင် အမှားပါပါက downstream retrieval၊ reranking၊ generation အဆင့်များ အားလုံး ကျဆင်းသွားသည်။
+Embedding model အရည်အသွေး မြင့်မားသော်လည်း chunking မှားယွင်းပါက မှန်ကန်သော အဖြေ ထုတ်ပေးနိုင်ခြင်း မရှိပါ။
 
 ## ၂။ Splitter အမျိုးအစားများ — fixed-size၊ recursive၊ token-based၊ semantic
 
 ### ဘာကို ဆိုလိုတာလဲ
-Fixed-size splitter သည် သတ်မှတ်ထားသော စာလုံးရေ (character count) အတိုင်း တိကျစွာ ဖြတ်တောက်တာ ဖြစ်ပါတယ်။
-Recursive splitter သည် paragraph → sentence → word အဆင့်ဆင့် separator များဖြင့် စာသားကို သဘာဝကျကျ ခွဲထုတ်တာ ဖြစ်ပါတယ်။
-LangChain docs အရ recursive character splitter က separator list ကို အစဉ်လိုက် စမ်းပြီး အကောင်းဆုံး boundary ရွေးတယ်။
-Token-based splitter က tokenizer (စာကို model နားလည်တဲ့ ယူနစ်လေးတွေအဖြစ် ပြောင်းတဲ့ ကိရိယာ) နဲ့ အရေအတွက်ရေတယ်။
-Hugging Face tokenizers docs အရ tokenizer က “raw text into tokens” ပြောင်းပေးတယ်။
-Semantic chunking သည် စာသားများ၏ အဓိပ္ပာယ် (semantic meaning) ပြောင်းလဲမှုကို တိုင်းတာပြီး ခွဲထုတ်တာ ဖြစ်ပါတယ်။
+Fixed-size splitter သည် character count အတိုင်း စာသားကို ပုံသေအရွယ်အစားဖြင့် ဖြတ်တောက်သည်။ Semantic boundary ကို ထည့်သွင်းစဉ်းစားခြင်း မရှိပါ။
+Recursive splitter သည် paragraph → sentence → word အဆင့်ဆင့် separator များဖြင့် စာသားကို သဘာဝ boundary တွင် ခွဲထုတ်သည်။
+LangChain docs အရ recursive character splitter သည် separator list ကို အစဉ်လိုက် စမ်းသပ်ပြီး အကောင်းဆုံး boundary ကို ရွေးချယ်သည်။
+Token-based splitter သည် tokenizer ဖြင့် token count ကို တိုင်းတာပြီး chunk size သတ်မှတ်သည်။
+Hugging Face tokenizers docs အရ tokenizer သည် “raw text into tokens” ပြောင်းလဲပေးသည်။
+Semantic chunking သည် စာသား၏ semantic meaning ပြောင်းလဲမှုကို တိုင်းတာပြီး boundary သတ်မှတ်သည်။
 
 ### ဘာကြောင့် လဲ
-Fixed-size လွယ်ပေမယ့် စာကြောင်းအလယ်မှာ ပြတ်တတ်တယ်။
-“budget was 1.2 million” ဆိုတဲ့ ဂဏန်းကို ထက်ဝက် ဖြတ်လိုက်ရင် ဂဏန်းအဓိပ္ပာယ် ပျက်တယ်။
-Recursive နည်းက paragraph အပိုင်းအစိတ်ကို အရင်လိုက်တာကြောင့် သဘာဝကျတဲ့ boundary ရတယ်။
-Token-based က model ရဲ့ context window နဲ့ တိုက်ရိုက်ကိုက်တာကြောင့် တိကျတယ်။
-Semantic က အဓိပ္ပာယ်အရ ခွဲလို့ အကောင်းဆုံးပေမယ့် ကုန်ကျစရိတ် ပိုများတယ်။
+Fixed-size သည် အကောင်အထည်ဖော်ရ လွယ်ကူသော်လည်း စာကြောင်းအလယ်တွင် ဖြတ်တောက်နိုင်သည်။
+“budget was 1.2 million” ကဲ့သို့ numeric fact ကို ထက်ဝက် ဖြတ်တောက်ပါက အဓိပ္ပာယ် ပျက်ပြယ်သွားသည်။
+Recursive နည်းသည် paragraph boundary ကို ဦးစွာ ဦးစားပေးသဖြင့် သဘာဝကျသော boundary ရရှိသည်။
+Token-based သည် model ၏ context window နှင့် တိုက်ရိုက် ကိုက်ညီသဖြင့် တိကျသည်။
+Semantic သည် အဓိပ္ပာယ်အရ boundary သတ်မှတ်သဖြင့် အရည်အသွေး အမြင့်ဆုံးဖြစ်သော်လည်း embedding ကုန်ကျစရိတ် ပိုမိုမြင့်မားသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
-၁။ Recursive splitter က separator list ("\n\n", "\n", " ", "") ကို အစဉ်အတိုင်း စမ်းတယ်။
-၂။ Chunk က အရွယ်ထက် ကြီးရင် နောက် separator ပိုသေးတာနဲ့ ပြန်ခွဲတယ်။
-၃။ သင့်တင့်တဲ့ boundary တွေ့တာနဲ့ ခွဲပြီး merge လုပ်တယ်။
-၄။ Token-based မှာ tokenizer နဲ့ token ရေတွက်ပြီး အရွယ်ကန့်သတ်တယ်။
-၅။ Semantic မှာ အပိုင်းတိုင်း embedding နဲ့ ခြားနားမှုကြည့်ပြီး threshold ကျော်ရင် အပိုင်းသစ် ဖွင့်တယ်။
+၁။ Recursive splitter သည် separator list ("\n\n", "\n", " ", "") ကို အစဉ်အတိုင်း စမ်းသပ်သည်။
+၂။ Chunk သည် သတ်မှတ်အရွယ်ထက် ကြီးနေပါက နောက်ထပ် separator (ပိုသေးသော granularity) ဖြင့် ပြန်လည်ခွဲထုတ်သည်။
+၃။ သင့်လျော်သော boundary ရရှိပါက ခွဲထုတ်ပြီး chunk size အတွင်း merge လုပ်သည်။
+၄။ Token-based တွင် tokenizer ဖြင့် token count ရေတွက်ပြီး အရွယ်အစား ကန့်သတ်သည်။
+၅။ Semantic တွင် အပိုင်းတိုင်း၏ embedding ကွာခြားချက်ကို တိုင်းတာပြီး threshold ကျော်လွန်ပါက chunk အသစ် ဖွင့်သည်။
 
 ### ဥပမာ
 
@@ -123,30 +123,30 @@ for i, c in enumerate(result):
 ```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-Document အမျိုးအစားအလိုက် splitter ရွေးရတယ်။
-Markdown နဲ့ code အတွက် structure-aware splitter တွေရှိပြီး LangChain နဲ့ LlamaIndex မှာ ပံ့ပိုးထားပါတယ်။
-ပုံမှန် စာရေးစာတွေအတွက် recursive က မှန်ကန်တဲ့ default ဖြစ်နေတယ်နော်။
+Document အမျိုးအစားပေါ်မူတည်၍ splitter ရွေးချယ်ရသည်။
+Markdown နှင့် code အတွက် structure-aware splitter များ ရှိပြီး LangChain နှင့် LlamaIndex တို့က ပံ့ပိုးထားသည်။
+စာသားအခြေပြု document များအတွက် recursive splitter သည် သင့်လျော်သော default ဖြစ်သည်။
 
 ## ၃။ Overlap ရွေးချယ်မှုနှင့် chunk အရွယ် အပေးအယူ
 
 ### ဘာကို ဆိုလိုတာလဲ
-Overlap ဆိုတာ chunk နှစ်ခုကြား ထပ်နေတဲ့ စာအပိုင်းပါတယ်။
-Chunk size က အပိုင်းတစ်ခုရဲ့ အရှည်ပါ။
-ဒီနှစ်ခုက တစ်ခုနဲ့တစ်ခု ဆန့်ကျင်ဘက်ဖြစ်နေတယ်။
+Overlap သည် chunk နှစ်ခုကြားတွင် ထပ်နေသော စာသားအပိုင်း ဖြစ်သည်။
+Chunk size သည် chunk တစ်ခု၏ အရှည် ဖြစ်သည်။
+ဒီ parameter နှစ်ခုသည် retrieval quality နှင့် storage cost ကြား trade-off တစ်ခုအဖြစ် ဆက်နွယ်နေသည်။
 
 ### ဘာကြောင့် လဲ
-Overlap မပါရင် အရေးကြီးတဲ့ အချက်အလက်က chunk boundary အပေါ်မှာ အလယ်မှာ ရောက်နေတတ်တယ်။
-ဥပမာ — “လစာက ၁၂ သိန်းဖြစ်တယ်” ဆိုတာကို နှစ်ခုဖြတ်လိုက်ရင် ဘယ် chunk မှာမှ အဖြေပြည့် မရတော့ဘူး။
-Overlap က ဒီပြဿနာကို လျှော့ပေးတယ်၊ ဒါပေမယ့် store အရွယ် တိုးစေတယ်။
-Chunk သေးရင် retrieval တိကျတယ်၊ ဒါပေမယ့် chunk ထဲ ပါဝင်တဲ့ အချက်အလက် ပမာဏ ကွာတယ်။
-Chunk ကြီးရင် အချက်အလက် ပြည့်တယ်၊ ဒါပေမယ့် မဆိုင်တဲ့ အပိုင်းလည်း ဝင်လာတယ်။
+Overlap မပါဝင်ပါက အရေးကြီးသော fact သည် chunk boundary အလယ်တွင် ကျရောက်နိုင်သည်။
+ဥပမာ — “လစာက ၁၂ သိန်းဖြစ်တယ်” ဆိုသည့် fact နှစ်ပိုင်း ခွဲလိုက်ပါက chunk တစ်ခုမှလည်း အဖြေ အပြည့်အစုံ မရရှိတော့ပါ။
+Overlap သည် boundary ပြတ်တောက်မှုကို လျှော့ချပေးသော်လည်း storage ပမာဏ တိုးပွားစေသည်။
+Chunk သေးပါက retrieval precision မြင့်သော်လည်း chunk တစ်ခုတွင် ပါဝင်သော context ပမာဏ လျော့နည်းသည်။
+Chunk ကြီးပါက context ပြည့်စုံသော်လည်း မသက်ဆိုင်သော အပိုင်းများလည်း ပါဝင်လာသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
-၁။ Document အမျိုးအစားကို သုံးသပ်တယ်။
-၂။ Chunk size ကို စမ်းသပ်ဖို့ baseline တစ်ခု ချထားတယ်။
-၃။ Overlap ကို chunk size ရဲ့ ဆယ်ရာခိုင်နှုန်း အနည်းငယ် စတင်တယ်။
-၄။ Retrieval quality (recall@k) ကို တိုင်းပြီး size/overlap ချိန်တယ်။
-၅။ Store ကုန်ကျစရိတ်နဲ့ တိုးလာတဲ့ quality ကို နှိုင်းပြီး ရပ်တယ်။
+၁။ Document အမျိုးအစားကို သုံးသပ်သည်။
+၂။ Chunk size အတွက် baseline တစ်ခု သတ်မှတ်သည်။
+၃။ Overlap ကို chunk size ၏ ဆယ်ရာခိုင်နှုန်း အနည်းငယ်မှ စတင်သည်။
+၄။ Retrieval quality (recall@k) ကို တိုင်းတာပြီး size/overlap ကို ချိန်ညှိသည်။
+၅။ Storage ကုန်ကျစရိတ်နှင့် quality တိုးတက်မှုကို နှိုင်းယှဉ်ပြီး သင့်လျော်သော တန်ဖိုး ရပ်တန့်သည်။
 
 ### ဥပမာ
 
@@ -173,30 +173,30 @@ for overlap in [0, 50, 100]:
 ```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-Overlap တိုးတိုင်း store ကုန်ကျစရိတ်နဲ့ embedding ရေ တိုးတယ်။
-ဒီ ဥပမာမှာ overlap ၁၀၀ က အချက်အလက် ၂၅ ရာခိုင်နှုန်း ပိုသိမ်းရတယ်။
-ဘယ် overlap က အကောင်းဆုံးလဲဆိုတာ dataset အလိုက် ကွာတာကြောင့် ကိုယ်ပိုင် dataset နဲ့ တိုင်းပြီး ရွေးရတယ်နော်။
+Overlap တိုးလာသည်နှင့်အမျှ storage ကုန်ကျစရိတ်နှင့် embedding volume တိုးပွားသည်။
+ဒီဥပမာတွင် overlap=100 သည် သိမ်းဆည်းရသော character ပမာဏ ၂၅% ခန့် တိုးစေသည်။
+အကောင်းဆုံး overlap တန်ဖိုးသည် dataset ပေါ်မူတည်၍ ကွာခြားသဖြင့် ကိုယ်ပိုင် dataset ဖြင့် တိုင်းတာပြီး ရွေးချယ်ရန် လိုအပ်သည်။
 
 ## ၄။ Heading/structure ထိန်းသိမ်းခြင်းနှင့် parent-child၊ small-to-big retrieval
 
 ### ဘာကို ဆိုလိုတာလဲ
-Structure-preserving chunking က document ရဲ့ heading၊ စာပိုဒ် အဆင့်အတန်းကို ခွဲရင်းနဲ့ ထိန်းသိမ်းတာပါတယ်။
-Parent-child chunking က အပိုင်းငယ် (child) တွေကို ရှာပြီး အဖြေပေးတဲ့အခါ အပိုင်းကြီး (parent) ကို ပြန်သုံးတာပါတယ်။
-Small-to-big retrieval လို့လည်း ခေါ်တယ် — ရှာတာက သေးသေး၊ ဖတ်တာက ကြီးကြီး။
+Structure-preserving chunking သည် document ၏ heading နှင့် စာပိုဒ် hierarchy ကို chunking လုပ်စဉ် ထိန်းသိမ်းထားခြင်း ဖြစ်သည်။
+Parent-child chunking တွင် retrieval ကို child (အပိုင်းငယ်) များဖြင့် ပြုလုပ်ပြီး၊ context ပြန်လည်ပေးပို့ရာတွင် parent (အပိုင်းကြီး) ကို အသုံးပြုသည်။
+ဒီ pattern ကို small-to-big retrieval ဟု ခေါ်သည် — retrieval unit သေးငယ်ပြီး generation unit ကြီးမားသည်။
 
 ### ဘာကြောင့် လဲ
-ရှာတဲ့အချိန်မှာ အဓိပ္ပာယ်က ကွဲပြားတဲ့ အပိုင်းသေးလေ တိကျလေပါတယ်။
-ဒါပေမယ့် LLM ကို ပေးတဲ့အခါ အပိုင်းသေးလွန်းရင် အချက်အလက် မလုံလောက်ဘူး။
-ဥပမာ — “ကုန်ကျစရိတ် အမျိုးအစား” ဆိုတဲ့ အကြောင်းအရာကို စာကြောင်းတစ်ကြောင်းတည်းနဲ့ ရှာရင် ရနိုင်တယ်။
-ဒါပေမယ့် အဖြေပြည့်ဖို့ နားမှာရှိတဲ့ စာပိုဒ်တစ်ခုလုံး လိုတတ်တယ်။
-ဒါကြောင့် ရှာတဲ့ unit နဲ့ ဖတ်တဲ့ unit ကို ခွဲထားတာက ပိုကောင်းတယ်။
+Retrieval အဆင့်တွင် semantic scope ကျဉ်းသော chunk သေးလေ matching precision မြင့်လေ ဖြစ်သည်။
+သို့သော် LLM ကို ပေးပို့ရာတွင် chunk သေးလွန်းပါက context မလုံလောက်ပါ။
+ဥပမာ — “ကုန်ကျစရိတ် အမျိုးအစား” ကဲ့သို့ query တစ်ခုကို စာကြောင်းတစ်ကြောင်းအရွယ် child chunk ဖြင့် match လုပ်နိုင်သည်။
+သို့သော် အဖြေ ပြည့်စုံရန် ကပ်လျက် စာပိုဒ် (parent) တစ်ခုလုံး လိုအပ်နိုင်သည်။
+ထို့ကြောင့် retrieval unit နှင့် generation unit ကို ခွဲခြားထားခြင်းက ပိုမိုထိရောက်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
-၁။ Document ကို heading အလိုက် parent အပိုင်းတွေ ခွဲတယ်။
-၂။ Parent တစ်ခုစီကို child အပိုင်းသေးတွေ ထပ်ခွဲတယ်။
-၃။ Child တိုင်းမှာ parent ရဲ့ ID ကို metadata အနေနဲ့ မှတ်တယ်။
-၄။ Retrieval မှာ child vectors တွေနဲ့ပဲ ရှာတယ်။
-၅။ Top child တွေရရင် သက်ဆိုင်တဲ့ parent တွေကို ပြန်ဆွဲပြီး LLM ကို ပေးတယ်။
+၁။ Document ကို heading အလိုက် parent chunk များ ခွဲထုတ်သည်။
+၂။ Parent တစ်ခုစီကို child chunk အသေးများ ထပ်မံခွဲထုတ်သည်။
+၃။ Child တိုင်းတွင် parent ID ကို metadata အဖြစ် သိမ်းဆည်းသည်။
+၄။ Retrieval ကို child vector များဖြင့်သာ ပြုလုပ်သည်။
+၅။ Top child များ ရရှိပါက သက်ဆိုင်ရာ parent chunk များကို ပြန်လည်ဆွဲထုတ်ပြီး LLM ကို ပေးပို့သည်။
 
 ### ဥပမာ
 
@@ -237,28 +237,28 @@ print("context sent to model:", parents[parent_id])
 ```
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-Heading ထိန်းထားရင် chunk တစ်ခုက ဘယ် section ကနေလာတယ်ဆိုတာ သိသွားတယ်။
-ဥပမာ — “ကုန်စျေးနှုန်း” heading အောက်က “၅၀%” ဆိုတာက လျှော့စျေး ဆိုတာ သိရတယ်။
-Small-to-big က LlamaIndex မှာ တရားဝင်ထောက်ခံတဲ့ pattern တစ်ခုဖြစ်ပြီး retrieval precision နဲ့ context completeness နှစ်ခုလုံး ရစေတယ်။
+Heading ကို ထိန်းသိမ်းထားပါက chunk တစ်ခု၏ section context ကို ပြန်လည်သိရှိနိုင်သည်။
+ဥပမာ — “ကုန်စျေးနှုန်း” heading အောက်ရှိ “၅၀%” ဆိုသည့် တန်ဖိုးသည် လျှော့စျေးဖြစ်ကြောင်း heading context ဖြင့် ခွဲခြားနိုင်သည်။
+Small-to-big သည် LlamaIndex တွင် တရားဝင် ပံ့ပိုးထားသော pattern ဖြစ်ပြီး retrieval precision နှင့် context completeness နှစ်ခုလုံးကို ရရှိစေသည်။
 
 ## ၅။ Chunk metadata ဒီဇိုင်း — source၊ section၊ page၊ permission
 
 ### ဘာကို ဆိုလိုတာလဲ
-Metadata ဆိုတာ chunk တစ်ခုရဲ့ vector နဲ့ စာသားအပြင် သိမ်းထားတဲ့ အပိုသတင်းအချက်ပါတယ်။
-ဥပမာ — source document၊ section heading၊ page နံပါတ်၊ permission (ဘယ်သူ ဖတ်ခွင့်ရှိလဲ) တွေပါ။
+Metadata သည် chunk တစ်ခု၏ vector နှင့် စာသားအပြင် သိမ်းဆည်းထားသော အပို attribute များ ဖြစ်သည်။
+ဥပမာ — source document၊ section heading၊ page number၊ permission (access control) တို့ ပါဝင်သည်။
 
 ### ဘာကြောင့် လဲ
-Metadata မရှိရင် chunk က လွင့်ပျံတဲ့ စာပိုင်းတစ်ခုပဲ ဖြစ်နေတယ်။
-အဖြေမှာ “ဘယ် document က ဘယ် page ကနေလာလဲ” ပြန်ညွှန်ဖို့ source၊ section၊ page၊ chunk index တို့ လိုပါတယ်။ Citation ပြဖို့နဲ့ permission filter လုပ်ဖို့ နှစ်ခုစလုံးအတွက် metadata က အခြေခံ ဖြစ်ပါတယ်။
+Metadata မပါဝင်သော chunk သည် မူလအရင်းအမြစ် မသိရသော စာသားအပိုင်းတစ်ခုသာ ဖြစ်သည်။
+အဖြေတွင် “ဘယ် document ၏ ဘယ် page မှ လာသလဲ” ပြန်လည်ညွှန်းဆိုရန် source၊ section၊ page၊ chunk index တို့ လိုအပ်သည်။ Citation ပြသခြင်းနှင့် permission filtering နှစ်ခုစလုံးအတွက် metadata သည် အခြေခံ လိုအပ်ချက် ဖြစ်သည်။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Metadata မပါတဲ့ chunk က ဘယ်ကလာမှန်း မသိတဲ့ စာသားတစ်ပိုင်း ဖြစ်ပါတယ်။ အဲဒါက citation မပေးနိုင်တဲ့ အဖြေကို ဖြစ်စေပြီး၊ ACL စစ်လို့ မရတာကြောင့် လုံခြုံရေး အန္တရာယ် ဖြစ်လာပါတယ်။
+Metadata မပါသော chunk သည် မူလအရင်းအမြစ် မသိရသော စာသားအပိုင်းသာ ဖြစ်သည်။ ထို့ကြောင့် citation မပေးနိုင်သော အဖြေများ ဖြစ်ပေါ်ပြီး၊ ACL စစ်ဆေး၍ မရသဖြင့် လုံခြုံရေး အန္တရာယ် ဖြစ်လာသည်။
 
 ## အနှစ်ခုပ်
 
-- Chunk အရွယ်က retrieval အရည်အသွေးနှင့် ကုန်ကျစရိတ်ကို တိုက်ရိုက် ဆုံးဖြတ်ပါတယ်။
-- Overlap က နယ်စပ် အချက်အလက် ပြတ်တာကို ကာကွယ်ပါတယ်။
-- Structure (heading၊ list) ကို ထိန်းထားတဲ့ chunking က ပိုကောင်းပါတယ်။
-- Metadata (source၊ page၊ permission) က citation နှင့် filter အတွက် မဖြစ်မနေ လိုပါတယ်။
-- Chunking မဟာဗျူဟာကို eval set နဲ့ တိုင်းပြီး ရွေးပါ။
+- Chunk size သည် retrieval quality နှင့် ကုန်ကျစရိတ်ကို တိုက်ရိုက် ဆုံးဖြတ်သည်။
+- Overlap သည် boundary တွင် fact ပြတ်တောက်မှုကို ကာကွယ်သည်။
+- Structure (heading၊ list) ကို ထိန်းသိမ်းသော chunking က retrieval quality ပိုမိုမြင့်မားသည်။
+- Metadata (source၊ page၊ permission) သည် citation နှင့် filtering အတွက် မရှိမဖြစ် လိုအပ်သည်။
+- Chunking မဟာဗျူဟာကို eval set ဖြင့် တိုင်းတာပြီး ရွေးချယ်ရမည်။

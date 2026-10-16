@@ -1,27 +1,27 @@
-# M1 — Corpus Ingestion: ရင်းမြစ်များ၊ Text ဆွဲထုတ်ခြင်း၊ Normalisation နှင့် Upsert/Delete
+# M1 — Corpus Ingestion: Data Sources, Text Extraction, Normalization & Upsert/Delete Semantics
 
-ဒီ module မှာ corpus (စုစည်းထားတဲ့ စာရွက်စာတမ်း အစု) ကို ဘယ်လို စုဆောင်းပြီး vector search အတွက် ပြင်ဆင်မလဲ ကို လေ့လာကြပါမယ်။ အားလုံးက original study material ပါ။ ရင်းမြစ်ကတော့ official open documentation (PostgreSQL docs, Hugging Face Datasets docs, Apache Airflow docs) တွေပဲ ဖြစ်ပါတယ်။
+RAG pipeline အတွက် corpus ingestion အဆင့်သည် downstream retrieval quality တစ်ခုလုံး၏ အခြေခံ foundation ဖြစ်သည်။ ဤ module တွင် source parsing, text extraction, normalization, deduplication နှင့် idempotent update logic များကို standard library ဖြင့် programmatic နည်းလမ်းအတိုင်း လေ့လာမည်။
 
 ---
 
-## Subtopic 1 — ရင်းမြစ် အမျိုးအစားများ နှင့် Text Extraction
+## Subtopic 1 — Source Formats နှင့် Text Extraction Architecture
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-ရင်းမြစ် (source) ဆိုတာ စာသား ရယူနိုင်တဲ့ နေရာ အားလုံး ကို ဆိုလိုတယ်။ ဥပမာ PDF၊ HTML၊ Markdown နဲ့ database row (ဇယား တစ်ကြောင်း) တို့ ပါတယ်။ Text extraction (text ဆွဲထုတ်ခြင်း) က ဒီ ရင်းမြစ်တွေကနေ ရှင်းလင်းတဲ့ စာသားကို ထုတ်ယူတဲ့ အဆင့် ပါတယ်။
+RAG ingestion တွင် source format အမျိုးမျိုး (PDF, HTML, Markdown, relational database records) မှ raw text ကို extract လုပ်ရသည်။ Extraction အဆင့်၏ အဓိက ရည်မှန်းချက်မှာ semantic value မရှိသော navigation elements, footers, ad banners နှင့် styling tags ကဲ့သို့သော boilerplate များကို ဖယ်ရှားပြီး clean body text ကို ရယူရန် ဖြစ်သည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Vector search မှာ quality (အရည်အသွေး) က ingestion (အချက်အလက် ထည့်သွင်းခြင်း) ကနေ စတင်ပါတယ်။ ဆွဲထုတ်တဲ့ အခါ HTML tag တွေ၊ navigation menu (မျက်နှာပြင် လမ်းညွှန် စာရင်း) တွေ ပါသွားရင် embedding မှာ အမှိုက် ဝင်သွားပါတယ်။ အမှိုက် ဝင်တဲ့ vector ကို ရှာတာက မှားယွင်းတဲ့ အဖြေ ပေးတတ်ပါတယ်။ ဒါကြောင့် extraction က ပထမဆုံး အရေးကြီးတဲ့ အဆင့် ဖြစ်ပါတယ်။
+Embedding model များသည် fixed context window (ဥပမာ 512 သို့မဟုတ် 8192 tokens) ရှိပြီး token capacity အကန့်အသတ်ရှိသည်။ Extraction အဆင့်တွင် boilerplate များ ရောနှောပါဝင်သွားပါက vector representation သည် dilution ဖြစ်သွားပြီး retrieval relevance တိကျမှု ကျဆင်းစေသည်။ ထို့ကြောင့် structural parsing နှင့် tag stripping ကို pipeline အစပိုင်းတွင် စနစ်တကျ ပြုလုပ်ရသည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
+### Implementation Steps
 
-၁။ ရင်းမြစ် အမျိုးအစားကို သတိမှတ်ပါ — တစ်မျိုးစီမှာ အမှိုက် pattern က မတူပါ။
-၂။ အလိုရှိတဲ့ အပိုင်းကိုသာ ရွေးပါ — HTML မှာဆို `<main>` ထဲက စာသားလို့ သတ်မှတ်ပါ။
-၃။ Boilerplate (page တိုင်းမှာ ထပ်တွဲနေတဲ့ header၊ footer စာ) ကို ဖယ်ရှားပါ။
-၄။ ရလာတဲ့ စာသားကို နောက်ဆင့် (normalisation) အတွက် ပြင်ဆင်ပါ။
+1. Source format အလိုက် parser architecture ကို ခွဲခြားသတ်မှတ်ပါ။
+2. Document body ကို container selector (ဥပမာ `<main>`, `<article>`) ဖြင့် scope သတ်မှတ်ပါ။
+3. Header, footer, navigation စသည့် boilerplate blocks များကို regex သို့မဟုတ် DOM filter ဖြင့် ဖယ်ရှားပါ။
+4. Multiple whitespace များကို single space အဖြစ် collapse လုပ်ပြီး string normalize ပြုလုပ်ပါ။
 
-### ဥပမာ
+### Python Implementation
 
 ```python
 # Lesson-local extraction demo. In production you would use a real
@@ -49,30 +49,29 @@ print(extract_main_text(RAW_HTML))
 # Vector Search Basics Vector search finds similar items.
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Production Considerations
 
-ရင်းမြစ် တခုချင်းစီက သူ့ပုံစံအတိုင်း အမှိုက် ရှိပါတယ်။ PDF မှာ page number (စာမျက်နှာ နံပါတ်) တွေ၊ HTML မှာ cookie banner (အသိပေး စာ) တွေ ပါလာတတ်ပါတယ်။ Hugging Face `datasets` library က document loading နဲ့ cleaning pipeline တွေကို တရားဝင် docs (https://huggingface.co/docs/datasets/index) မှာ ဖော်ပြထားပါတယ်။ Airflow ကတော့ ဒီလို extraction အဆင့်တွေကို scheduled pipeline (အချိန်ဇယားအလိုက် လည်ပတ်တဲ့ စီးဆင်းမှု) အဖြစ် စီမံပေးပါတယ် (https://airflow.apache.org/docs/)။
+Production pipeline များတွင် unstructured documents များအတွက် Hugging Face `datasets` (https://huggingface.co/docs/datasets/index) သို့မဟုတ် dedicated document loader များကို အသုံးပြုပြီး orchestration အတွက် Apache Airflow (https://airflow.apache.org/docs/) ဖြင့် batch extraction tasks များကို schedule ပြုလုပ်လေ့ရှိသည်။
 
 ---
 
-## Subtopic 2 — Unicode Normalisation
+## Subtopic 2 — Unicode Normalization (NFC)
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Unicode normalisation ဆိုတာ စာသားတွေကို စံတစ်မျိုးတည်း ပြောင်းပေးတဲ့ လုပ်ငန်း ပါတယ်။ မတူတဲ့ byte (ကွန်ပျူတာ အချက်အလက် အခြေခံ ယူနစ်) နှစ်ခုက မျက်နှာပြင်မှာ တူတဲ့ စာလုံး ဖြစ်နေတာ ရှိပါတယ်။ ဥပမာ combining diacritic (ပေါင်းစပ် အက္ခရာ အမှတ်) နဲ့ precomposed form (ကြိုပြင်ဆင်ထားတဲ့ ပုံစံ) ပါ။
+Unicode တွင် visually တူညီသော glyph တစ်ခုတည်းကို binary representation ပုံစံ နှစ်မျိုးဖြင့် သိမ်းဆည်းနိုင်သည်။ ဥပမာ - Precomposed character (`é` - `U+00E9`) နှင့် Decomposed character sequence (`e` + combining acute accent - `U+0065 U+0301`) တို့ ဖြစ်သည်။ Unicode normalization သည် ဤ representation များကို standard canonical form (NFC) သို့ ပြောင်းလဲပေးသည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-တူတဲ့ စာလုံး နှစ်ခုက byte မတူရင် hash (အချက်အလက်ကနေ ထုတ်တဲ့ သေးငယ်တဲ့ လက်မှတ်) ချင်း မတူပါတယ်။ Hash မတူရင် duplicate (အထပ်) စစ်ခြင်း မှားပါတယ်။ Tokenizer တွေကလည်း မတူတဲ့ byte ကို မတူတဲ့ ရလဒ် ပေးတတ်ပါတယ်။ ဒါကြောင့် ingestion မှာ အရင်ဆုံး normalise လုပ်ဖို့ လိုပါတယ်။
+String equality comparison နှင့် cryptographic hashing (SHA-256) တို့သည် binary byte sequence အပေါ် တိုက်ရိုက် အခြေခံသည်။ Text ကို normalize မလုပ်ပါက visually တူညီသော စာသားနှစ်ခုသည် binary byte မတူသဖြင့် hash match မဖြစ်ဘဲ deduplication စနစ် ကျိုးပေါက်သွားနိုင်သည်။ ထို့အပြင် tokenizer များသည် decomposed codepoints များကို token အကွဲများအဖြစ် encode လုပ်မိသဖြင့် vector similarity score များ လွဲချော်နိုင်သည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
+### Implementation Steps
 
-၁။ ရင်းမြစ် အားလုံးကနေ စာသား ရောက်လာပါ။
-၂။ Python standard library က `unicodedata.normalize("NFC", text)` နဲ့ NFC form (စံစုစည်းပုံစံ) ပြောင်းပါ။
-၃။ Whitespace (ကွက်လပ်) တွေကို တစ်ခုတည်း ဖြစ်အောင် ချုပ်ပါ။
-၄။ Normalise ပြီးတဲ့ စာသားကိုသာ storage နဲ့ hashing မှာ သုံးပါ။
+1. Ingestion entry point တွင် incoming string တိုင်းကို လက်ခံပါ။
+2. Python `unicodedata.normalize('NFC', text)` ဖြင့် Canonical Decomposition followed by Canonical Composition ပြုလုပ်ပါ။
+3. Whitespace formatting ကို standard space အဖြစ် collapse လုပ်ပါ။
 
-### ဥပမာ
+### Python Implementation
 
 ```python
 # NFC normalisation: same visible text, different byte sequences.
@@ -93,30 +92,30 @@ print(len(a), len(na))    # lengths differ before/after
 # 5 4
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Production Considerations
 
-Corpus က လူများ ရေးထားတာ ဆိုရင် စာရိုက်ပုံ မတူတာတွေ အများကြီး ရှိပါတယ်။ Normalisation မလုပ်ဘဲ duplicate စစ်ရင် တူတဲ့ စာရွက် အများကြီးကို မတူဘူးလို့ ထင်ပါတယ်။ ဒါက storage နဲ့ search quality နှစ်ခုစလုံးကို ထိခိုက်ပါတယ်။
+Multilingual corpus များ (ဥပမာ Burmese, Thai, European languages) တွင် diacritic marks နှင့် zero-width characters များ အမြောက်အမြား ပါဝင်နိုင်သဖြင့် normalization ကို ingestion stage ၏ အစောဆုံး gate အဖြစ် မဖြစ်မနေ ထည့်သွင်းထားရမည်။
 
 ---
 
-## Subtopic 3 — Duplicate စစ်ခြင်း (Hash / Content Fingerprint)
+## Subtopic 3 — Content Fingerprinting ဖြင့် Duplicate Detection
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Content fingerprint (အနှစ်ချုပ် လက်မှတ်) ဆိုတာ စာသားတစ်ခုရဲ့ အနှစ်ချုပ် hash ပါ။ SHA-256 လို hash function (input တစ်ခုကနေ သေးငယ်တဲ့ လက်မှတ် ထုတ်ပေးတဲ့ ဖန်ရှင်) က စာသားကို ကိုယ်စားပြုပါတယ်။ ဒီ fingerprint တူရင် စာသားလည်း တူတယ်လို့ ယူဆနိုင်ပါတယ်။
+Content fingerprinting သည် document content အပေါ်တွင် cryptographic hash (SHA-256) တွက်ချက်၍ compact identifier တစ်ခု ထုတ်ယူခြင်း ဖြစ်သည်။ ဤ fingerprint သည် identical content များကို indexing မပြုလုပ်မီ လျင်မြန်စွာ detect လုပ်နိုင်ရန် ကူညီပေးသည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Duplicate စာရွက်တွေ ထည့်လိုက်ရင် ရှာဖွေရာမှာ တူတဲ့ ရလဒ် ထပ်နေပါတယ်။ ရလဒ် ထပ်နေရင် အသုံးပြုသူက အချက်အလက် အမျိုးမျိုး မမြင်ရဘဲ တစ်ခုတည်းကိုပဲ မြင်ရပါတယ်။ Storage ကလည်း အလွန်အကျွံ ကုန်ပါတယ်။ ဒါကြောင့် ingestion မှာ duplicate ကို စစ်ရပါတယ်။
+Corpus အတွင်း identical သို့မဟုတ် near-identical documents များ ထပ်ခါတလဲလဲ ပါဝင်နေပါက vector storage ကုန်ကျစရိတ် မြင့်တက်စေသည့်အပြင် retrieval အဆင့်တွင် top-k candidates များအားလုံး duplicate chunks များဖြင့် ပြည့်နှက်သွားပြီး answer diversity ကို ထိခိုက်စေသည်။ Ingestion gate တွင် fingerprinting ဖြင့် deduplicate လုပ်ခြင်းသည် index bloat ကို ကာကွယ်ပေးသည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
+### Implementation Steps
 
-၁။ Normalise ပြီးတဲ့ စာသားကို ယူပါ။
-၂။ `hashlib.sha256` နဲ့ fingerprint ထုတ်ပါ။
-၃။ Fingerprint ကို seen set (မြင်ပြီးသား စာရင်း) ထဲ ရှိမရှိ စစ်ပါ။
-၄။ ရှိရင် ချန်လိုက်ပါ — မရှိရင် ထည့်ပြီး set မှာ မှတ်ပါ။
+1. Normalized clean text ကို UTF-8 encode ပြုလုပ်ပါ။
+2. `hashlib.sha256` ဖြင့် hex digest ထုတ်ယူပါ။
+3. In-memory set သို့မဟုတ် database index ရှိ fingerprint index နှင့် compare လုပ်ပါ။
+4. Fingerprint ရှိပြီးသား ဖြစ်ပါက duplicate အဖြစ် skip လုပ်ပါ။
 
-### ဥပမာ
+### Python Implementation
 
 ```python
 # Exact-duplicate detection via SHA-256 fingerprints.
@@ -144,30 +143,31 @@ print(unique[-1])
 # Vector search ranks similar items.
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Production Considerations
 
-PostgreSQL မှာ JSONB column ထဲ document metadata (စာရွက်ရဲ့ အချက်အလက် အသေးစား) သိမ်းလို့ ရပါတယ် — JSONB ရဲ့ အမျိုးအစားနဲ့ indexing အကြောင်းကို တရားဝင် docs (https://www.postgresql.org/docs/current/datatype-json.html) မှာ ဖတ်နိုင်ပါတယ်။ Fingerprint ကို column တစ်ခု အဖြစ် သိမ်းပြီး `UNIQUE` constraint (ထပ်ခြင်း တားမြစ်ချက်) တပ်ရင် database ကနေ ကိုယ်တိုင် duplicate တားပါတယ်။
+PostgreSQL schema တွင် metadata များကို `jsonb` column ဖြင့် သိမ်းဆည်းနိုင်ပြီး (https://www.postgresql.org/docs/current/datatype-json.html) fingerprint အတွက် `UNIQUE` index constraint သတ်မှတ်ခြင်းဖြင့် database level တွင် duplicate write များကို atomic ဖြစ်စွာ တားဆီးနိုင်သည်။
 
 ---
 
 ## Subtopic 4 — Incremental Update နှင့် Deletion Semantics
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Incremental update ဆိုတာ corpus ထဲက အသစ်တိုးလာသော သို့မဟုတ် ပြောင်းလဲသွားသော အပိုင်းကိုသာ ရွေးထုတ်ပြီး ပြင်ဆင်ခြင်း ဖြစ်ပါတယ်။ Deletion semantics ဆိုတာ မူရင်းရင်းမြစ်ကနေ ပျက်သွားတဲ့ document တွေကို vector index ထဲကနေ ဘယ်လို ဖယ်ရှားရမလဲဆိုတဲ့ စည်းမျဉ်း ဖြစ်ပါတယ်။
+Corpus သည် static မဟုတ်ဘဲ dynamic updates ဖြစ်ပေါ်နေသည်။ Incremental update သည် ပြောင်းလဲသွားသော (changed) သို့မဟုတ် အသစ်ထည့်သွင်းသော (new) documents များကိုသာ process လုပ်ပြီး မူရင်းရင်းမြစ်မှ ပျက်ပြယ်သွားသော documents များကို index မှ ဖယ်ရှား (delete/tombstone) သည့် mechanism ဖြစ်သည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Corpus တစ်ခွင်လုံးကို နောက်ဆုံးပေါ် အချက်အလက်နဲ့ ပြန်တည်ဆောက်ရင် ချိန်နဲ့ ကုန်စရိတ် အများကြီး ကုန်ပါတယ်။ ပြောင်းလဲမှုက စာရွက် ဆယ်ဂဏန်းပဲ ရှိတာနဲ့ အားလုံး ပြန်လုပ်တာက အလွန် ဖြုန်းတာ ပါ။ အပြန်အလှန်အားဖြင့် ဖျက်လိုက်တဲ့ document ကို index ထဲ မဖယ်ရင် ရှာလိုက်တဲ့အခါ သေပြီး လင့်ခ် ပေါ်လာပါတယ်။ ဒါက user experience ကို ပျက်စေပါတယ်။
+Dataset တစ်ခုလုံးကို full re-index လုပ်ခြင်းသည် compute နှင့် API cost အလွန်များပြားသည်။ Fingerprint diffing အားဖြင့် delta ပြောင်းလဲမှုများကိုသာ selectively process လုပ်ခြင်းသည် ingestion throughput ကို မြှင့်တင်ပေးသည်။ Index မှ ဖယ်ရှားရန် ပျက်ကွက်ပါက stale results များ query ထဲ ပြန်ပါလာမည် ဖြစ်သည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
+### Implementation Steps
 
-၁။ Document တိုင်းကို သူ့ fingerprint နဲ့ မှတ်ထားပါ။
-၂။ အသစ် ရောက်လာတဲ့ batch (အစု) ရဲ့ fingerprint တွေနဲ့ နောက်ဆုံး သိထားတဲ့ set ကို နှိုင်းပါ။
-၃။ Fingerprint အသစ်ဖြစ်တာတွေကို upsert (ရှိရင် ပြင်၊ မရှိရင် ထည့်) လုပ်ပါ။
-၄။ အရင် batch မှာ ရှိပြီး အသစ် batch မှာ မရှိတော့တာတွေကို delete လုပ်ပါ။
+1. လက်ရှိ database state (doc_id -> fingerprint) ကို ရယူပါ။
+2. Incoming batch ၏ fingerprints များကို compute လုပ်ပါ။
+3. State တွင် မရှိသေးသော IDs များကို `new` အဖြစ် သတ်မှတ်ပါ။
+4. State တွင် ရှိသော်လည်း fingerprint မတူညီပါက `changed` (upsert target) အဖြစ် သတ်မှတ်ပါ။
+5. State တွင် ရှိသော်လည်း batch တွင် မပါဝင်တော့သော IDs များကို `deleted` အဖြစ် သတ်မှတ်ပါ။
 
-### ဥပမာ
+### Python Implementation
 
 ```python
 # Compute the add/update set and the delete set between two batches.
@@ -190,9 +190,9 @@ print("delete:", sorted(to_delete))
 # delete: []
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+### Database Semantics
 
-PostgreSQL + pgvector မှာ document id ကို primary key လုပ်ပြီး `INSERT ... ON CONFLICT ... DO UPDATE` (တိုက်ဆိုင်ရင် ပြင်၊ မဟုတ်ရင် ထည့်) statement နဲ့ upsert လုပ်လို့ ရပါတယ်။ ဒါက idempotency (အကြိမ်ကြိမ် လုပ်စေကာမှ ရလဒ်တူစေခြင်း) ကို အာမခံပေးပါတယ်။ Airflow docs (https://airflow.apache.org/docs/) မှာ DAG (task တွေရဲ့ မှီခိုမှု ဇယား) နဲ့ backfill (အရင်ပြန် ဖြည့်ခြင်း) အကြောင်း ဖော်ပြထားပြီး incremental pipeline တွေကို စီမံနိုင်ပါတယ်။
+PostgreSQL + pgvector stack တွင် document-level updates များကို `ON CONFLICT` upsert pattern ဖြင့် atomic စွာ execute လုပ်နိုင်သည်:
 
 ```sql
 -- Valid for PostgreSQL with the pgvector extension.
@@ -205,24 +205,23 @@ DO UPDATE SET content = EXCLUDED.content,
 
 ---
 
-## Subtopic 5 — Ingestion ရဲ့ Idempotency
+## Subtopic 5 — Pipeline Idempotency Design
 
-### ဘာကို ဆိုလိုတာလဲ
+### Overview
 
-Idempotency ဆိုတာ ingestion job တစ်ခုကို အကြိမ်ကြိမ် run စေကာမူ နောက်ဆုံး ရလဒ်သည် တစ်ကြိမ်တည်း run သကဲ့သို့ မပြောင်းလဲဘဲ တူညီနေခြင်းကို ဆိုလိုပါတယ်။
+Idempotency ဆိုသည်မှာ execution တစ်ခုကို မည်မျှပင် အကြိမ်ကြိမ် run စေကာမူ final state သည် တစ်ကြိမ်သာ execute လုပ်သကဲ့သို့ မပြောင်းလဲဘဲ တူညီနေခြင်း (f(f(x)) = f(x)) ကို ဆိုလိုသည်။
 
-### ဘာကြောင့် လဲ
+### Engineering Rationale
 
-Pipeline တွေက network error (ကွန်ရက် ချို့ယွင်းမှု) တွေကြောင့် အလယ်မှာ ရပ်တတ်ပါတယ်။ Idempotent မဖြစ်တဲ့ job ကို ပြန် run ရင် document တွေ နှစ်ဆ ထပ်ပါ သွားပါတယ်။ ဒါက duplicate ပြဿနာကို ပြန်ဖန်တီးစေပါတယ်။
+Distributed data pipelines များ (Airflow, Kubernetes jobs) တွင် network blip, container OOM သို့မဟုတ် timeout များကြောင့် task retry ပြုလုပ်ရလေ့ရှိသည်။ Pipeline သည် idempotent မဖြစ်ပါက retry လုပ်တိုင်း duplicate rows များ တိုးပွားလာမည် ဖြစ်သည်။
 
-### ဘယ်လို အလုပ်လုပ်လဲ
+### Implementation Pattern
 
-၁။ Document တိုင်းကို stable id (မပြောင်းလဲတဲ့ အမှတ်အသား) ပေးပါ — random id မဟုတ်ပါ။
-၂။ Stable id ကို content fingerprint ကနေ ဆင်းပါ၊ ဒါမှမဟုတ် ရင်းမြစ်က URL လို မှန်ကန်တဲ့ id သုံးပါ။
-၃။ ရေးတဲ့ အခါ upsert (replace-or-insert) pattern သုံးပါ။
-၄။ Job ကို ဘယ်အချိန် run စေကာမှ corpus ရဲ့ အခြေအနေက တူနေစေဖို့ အဆင့်တိုင်းကို သေချာ စစ်ပါ။
+1. Random UUID အစား deterministic content hash သို့မဟုတ် source natural key မှ derived stable ID ကို အသုံးပြုပါ။
+2. Raw append write အစား UPSERT (insert on conflict update) pattern ကို အသုံးပြုပါ။
+3. Execution intermediate state များကို transactional သို့မဟုတ် atomic blocks ဖြင့် manage လုပ်ပါ။
 
-### ဥပမာ
+### Python Implementation
 
 ```python
 # Idempotent ingestion: running "run_ingestion" twice gives the same store.
@@ -249,18 +248,10 @@ print(sorted(store.values()))
 # ['alpha text', 'beta text']
 ```
 
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
+## Summary Checklist
 
-အချက်အလက် စနစ်တွေမှာ job ပျက်ပြီး ပြန် run တာက ပုံမှန် ဖြစ်စဉ် ပါ။ Airflow က task retry ကို တရားဝင် docs မှာ ဖော်ပြထားပြီး idempotent task ဒီဇိုင်းကို ထောက်ခံပါတယ်။ Ingestion ကို ပြန် run လုပ်တိုင်း vector ထပ်မပွားအောင် content hash နဲ့ စစ်တာ မဖြစ်မနေ လိုပါတယ်။
-
-### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
-
-Ingestion က တစ်ခါ run ပြီး ပြီးရော ဖြစ်တဲ့ အလုပ် မဟုတ်ပါဘူး။ Document ပြင်တာ၊ delete တာ၊ permission ပြောင်းတာ အားလုံး နောက်ဆက်တွဲ လုပ်ရပါတယ်။ Idempotent မဖြစ်ရင် duplicate chunk တွေ စုမိပြီး retrieval အရည်အသွေး ကျဆင်းပါတယ်။
-
-## အနှစ်ခုပ်
-
-- ရင်းမြစ်တိုင်းကို text အဖြစ် ဆွဲထုတ်ပြီး boilerplate ဖယ်ရှားပါ။
-- Unicode normalization နှင့် whitespace သန့်ရှင်းမှု ကို အစပိုင်းမှာ လုပ်ပါ။
-- Duplicate ကို content hash နဲ့ စစ်ပြီး upsert semantics သတ်မှတ်ပါ။
-- Delete လုပ်တဲ့အခါ vector၊ metadata နှင့် cache အားလုံး ဖယ်ပါ။
-- Task တိုင်း ပြန် run လို့ရအောင် idempotent ဖြစ်စေပါ။
+- Source document parsing တွင် targeted extraction ဖြင့် boilerplate noise ကို ဖယ်ရှားပါ။
+- Hash computation မပြုလုပ်မီ Unicode NFC normalization ကို မဖြစ်မနေ run ပါ။
+- SHA-256 content fingerprints များဖြင့် exact duplicates များကို filter လုပ်ပါ။
+- Delta updates များအတွက် fingerprint diffing ဖြင့် incremental processing ကို enforce လုပ်ပါ။
+- Retry-safe ဖြစ်စေရန် stable deterministic IDs နှင့် upsert semantics ဖြင့် idempotency ကို အာမခံပါ။

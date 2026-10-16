@@ -1,42 +1,40 @@
-# M7 — Reranking နှင့် Query ပြောင်းလဲခြင်း (Cross-encoder, HyDE, Multi-query, MMR)
+# M7 — Reranking & Query Transformation (Cross-encoder, HyDE, Multi-query, MMR)
 
-ဒီ module မှာ retrieval ရလဒ်ကို ပိုကောင်းအောင် လုပ်ပေးတဲ့ reranking နည်းလမ်းတွေနဲ့ query ကို ပြောင်းလဲတဲ့ နည်းလမ်းတွေကို သင်ပါတယ်။
+First-stage retrieval ၏ candidate list အား downstream LLM context အတွက် precision မြှင့်တင်ပေးသော reranking strategies များနှင့် query-document semantic gap ကို ကျဉ်းမြောင်းစေသော query transformation techniques များကို လေ့လာသည့် module ဖြစ်သည်။
 
-## ဒီ module မှာ ဘာသင်မလဲ
+## သင်ယူလေ့လာမည့် အကြောင်းအရာများ
 
-- Bi-encoder နဲ့ cross-encoder ကွာခြားချက်ကို နားလည်ပါတယ်။
-- Reranking ရဲ့ latency (နှောင့်နှေးမှု) ကုန်ကျစရိတ်ကို တွက်နည်း သင်ပါတယ်။
-- Top-k ဘယ်လို ရွေးမလဲ ဆိုတာ သင်ပါတယ်။
-- HyDE (hypothetical document embedding) နည်းနဲ့ query ကို ချဲ့ပါတယ်။
-- Multi-query expansion နဲ့ fusion (ပေါင်းစည်းခြင်း) ကို ကိုယ်တိုင် ရေးပါတယ်။
-- MMR (Maximal Marginal Relevance) နဲ့ ရလဒ် ကွဲပြားမှု (diversity) ရှင်းပါတယ်။
+- Bi-encoder နှင့် Cross-encoder architecture ကွာခြားချက်နှင့် computational trade-offs
+- Reranking latency cost modeling နှင့် top-k candidate budget သတ်မှတ်ခြင်း
+- HyDE (Hypothetical Document Embeddings) ဖြင့် zero-shot query expansion လုပ်ဆောင်ပုံ
+- Multi-query expansion နှင့် Reciprocal Rank Fusion (RRF) ပေါင်းစပ်မှု
+- Query decomposition ဖြင့် complex multi-part queries များကို ကိုင်တွယ်ခြင်း
+- MMR (Maximal Marginal Relevance) ဖြင့် relevance နှင့် candidate diversity ချိန်ညှိခြင်း
 
-## သင်ခန်းစာများ
+## Module အစိတ်အပိုင်းများ
 
-1. **L7.1 — Bi-encoder vs Cross-encoder:** SBERT စတိုင် bi-encoder နဲ့ cross-encoder ခြားနားချက်။
-2. **L7.2 — Reranking နဲ့ Latency ကုန်ကျစရိတ်:** candidate အရေအတွက်နဲ့ ကုန်ကျစရိတ် တွက်ချက်ခြင်း။
-3. **L7.3 — Top-k ရွေးချယ်မှု:** recall နဲ့ cost ကြားမှာ ချိန်ညှိခြင်း။
-4. **L7.4 — HyDE:** query အတွက် hypothetical document ဆောက်ပြီး embed လုပ်ခြင်း။
-5. **L7.5 — Multi-query Expansion နဲ့ Fusion:** query အမျိုးမျိုး ထုတ်ပြီး RRF နဲ့ ပေါင်းခြင်း။
-6. **L7.6 — Query Decomposition:** ခက်ခဲတဲ့ query ကို သေးသေးလေး ခွဲခြင်း။
-7. **L7.7 — MMR:** ရလဒ်တွေထဲမှာ ပုံစံ မတူတာ ရွေးပေးခြင်း။
+1. `lessons/lesson_01_bi_vs_cross.md` — Bi-encoder vs Cross-encoder representation
+2. `lessons/lesson_02_latency_cost.md` — Reranking latency profiling နှင့် candidate count
+3. `lessons/lesson_03_top_k.md` — Recall vs cost trade-off တွင် top-k sizing
+4. `lessons/lesson_04_hyde.md` — Hypothetical document generation နှင့် embedding alignment
+5. `lessons/lesson_05_multiquery_fusion.md` — Paraphrase generation နှင့် RRF ranking fusion
+6. `lessons/lesson_06_query_decomposition.md` — Multi-hop queries များကို sub-queries အဖြစ် decompose လုပ်ခြင်း
+7. `lessons/lesson_07_mmr.md` — MMR formulation ဖြင့် redundant candidates များကို penalize လုပ်ခြင်း
 
-## လိုအပ်ချက်များ (Prerequisites)
+## Prerequisites
 
-- M1 မှ M6 အထိ အခြေခံကောင်းရပါတယ်။
-- Cosine similarity နဲ့ embedding vector ကို နားလည်ရပါတယ်။
-- Python အခြေခံနဲ့ standard library ကို ရေးတတ်ရပါတယ်။
+- Modules M1–M6 အခြေခံ (dense retrieval, cosine similarity, RRF mechanics)
+- Python 3 standard library
+- External model API မလိုအပ်ပါ — Reranking logic, math calculations နှင့် heuristics များကို pure Python ဖြင့် deterministic တည်ဆောက်ထားသည်။
 
-## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
+## Production Use Cases
 
-- Vector search ပထမအဆင့်ရဲ့ ရလဒ်က မှန်ပေမယ့် အရင်ဆုံး မပေါ်တဲ့အခါ သုံးပါတယ်။
-- Query တစ်ခုတည်းနဲ့ သင့်တော်တဲ့ document မရှာတွေ့တဲ့ RAG စနစ်တွေမှာ သုံးပါတယ်။
-- ရလဒ်တွေ အတူတူပဲ ထပ်နေတဲ့အခါ MMR နဲ့ ဖြေရှင်းပါတယ်။
+- Vector search ၏ top candidates များအတွင်း high-precision ranking ပြန်လည်စီစဉ်ခြင်း
+- Short keyword queries များမှ ambiguous intent ကို disambiguate ပြုလုပ်ခြင်း
+- Redundant near-duplicate passages များ context window ထဲ မပြည့်စေရန် diverse passage selection ပြုလုပ်ခြင်း
 
-## ကိုးကား
+## References
 
-ဒီ module က official open documentation တွေကနေ ရေးထားတဲ့ မူရင်း လေ့လာသင်ယူမှု ပစ္စည်းပါ။ Commercial course တစ်ခုရဲ့ သင်ခန်းစာတွေကို မကူးယူ မပြန်ရေးထားပါ။
-
-- SBERT (Sentence Transformers) official docs: https://sbert.net/
-- HyDE စာတမ်း (Hypothetical Document Embeddings): https://arxiv.org/abs/2212.10496
-- Ragas evaluation docs: https://docs.ragas.io/
+- SBERT (Sentence Transformers) documentation: https://sbert.net/
+- HyDE Paper (Gao et al., arXiv:2212.10496): https://arxiv.org/abs/2212.10496
+- Ragas Retrieval Evaluation metrics: https://docs.ragas.io/

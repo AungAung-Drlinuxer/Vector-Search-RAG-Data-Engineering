@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Memory size တွက်ခြင်း
 
-Vector တစ်သန်း ၇၆၈ dimension ကို fp32 နဲ့သိမ်းရင် dimension တစ်ခုကို 4 bytes ယူလို့ ၃ ဘီလီယံနီးပါး ဖြစ်ပါတယ်။ int8 လျှော့လိုက်ရင်တော့ ၄ ပုံ ၁ ပုံ အထိ ကျသွားပါတယ်နော်။
+Vector တစ်သန်း (768 dimension) ကို fp32 ဖြင့် သိမ်းပါက dimension တစ်ခုအတွက် 4 bytes ယူသဖြင့် စုစုပေါင်း ~3 GB ဖြစ်သည်။ int8 quantization ပြီးနောက် footprint ၄ ဆ လျော့ကျသွားသည်။
 
 ```python
 # Memory size calculation for vector collections (standard library only, deterministic)
@@ -28,11 +28,11 @@ print(f"reduction  : {fp32_bytes / int8_bytes:.0f}x")
 # reduction  : 4x
 ```
 
-**အဓိကအယူဆ** — Quantization က memory ကို ၄ ဆ သက်သာစေပေမယ့် တိကျမှု အနည်းငယ် ဆုံးရှုံးစေတယ်ဆိုတဲ့ အပေးအယူကို ကိန်းဂဏန်းနဲ့ မြင်ရပါတယ်။
+**အဓိကအယူဆ** — Quantization သည် memory footprint ကို ၄ ဆ လျှော့ချပေးသော်လည်း precision ဆုံးရှုံးမှု trade-off ပါလာသည် — ဤ trade-off ကို ဂဏန်းဖြင့် အတိအကျ တွက်ချက်နိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — Binary quantization နဲ့ cosine
 
-Cosine အပြည့်အစုံ တွက်တာနဲ့ binary quantization လုပ်ပြီး dot product တွက်တာ နှစ်မျိုး နှိုင်းကြည့်ရုံပါ။ Binary မှာတော့ အပေါင်းကို 1၊ အနှုတ်ကို 0 ပြောင်းပြီး overlap အရေအတွက်ပဲ ကျန်ပါတယ်နော်။
+Full cosine similarity တွက်ချက်မှုနှင့် binary quantization ပြီးနောက် dot product တွက်ချက်မှုကို နှိုင်းယှဉ်ပြထားသည်။ Binary representation တွင် positive ကို 1၊ negative ကို 0 ပြောင်းပြီး နှစ်ဖက်လုံး 1 ဖြစ်သော position overlap ကိုသာ တိုင်းတာသည်။
 
 ```python
 # Binary quantization vs full cosine similarity (standard library only)
@@ -72,11 +72,11 @@ print(f"binary approx cos : {bin_approx:.4f}")
 # binary approx cos : 0.8660
 ```
 
-**အဓိကအယူဆ** — Binary quantization က memory ကို ၃၂ ဆအထိ သက်သာစေပေမယ့် approximate ဖြစ်လို့ recall ကျသွားနိုင်ပါတယ်။
+**အဓိကအယူဆ** — Binary quantization သည် memory footprint ကို ၃၂ ဆအထိ လျှော့ချပေးသော်လည်း approximation ဖြစ်သောကြောင့် recall ကျဆင်းနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Product Quantization (PQ) အခြေခံ
 
-PQ က vector ကြီးကို subvector ခွဲပြီး တစ်ခုစီကို သူ့နဲ့ အနီးဆုံး centroid နဲ့ အစားထိုးတာပါ။ Jégou et al. ရဲ့ စာတမ်းအတိုင်း တိကျမှု အနည်းငယ် စွန့်ပြီး memory အများကြီး သက်သာစေတယ်နော်။
+PQ သည် vector ကို subvector များအဖြစ် ခွဲခြမ်းပြီး တစ်ခုချင်းစီကို အနီးဆုံး centroid ဖြင့် အစားထိုးသည်။ Jégou et al. စာတမ်းအတိုင်း precision အနည်းငယ် စွန့်လွှတ်၍ memory footprint ကို သိသိသာသာ လျှော့ချသည်။
 
 ```python
 # Basic Product Quantization (Jegou et al., arXiv:0903.2314) — stdlib only, deterministic stand-in centroids
@@ -136,11 +136,11 @@ print(f"PQ approx squared distance: {approx_d:.4f}")
 # PQ approx squared distance: 2.0000
 ```
 
-**အဓိကအယူဆ** — PQ က vector တစ်ခုကို code နည်းနည်းနဲ့ ကိုယ်စားပြုလို့ memory အများကြီး ချွေတာပေမယ့် distance က ခန့်မှန်း ဖြစ်သွားပါတယ်။
+**အဓိကအယူဆ** — PQ သည် vector တစ်ခုကို code အနည်းငယ်ဖြင့် ကိုယ်စားပြုသဖြင့် memory footprint ကို သိသိသာသာ လျှော့ချနိုင်သော်လည်း distance သည် approximate ဖြစ်သွားသည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Recall@k တိုင်းတာခြင်း
 
-Seed 42 နဲ့ vector ၁၂၈ ခု ဖန်တီးပြီး brute-force top-5 ကို ground truth အဖြစ် ထားပါမယ်။ int8 quantization လုပ်ပြီးမှ Recall@5 တွက်တဲ့အခါ ၁.၀ ထက် နည်းနေတာကို မြင်ရပါလိမ့်မယ်နော်။
+Seed 42 ဖြင့် vector ၁၂၈ ခု ဖန်တီးပြီး brute-force top-5 ကို ground truth အဖြစ် သတ်မှတ်သည်။ int8 quantization ပြီးနောက် recall@5 တွက်ချက်သည့်အခါ ၁.၀ အောက် ကျဆင်းကြောင်း တွေ့ရသည်။
 
 ```python
 # Recall@5 measurement: exact vs int8-quantized search (stdlib only, seed 42)
@@ -188,11 +188,11 @@ print(f"Recall@5              : {recall5:.2f}")
 # Recall@5              : 0.60
 ```
 
-**အဓိကအယူဆ** — int8 quantization လုပ်လိုက်ရင် Recall@k က ၁.၀ နဲ့ ၁.၀ အောက် ကြား ကျသွားနိုင်ပြီး quantization ရဲ့ တိကျမှု ဆုံးရှုံးမှုကို recall ကိန်းနဲ့ တိုင်းတာလို့ရပါတယ်။
+**အဓိကအယူဆ** — int8 quantization သည် recall@k ကို ၁.၀ အောက်သို့ ကျဆင်းစေနိုင်ပြီး၊ quantization ၏ precision ဆုံးရှုံးမှုကို recall metric ဖြင့် quantitative တိုင်းတာနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၅ — Sharding နဲ့ distributed search
 
-Vector ၂၀၀ ကို shard ၄ ပိုင်း hash-based နဲ့ dimension-based နှစ်နည်း ခွဲကြည့်မယ်။ Shard တိုးလိုက်တာနဲ့ shard တစ်ခုရဲ့ memory က လျှော့သွားပြီး query ကတော့ shards အားလုံးကို ပျံ့သွားရပါမယ်နော်။
+Vector ၂၀၀ ကို shard ၄ ပိုင်း — hash-based နှင့် dimension-based နည်းလမ်းနှစ်မျိုးဖြင့် ခွဲဝေသည်။ Shard အရေအတွက် တိုးလာသည်နှင့်အမျှ per-shard memory လျော့ကျပြီး query သည် shard အားလုံးသို့ fan-out ဖြစ်သွားသည်။
 
 ```python
 # Hash-based vs dimension-based sharding with merged top-k search (stdlib only, deterministic)
@@ -255,11 +255,11 @@ print(f"vectors per shard    : {per_shard} (total {n} / {n_shards} shards)")
 # vectors per shard    : 50 (total 200 / 4 shards)
 ```
 
-**အဓိကအယူဆ** — Sharding နည်းနှစ်မျိုးလုံး merge လုပ်ပြီး top-k ထပ်စစ်ရင် single-node ရလဒ်နဲ့ တူညီပြီး shard တိုးတိုင်း shard တစ်ခုစီရဲ့ memory က လျှော့သွားပါတယ်။
+**အဓိကအယူဆ** — Sharding နည်းလမ်းနှစ်မျိုးလုံးသည် merge + global top-k ပြန်ရွေးခြင်းဖြင့် single-node ရလဒ်နှင့် တူညီပြီး၊ shard တိုးတိုင်း per-shard memory လျော့ကျသည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Bulk load နဲ့ write throughput
 
-Vector ၁၀၀၀ ထဲ တစ်ခုထည့်တိုင်း sorted array ထဲ bisect insert လုပ်တာနဲ့ အားလုံး load ပြီးမှ တစ်ကြိမ်တည်း sort လုပ်တာ နှိုင်းပြမယ်။ pgvector README အတိုင်း index ကို load ပြီးမှ တည်ဆောက်တာက ပိုမြန်ပါတယ်နော်။
+Insert တိုင်း၌ sorted array ထဲ bisect insert လုပ်ခြင်းနှင့် data အားလုံး load ပြီးမှ တစ်ကြိမ်တည်း sort လုပ်ခြင်းကို work-unit ဖြင့် နှိုင်းယှဉ်သည်။ pgvector README အတိုင်း index ကို load ပြီးမှ တည်ဆောက်ခြင်းက write throughput ပိုမြန်သည်။
 
 ```python
 # Build-after-load vs maintain-on-insert: measured in deterministic WORK UNITS, not wall-clock time.
@@ -292,4 +292,4 @@ print(f"both strategies hold the same order     : {sorted_index == sorted(raw_st
 # both strategies hold the same order     : True
 ```
 
-**အဓိကအယူဆ** — Bulk load လုပ်ပြီးမှ index တစ်ကြိမ်တည်း တည်ဆောက်တဲ့ build-after-load strategy က insert တိုင်း index ထိန်းတာထက် write throughput ကို အများကြီး မြှင့်ပေးလို့ pgvector မှာလည်း load ပြီးမှ `CREATE INDEX` လုပ်သင့်ပါတယ်။
+**အဓိကအယူဆ** — Bulk load ပြီးမှ index တစ်ကြိမ်တည်း တည်ဆောက်သော build-after-load strategy သည် insert တိုင်း၌ index ထိန်းသိမ်းခြင်းထက် write throughput ကို သိသိသာသာ မြှင့်တင်ပေးသဖြင့် pgvector တွင်လည်း load ပြီးမှ `CREATE INDEX` လုပ်သင့်သည်။

@@ -1,110 +1,132 @@
 # Vector Search & RAG Data Engineering
 
-Vector Search နဲ့ RAG (Retrieval-Augmented Generation) Data Engineering အတွက် ကိုယ့်ဘာသာ လေ့လာနိုင်တဲ့ course ပါ။
+Vector search နှင့် RAG (Retrieval-Augmented Generation) system များအတွက် data engineering ပိုင်းကို အာရုံစိုက်သည့် self-study course ဖြစ်သည်။ Retrieval pipeline ၏ အစိတ်အပိုင်းတိုင်း — ingestion မှ governance အထိ — ကို ဦးတည်သည်။
 
-## လွတ်လပ်မှု (Independence)
+## Scope နှင့် Independence
 
-ဒီ course က original သင်ခန်းစာ ပါ။ အခြေခံကတော့ တစ်ခုချင်းရဲ့ module scope မှာ ဖော်ပြထားတဲ့ တရားဝင် open documentation တွေ သာ ဖြစ်ပါတယ်။ Vendor ရဲ့ တရားဝင် training ကို ကူးယူထားတာ မဟုတ်ပါ။ ပွဲအခကြေးငွေပေးရတဲ့ commercial course တစ်ခုကို ပြန်ရေးထားတာလည်း မဟုတ်ပါ။ နမူနာ code တွေက တရားဝင် doc ထဲက mechanics တွေကို standard-library Python နဲ့ ကိုယ်တိုင် ပြန်ဆောက်ထားတာ ဖြစ်ပါတယ်။
+ဒီ course သည် original သင်ခန်းစာ ဖြစ်ပြီး module scope တိုင်းတွင် ဖော်ပြထားသည့် official open documentation များ (pgvector, PostgreSQL, Qdrant, Milvus, Weaviate, LangChain, LlamaIndex, HNSW paper) ပေါ်တွင်သာ အခြေခံသည်။ Commercial vendor training ကို ကူးယူခြင်း မဟုတ်ပါ။ နမူနာ code များသည် official documentation မှ mechanics များကို Python standard library ဖြင့် ပြန်လည်တည်ဆောက်ထားခြင်း ဖြစ်သည်။
 
-## ဒီ course မှာ ဘာသင်မလဲ
+## Course ၏ ဦးတည်ချက်
 
-RAG system တစ်ခုကို data engineer အနေနဲ့ တည်ဆောက်ဖို့ လိုအပ်တာတွေကို အာရုံစိုက်ပါတယ်။ Text ဆွဲထုတ်တာ၊ chunk ဖြတ်တာ၊ embedding ဖန်တီးတာ၊ HNSW index အတွင်းပိုင်း၊ hybrid search၊ reranking၊ pipeline orchestration၊ evaluation နဲ့ governance အထိ ဖြန့်ကျက် သင်ကြားပါတယ်။ Code တွေက network မသုံးပါ။ Database လည်း ချိတ်မထားပါ။ Retrieval mechanics တွေကို pure Python နဲ့ ပြန်ဆောက်ပြပါတယ်။ တကယ့် system ကိုတော့ prose နဲ့ ရှင်းပြပြီး တရားဝင် link ပေးထားပါတယ်။
+RAG system တစ်ခုကို data engineer အနေဖြင့် တည်ဆောက်ရာတွင် လိုအပ်သော အစိတ်အပိုင်းများ — text extraction, chunking strategy, embedding model selection, HNSW index internals, hybrid retrieval, reranking, pipeline orchestration, evaluation metrics, governance — ကို ဖြန့်ကျက်သင်ကြားသည်။
 
-## RAG Pipeline အဆင့်များ
+Lab များအားလုံးသည် deterministic ဖြစ်ပြီး network/database မလိုအပ်ပါ — retrieval mechanics များကို pure Python ဖြင့် ပြန်လည် implement လုပ်ခြင်းအားဖြင့် algorithm အလုပ်လုပ်ပုံကို တိုက်ရိုက် လေ့လာနိုင်သည်။ Production system များအတွက် ဆုံးဖြတ်ချက် framework များကို prose ဖြင့် ရှင်းပြပြီး official documentation link များ ချိတ်ဆက်ထားသည်။
 
-၁။ ingest — ရင်းမြစ်ကနေ ဒေတာ ဆွဲယူခြင်း — M1
-၂။ chunk — စာကြောင်းကို အပိုင်းလိုက် ဖြတ်ခြင်း — M2
-၃။ embed — အပိုင်းတစ်ခုစီကို vector အဖြစ် ပြောင်းခြင်း — M3
-၄။ index — vector တွေကို မြန်မြန် ရှာနိုင်အောင် စီစဉ်ခြင်း — M4, M5
-၅။ retrieve — query နဲ့ နီးစပ်တဲ့ အပိုင်းတွေ ရှာခြင်း — M5, M6
-၆။ rerank — ရှာမိတဲ့ အပိုင်းတွေကို ပြန်စီခြင်း — M7
-၇။ generate — ရှာမိတဲ့ အပိုင်းတွေနဲ့ အဖြေ ဖန်တီးခြင်း — M0, M8
-၈။ evaluate — ရှာဖွေမှု အရည်အသွေး တိုင်းခြင်း — M10
+## RAG Pipeline Architecture
+
+| # | Stage | လုပ်ဆောင်ချက် | Module |
+|---|---|---|---|
+| 1 | ingest | Source system များမှ raw document များ ဆွဲယူခြင်း | M1 |
+| 2 | chunk | Document ကို retrieval unit များအဖြစ် ခွဲခြမ်းခြင်း | M2 |
+| 3 | embed | Chunk တစ်ခုစီကို vector representation အဖြစ် ပြောင်းလဲခြင်း | M3 |
+| 4 | index | Vector များကို ANN search structure ဖြင့် စီစဉ်သိမ်းဆည်းခြင်း | M4, M5 |
+| 5 | retrieve | Query vector နှင့် similarity-based candidate ရှာဖွေခြင်း | M5, M6 |
+| 6 | rerank | Candidate များကို precision-oriented model ဖြင့် ပြန်လည်စီစဉ်ခြင်း | M7 |
+| 7 | generate | Retrieved context ဖြင့် LLM response ထုတ်လုပ်ခြင်း | M0, M8 |
+| 8 | evaluate | Retrieval quality ကို metric များဖြင့် တိုင်းတာခြင်း | M10 |
 
 ## Modules
 
-- `00_orientation/` — M0 — RAG architecture မြေပုံ၊ pipeline အဆင့် ၈ ခု၊ search အမျိုးအစား ရွေးချယ်ပုံ
-- `01_ingestion/` — M1 — Corpus ingestion၊ text extraction၊ normalisation၊ upsert/delete
-- `02_chunking/` — M2 — Chunking မဟာဗျူဟာ၊ metadata ဒီဇိုင်း
-- `03_embeddings/` — M3 — Embedding model ရွေးချယ်မှု၊ dimension၊ distance metric၊ caching
-- `04_hnsw/` — M4 — HNSW index အတွင်းပိုင်း၊ parameter၊ recall၊ memory
-- `05_pgvector/` — M5 — PostgreSQL + pgvector schema၊ operator၊ index၊ tuning
-- `06_hybrid_search/` — M6 — Full-text၊ BM25၊ trigram နှင့် RRF ပေါင်းစပ်ခြင်း
-- `07_reranking/` — M7 — Cross-encoder၊ HyDE၊ multi-query၊ MMR
-- `08_serving_architecture/` — M8 — Retrieval API၊ cache၊ pgvector vs vector DB
-- `09_pipelines_orchestration/` — M9 — Batch/streaming ingestion၊ backfill၊ migration
-- `10_retrieval_evaluation/` — M10 — recall@k၊ MRR၊ nDCG၊ golden set၊ regression gate
-- `11_scale_performance/` — M11 — Quantization၊ sharding၊ rebuild၊ write throughput
-- `12_governance_security/` — M12 — PII၊ ACL၊ multi-tenancy၊ audit
-- `13_capstone/` — M13 — End-to-end ဒီဇိုင်း၊ storage/memory/QPS တွက်စက်
+| Module | Folder | ခေါင်းစဉ် |
+|---|---|---|
+| M0 | `00_orientation/` | RAG architecture map၊ pipeline stage ၈ ခု၊ search modality ရွေးချယ်မှု framework |
+| M1 | `01_ingestion/` | Corpus ingestion၊ text extraction၊ Unicode normalization၊ duplicate detection၊ upsert/delete semantics |
+| M2 | `02_chunking/` | Chunking strategies (fixed/recursive/token/semantic)၊ overlap trade-off၊ metadata schema design |
+| M3 | `03_embeddings/` | Embedding model selection၊ dimension၊ distance metric ဆက်စပ်မှု၊ Matryoshka၊ caching |
+| M4 | `04_hnsw/` | HNSW multi-layer graph internals၊ `M`/`ef_construction`/`ef_search`၊ recall-latency trade-off၊ index memory |
+| M5 | `05_pgvector/` | PostgreSQL + pgvector schema၊ distance operators၊ HNSW/IVFFlat index tuning၊ jsonb filtering |
+| M6 | `06_hybrid_search/` | Full-text search၊ BM25၊ trigram similarity၊ score normalization၊ RRF fusion |
+| M7 | `07_reranking/` | Bi-encoder vs cross-encoder၊ reranking cost၊ HyDE၊ multi-query expansion၊ MMR |
+| M8 | `08_serving_architecture/` | Retrieval API design၊ ACL integration၊ caching layers၊ concurrency၊ vector engine ရွေးချယ်မှု |
+| M9 | `09_pipelines_orchestration/` | Batch/streaming ingestion၊ idempotency၊ backfill၊ DLQ/retry၊ embedding version migration၊ DAG orchestration |
+| M10 | `10_retrieval_evaluation/` | Golden set၊ recall@k၊ precision@k၊ MRR၊ nDCG၊ chunk/document-level evaluation၊ CI regression gate |
+| M11 | `11_scale_performance/` | Scalar/binary/product quantization၊ dimension reduction၊ sharding၊ index rebuild၊ write throughput |
+| M12 | `12_governance_security/` | PII redaction၊ Row-Level Security၊ ACL၊ multi-tenancy isolation၊ audit log၊ retention |
+| M13 | `13_capstone/` | End-to-end design consolidation၊ storage/index memory/QPS capacity planning |
 
-## ဒီ course ရဲ့ ဒေတာဘေ့စ် ဦးတည်ချက်
+## Database ဦးတည်ချက်
 
-SQL နမူနာတွေက PostgreSQL မှာ pgvector extension ထည့်သုံးတဲ့ stack ကို ဦးတည်ပါတယ်။ SQL ကို course က တကယ် run မှာ မဟုတ်ပါ။ Reader ကိုယ်တိုင် စမ်းသုံးဖို့အတွက် ပြသထားတာပါ။ Lab တွေအားလုံးက database မချိတ်ဘဲ standard-library Python နဲ့သာ လည်ပတ်ပါတယ်။ Cosine similarity၊ HNSW-style graph search၊ RRF၊ recall@k တို့ကို ကိုယ်တိုင် ပြန်ဆောက်ပြပါတယ်။ ဒီ mechanics တွေက Qdrant၊ Milvus၊ Weaviate လို dedicated vector store တွေရဲ့ အလုပ်လုပ်ပုံနဲ့လည်း တိုက်ရိုက် ဆက်စပ်ပါတယ်။
+SQL နမူနာများသည် PostgreSQL + pgvector stack ကို ဦးတည်သည်။ Course ကိုယ်တိုင်က SQL run မပေးပါ — reader ၏ environment တွင် စမ်းသပ်ရန် ရည်ရွယ်သည်။ Lab များအားလုံးသည် database မလိုဘဲ Python standard library ဖြင့်သာ လည်ပတ်သည်။ Cosine similarity, HNSW-style graph search, RRF, recall@k တို့ကို ground-up implementation ဖြင့် လေ့လာရပြီး ဤ mechanics များသည် Qdrant, Milvus, Weaviate စသည့် dedicated vector store များ၏ အလုပ်လုပ်ပုံနှင့် တိုက်ရိုက် ဆက်စပ်သည်။
 
-## Folder ဖွဲ့စည်းပုံ
+## Folder Structure
 
-Module တစ်ခုစီမှာ file လေးခု ပါဝင်ပါတယ် —
+Module တစ်ခုစီတွင် file ၄ ခု ပါဝင်သည် —
 
-- `README.md` — module scope နဲ့ လေ့လာရမယ့် အချက်များ
-- `explanation.md` — သဘောတရား ရှင်းပြချက်၊ code နဲ့ တွက်ချက်မှုများ
-- `exercise.md` — ကိုယ်တိုင် လုပ်ရမယ့် လက်တွေ့ လေ့ကျင့်ခန်း
-- `solution.md` — အဖြေနဲ့ ရှင်းလင်းချက်
+| File | အကြောင်းအရာ |
+|---|---|
+| `README.md` | Module scope နှင့် learning objectives |
+| `explanation.md` | သဘောတရား ရှင်းလင်းချက်၊ formula၊ deterministic code example |
+| `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း |
+| `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
 
-## လေ့လာပုံ နည်းလမ်း
+## လေ့လာမှု နည်းလမ်း
 
-Module တွေကို အစီအစဉ်အတိုင်း တစ်ခုပြီးတစ်ခု လေ့လာပါ။ တစ် module အတွက် — ၁။ `README.md` ဖတ်ပါ။ ၂။ `explanation.md` ကနေ သဘောတရား နားလည်ပါ။ ၃။ `exercise.md` ကို ကိုယ်တိုင် အရင် လုပ်ကြည့်ပါ။ ၄။ မရှင်းရင် `solution.md` နဲ့ နှိုင်းယှဉ်ပါ။ Code တွေကို ကူး၍ run ကြည့်ပြီး ရလဒ်တွေ ပြောင်းလဲကြည့်ပါ။ စာအုပ်ထဲက number တွေကို ကိုယ်ပိုင် တွက်ချက်ပြီး စစ်ကြည့်ပါ။
+Module များကို အစဉ်လိုက် လေ့လာရန် အကြံပြုသည်။ Module တစ်ခုစီအတွက် workflow —
 
-## လိုအပ်ချက်များ (Prerequisites)
+1. `README.md` — scope နှင့် objectives သိရှိရန်
+2. `explanation.md` — သဘောတရားနှင့် mechanics နားလည်ရန်
+3. `exercise.md` — reference implementation မကြည့်မီ ကိုယ်တိုင် implement လုပ်ရန်
+4. `solution.md` — ကိုယ်ရေးသားမှုနှင့် နှိုင်းယှဉ်ရန်
 
-ဒီ course က လုံးဝ အစပြုသူအတွက် မဟုတ်ပါ။ လိုအပ်တာတွေက —
+Code များကို run ပြီး parameter ပြောင်းလဲကာ output ကို တိုင်းတာရန် — pipeline stage တစ်ခုစီ၏ quantitative behaviour ကို မိမိ corpus ဖြင့် အတည်ပြုရန် လိုအပ်သည်။
 
-- Python အခြေခံ — dict၊ list comprehension၊ function
-- SQL / PostgreSQL အခြေခံ — SELECT၊ JOIN၊ index သဘောတရား
-- RAG / LLM အကြောင်း အခြေခံ နားလည်မှု
+## Prerequisites
 
-## ကိုးကား
+Beginner-oriented course မဟုတ်ပါ။ လိုအပ်သော အရည်အချင်းများ —
 
-တစ်ခုချင်းရဲ့ module scope ထဲမှာ ကိုးကားစာအုပ်တွေ အသေးစိတ် ဖော်ပြထားပါတယ်။ အဓိက တရားဝင် open documentation တွေကတော့ —
+- Python — dict, list comprehension, function, standard library အသုံးပြုနိုင်မှု
+- SQL / PostgreSQL — SELECT, JOIN, index fundamentals
+- RAG / LLM architecture အခြေခံ နားလည်မှု
+
+## ဂဏန်းတန်ဖိုးများအပေါ် မူဝါဒ
+
+Course အတွင်း ဂဏန်းတိုင်းသည် အောက်ပါ ၂ မျိုးအနက် တစ်မျိုးသာ ဖြစ်သည် —
+
+1. သင်ခန်းစာတွင် ဖော်ပြထားသော formula + assumption ဖြင့် တွက်ချက်ထားသော တန်ဖိုး
+2. Module scope အတွင်း အမည်တပ်ဖော်ပြထားသော official documentation မှ ကောက်နုတ်ချက်
+
+Recall, latency, QPS, memory size တန်ဖိုးများကို တီထွင်ဖန်တီးထားခြင်း မရှိပါ။ Index ၏ recall နှင့် behaviour သည် corpus characteristics, parameter values, engine version ပေါ်တွင် မူတည်သဖြင့် production decision အတွက် မိမိ data ပေါ်တွင် ကိုယ်တိုင် benchmark လုပ်ရန် လိုအပ်သည်။ LLM call များသည် runtime တွင် အမှန်တကယ် ဖြစ်ပေါ်ခြင်း မရှိဘဲ scripted deterministic stand-in များသာ အသုံးပြုသည်။
+
+## အသုံးပြုမှု လမ်းညွှန်
+
+- **အစဉ်လိုက် လေ့လာရန်** — M1–M3 (data layer) → M4–M5 (index layer) → M6–M8 (retrieval quality + serving) → M9–M13 (operations + evaluation + design)
+- **Lab အားလုံးကို run ရန်** — Module တိုင်း၏ code ကို run ပြီး ရလဒ်မှတ်တမ်း တင်ထားရန်။ Parameter sensitivity ကို ကိုယ်တိုင် တိုင်းတာခြင်းသည် course ၏ အဓိက တန်ဖိုး ဖြစ်သည်။
+- **Database မလိုအပ်ပါ** — SQL နမူနာများကို ကိုယ်ပိုင် PostgreSQL + pgvector environment တွင် သီးသန့် စမ်းသပ်နိုင်သည်။
+- **Golden set စောစီးစွာ ဖွဲ့ရန်** — M10 ရောက်ချိန်တွင် မိမိ corpus အတွက် golden set (query ၂၀–၅၀) ရှိနေပါက evaluation module အကျိုးရှိမှု သိသိသာသာ မြင့်တက်သည်။
+
+## ဖြေရှင်းပေးသည့် Design မေးခွန်းများ
+
+- Corpus characteristics အပေါ် အခြေခံ၍ chunk size/overlap ဘယ်လို ရွေးမလဲ
+- Embedding model migration အတွက် index re-embedding strategy
+- HNSW `M`, `ef_construction`, `ef_search` tuning methodology
+- Vector score နှင့် BM25 score fusion (weighted sum vs RRF) ရွေးချယ်မှု
+- Storage, index memory, QPS capacity planning formula
+- ACL ကို retrieval query အတွင်း integration (pre-filter design)
+
+## Production Checklist
+
+- Chunk metadata တွင် source, section, page, permission ပါဝင်မှု ရှိ/မရှိ
+- Ingestion pipeline ၏ idempotency (re-run တွင် duplicate မဖြစ်မှု)
+- Evaluation set + recall@k ကို CI gate အဖြစ် automate လုပ်ထားမှု
+- Embedding ထည့်သွင်းခြင်း မတိုင်မီ PII detection/redaction pipeline
+- Embedding model version ကို index, cache, metadata တွင် track လုပ်ထားမှု
+
+## Target Roles
+
+| Role | Course relevance |
+|---|---|
+| Retrieval/pipeline engineer | Ingestion, chunking, indexing, quality measurement — module 1–6, 9–10 |
+| AI application engineer | Retrieval API design, generation layer integration — module 7–8 |
+| Data platform engineer | Vector store operations, capacity, tenancy, governance — module 8, 11–13 |
+
+## ကိုးကားချက်များ
+
+Module scope တိုင်းတွင် ကိုးကား documentation များ အသေးစိတ် ပါဝင်သည်။ အဓိက official source များ —
 
 - pgvector — https://github.com/pgvector/pgvector
-- PostgreSQL — https://www.postgresql.org/docs/
+- PostgreSQL Documentation — https://www.postgresql.org/docs/
 - Qdrant — https://qdrant.tech/documentation/
 - Milvus — https://github.com/milvus-io/milvus
 - Weaviate — https://weaviate.io/developers/weaviate
 - Chroma — https://docs.trychroma.com/
 - HNSW paper (Malkov & Yashunin, arXiv:1601.06867) — https://arxiv.org/abs/1601.06867
-
-## သတိပြုရန်
-
-ဒီ course ထဲက number တွေအားလုံးက ၂ မျိုးထဲမှ တစ်မျိုး ဖြစ်ပါတယ် — (က) သင်ခန်းစာထဲက ဖော်ပြထားတဲ့ formula နဲ့ တွက်ထုတ်ထားတာ၊ (ခ) module scope ထဲက နာမည်တပ်ထားတဲ့ တရားဝင် documentation ကနေ ကောက်နုတ်ထားတာပါ။ Recall value၊ latency၊ QPS၊ memory size တို့ကို လုပ်ကြံ တီထွင်ထားခြင်း မရှိပါ။ Index ရဲ့ recall နဲ့ behaviour က corpus အရွယ်အစား၊ parameter တန်ဖိုးတွေနဲ့ engine version အပေါ် မူတည်ပါတယ်။ ဒါကြောင့် ကိုယ်ပိုင်ဒေတာပေါ်မှာ ကိုယ်တိုင် တိုင်းတာဖို့ လိုပါတယ်။ LLM call တွေက runtime မှာ တကယ် မဖြစ်ပါ — scripted deterministic stand-in သာ သုံးထားပါတယ်။
-
-## ဒီ course ကို ဘယ်လို သုံးမလဲ
-
-- အစဉ်လိုက် ဖတ်ပါ — M1–M3 (data ဘက်) ကို အရင်၊ ပြီးမှ M4–M5 (index)၊ နောက် M6–M8 (retrieval အရည်အသွေး) ဆက်ပါ။
-- Module တိုင်းရဲ့ lab ကို ကိုယ်တိုင် run ပြီး result ကို စာရွက်ပေါ် ချရေးပါ — pipeline အဆင့်တိုင်းရဲ့ ဂဏန်းကို မြင်အောင် လုပ်ပါ။
-- Database မလိုပါ — lab အားလုံး standard library နဲ့သာ run ပါတယ်။ SQL နမူနာများကို ကိုယ့် Postgres မှာ စမ်းချင်ရင် သီးသန့် စမ်းပါ။
-- M10 (evaluation) ရောက်တဲ့အခါ ကိုယ့် corpus အတွက် golden set လေး (query ၂၀–၅၀ ခု) ကို ရေးထားရင် နောက်ဆုံး module များ အလွန် အကျိုးရှိပါတယ်။
-
-## ဘယ်လို မေးခွန်းတွေကို ဖြေပေးလဲ
-
-- ကိုယ့် corpus အတွက် chunk အရွယ် ဘယ်လောက် ထားရမလဲ။
-- Embedding model တစ်ခုကနေ တစ်ခု ပြောင်းရင် index ကို ဘယ်လို migrate လုပ်မလဲ။
-- HNSW ရဲ့ `m`၊ `ef_construction`၊ `ef_search` ကို ဘယ်လို ရွေးမလဲ။
-- Vector search နဲ့ keyword search ကို ဘယ်လို ပေါင်းမလဲ (RRF ရဲ့ သင်္ချာ အပါ)။
-- Storage၊ index memory နဲ့ QPS ကို ဘယ်လို ကြိုတွက်မလဲ။
-- Permission (ACL) ကို retrieval query ထဲ ဘယ်လို ထည့်မလဲ။
-
-## လုပ်ငန်းသုံး စစ်ဆေးစာရင်း
-
-- Chunk တိုင်းမှာ source၊ section၊ page၊ permission metadata ပါပါသလား။
-- Ingestion ကို ပြန် run လုပ်ရင် duplicate မဖြစ်အောင် idempotent ဖြစ်ပါသလား။
-- Eval set နဲ့ recall@k ကို CI gate အဖြစ် ထားပြီးပါသလား။
-- PII ကို embedding မတွက်ခင် စစ်ပြီးပါသလား။
-- Embedding model version ကို index၊ cache နဲ့ metadata မှာ မှတ်ထားပါသလား။
-
-## ဒီ course နဲ့ ကိုက်ညီတဲ့ တာဝန်
-
-- Retrieval/pipeline engineer — ingestion၊ chunking၊ index ကို ပိုင်ပြီး အရည်အသွေးကို တိုင်းတာသူ။
-- AI application engineer — retrieval API ကို ဒီဇိုင်းပြီး generation အလွှာနဲ့ တွဲသူ။
-- Data platform engineer — vector store ၏ storage၊ backup၊ tenancy၊ governance ကို စီမံသူ။

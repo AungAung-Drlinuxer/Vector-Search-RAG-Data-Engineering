@@ -1,14 +1,14 @@
 # M10 — Retrieval အကဲဖြတ်ခြင်း: recall@k, MRR, nDCG, Golden Set နှင့် Regression Gate
 
-Retrieval စနစ်ကို သင်္ချာနဲ့ တိုင်းတာပြီး အရည်အသွေး ကျဆင်းမှု (regression) ကို အလိုအလျောက် ဖမ်းတဲ့ နည်းလမ်းတွေကို လေ့လာရတဲ့ module ပါ။
+Retrieval စနစ်၏ အရည်အသွေးကို quantitative metric များဖြင့် တိုင်းတာခြင်းနှင့် quality regression ကို CI တွင် အလိုအလျောက် detect လုပ်ခြင်းတို့ကို ကိုင်တွယ်သည့် module ဖြစ်သည်။
 
 ## ဒီ module မှာ ဘာသင်မလဲ
 
-- Golden set (မေးခွန်းတစ်ခု → မှန်တဲ့ chunk အမှတ်စာရင်း) ဖွဲ့တဲ့နည်း။
-- recall@k, precision@k, MRR, nDCG တွေကို pure Python နဲ့ တွက်နည်း။
-- chunk-level နှင့် document-level အကဲဖြတ်မှု ကွာခြားပုံ။
-- LLM judge အစား deterministic stand-in သုံးပြီး နားလည်နည်း။
-- Drift (အချက်အလက် ရွေ့လျားမှု) စောင့်ကြည့်ခြင်း နှင့် CI regression gate တည်ဆောက်နည်း။
+- Golden set (query → relevant chunk id list) တည်ဆောက်နည်း။
+- recall@k, precision@k, MRR, nDCG တွက်ချက်မှုများကို pure Python ဖြင့် implement လုပ်နည်း။
+- chunk-level evaluation နှင့် document-level evaluation တို့၏ ကွာခြားချက်။
+- LLM judge အစား deterministic stand-in အသုံးပြုခြင်း။
+- Drift monitoring နှင့် CI regression gate တည်ဆောက်နည်း။
 
 ## သင်ခန်းစာများ
 
@@ -21,15 +21,15 @@ Retrieval စနစ်ကို သင်္ချာနဲ့ တိုင်�
 
 ## လိုအပ်ချက်များ (Prerequisites)
 
-- M05 (cosine similarity) နှင့် M06 (HNSW-style graph search) ရဲ့ Python code တွေကို နားလည်ထားရပါတယ်။
-- Python standard library (`math`, `json`, `statistics`) အခြေခံ သင်ပြီးဖြစ်ရပါမယ်။
-- pytest တို့ CI တို့ရဲ့ သဘောအခြေခံ သိထားရင် ပိုကောင်းပါတယ်။
+- M05 (cosine similarity) နှင့် M06 (HNSW-style graph search) ၏ Python implementation များကို နားလည်ထားရမည်။
+- Python standard library (`math`, `json`, `statistics`) အသုံးပြုနိုင်ရမည်။
+- pytest နှင့် CI pipeline ၏ အခြေခံ သဘောတရားများ ရှိပါက အဆင်ပြေသည်။
 
 ## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
 
-- Retrieval pipeline တစ်ခု ပြင်ပြီးတိုင်း "ပိုဆိုးသွားလား" ဆိုတာ မေးချင်တဲ့အခါ။
-- Chunk size သို့မဟုတ် embedder လဲတဲ့အခါ အရည်အသွေး နှိုင်းယှဉ်ချင်တဲ့အခါ။
-- Production မှာ drift ဖြစ်နေလား အလိုအလျောက် စစ်ချင်တဲ့အခါ။
+- Retrieval pipeline ပြောင်းလဲမှုတိုင်းအတွက် quality regression ရှိ/မရှိ အတည်ပြုလိုသည့်အခါ။
+- Chunk size သို့မဟုတ် embedder ပြောင်းလဲမှုများ၏ အကျိုးသက်ရောက်မှုကို နှိုင်းယှဉ်လိုသည့်အခါ။
+- Production တွင် drift ကို အလိုအလျောက် detect လုပ်လိုသည့်အခါ။
 
 ## ကိုးကား
 

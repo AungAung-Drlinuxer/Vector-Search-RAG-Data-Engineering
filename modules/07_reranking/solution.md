@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — Bi-encoder နဲ့ Cross-encoder ကွာခြားချက် ဖော်ပြခြင်း
+## လေ့ကျင့်ခန်း ၁ — Bi-encoder vs Cross-encoder Architectural Differences
 
-Bi-encoder က query နဲ့ document ကို သီးသန့်သီးသန့် embed လုပ်ပြီး vector တွေချင်း နှိုင်းတတ်ပါတယ်၊ ဒါကြောင့် document embedding တွေကို ကြိုတင်ပြီး offline မှာ cache လုပ်လို့ရပါတယ်။ Cross-encoder ကတော့ query နဲ့ document နှစ်ခုကို တွဲပြီး တစ်ပြိုင်နက်တည်း သုံးသပ်ပြီး score တစ်ခုတည်း ထုတ်ပေးတာပါ။ ဒါကြောင့် bi-encoder က သန်းနဲ့ချီတဲ့ corpus ကနေ မြန်မြန် retrieve လုပ်ဖို့၊ cross-encoder က top-k အနည်းငယ်ကိုပဲ တိကျစွာ rerank လုပ်ဖို့ သင့်တော်ပါတယ်။
+Bi-encoder သည် query နှင့် document များကို သီးခြားစီ encode လုပ်သဖြင့် document embeddings များကို offline compute လုပ်ကာ vector database တွင် cache ပြုလုပ်နိုင်သည်။ Cross-encoder သည် (query, document) pair ကို model ထဲသို့ joint input အဖြစ် ထည့်သွင်း၍ full cross-attention ဖြင့် direct relevance score တွက်ချက်သည်။ ဤ structural differences များကို အောက်ပါ script တွင် အကျဉ်းချုပ် ဖော်ပြထားသည်။
 
 ```python
 # Deterministic, offline illustration of the bi-encoder vs cross-encoder distinction
@@ -19,11 +19,13 @@ for f in facts:
 # 3) Use bi-encoder for fast retrieval over a huge corpus; use cross-encoder to rerank only the top-k candidates.
 ```
 
-**အဓိကအယူဆ** — Bi-encoder က cache လုပ်လို့ရတဲ့ သီးသန့် embedding နဲ့ မြန်မြန် retrieve လုပ်ပေးပြီး cross-encoder က တွဲသုံးသပ်တဲ့ အတွက် ပိုတိကျပေးမယ် ဆိုတာပါ။
+**အဓိကအယူအဆ** — Large corpus မှ high-throughput first-stage candidate retrieval အတွက် bi-encoder ကို အသုံးပြုပြီး top-k candidates ၏ high-precision reranking အတွက် cross-encoder ကို အသုံးပြုသည်။
 
-## လေ့ကျင့်ခန်း ၂ — Cosine Score နဲ့ Manual Reranking
+---
 
-Query တစ်ခုနဲ့ document ၅ ခုကို vector အနေနဲ့ သတ်မှတ်ပြီး cosine similarity ကို ကိုယ်တိုင်တွက်ပြပါမယ်။ ပြီးတဲ့နောက် score အမြင့်ဆုံး ၃ ခုကို sorted နဲ့ reverse=True သုံးပြီး rerank လုပ်ပြမယ်နော်။
+## လေ့ကျင့်ခန်း ၂ — Cosine Similarity Scoring & Top-K Manual Reranking
+
+Standard library `math` ဖြင့် query vector နှင့် candidate document vectors ၅ ခုကြား cosine similarity တွက်ချက်ကာ descending order အတိုင်း top-3 candidates ကို rerank ပြုလုပ်ပုံ ဖြစ်သည်။
 
 ```python
 # Manual cosine scoring + reranking using only the standard library (math).
@@ -41,7 +43,7 @@ docs = {
 def cosine(a, b):
     dot = sum(x * y for x, y in zip(a, b))
     na = math.sqrt(sum(x * x for x in a))
-    nb = math.sqrt(sum(x * x for x in b))
+    nb = math.sqrt(sum(y * y for y in b))
     return dot / (na * nb)
 
 scored = {doc_id: cosine(query, vec) for doc_id, vec in docs.items()}
@@ -60,11 +62,13 @@ print("Reranked top-3:", [doc_id for doc_id, _ in top3])
 # Reranked top-3: ['d1', 'd4', 'd2']
 ```
 
-**အဓိကအယူဆ** — Score အားလုံးကို အရင်တွက်ပြီးမှ sorted နဲ့ key=lambda, reverse=True သုံးပြီး top-3 ကို အမြင့်ဆုံးက ရှေ့ရှိစေပြီး ရွေးနိုင်တယ်ဆိုတာပါ။
+**အဓိကအယူအဆ** — First-stage candidate pool အား secondary similarity metrics သို့မဟုတ် alternative scoring functions များဖြင့် descending sort ပြုလုပ်ခြင်းသည် reranking ၏ algorithmic foundation ဖြစ်သည်။
 
-## လေ့ကျင့်ခန်း ၃ — Latency ကုန်ကျစရိတ် တွက်ချက်ခြင်း
+---
 
-Cross-encoder က document တစ်ခုချင်းစီအတွက် ခေါ်ရတဲ့အတွက် ကုန်ကျစရိတ်က top-k အရေအတွက်ပေါ် မူတည်ပါတယ်။ Formula က (top-k × per-call ms) ပါ၊ ဒါကြောင့် 20 × 50 ms = 1,000 ms ဖြစ်ပြီး retrieve တာထက် သိသိသာသာ ပိုကြာပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၃ — Cross-encoder Reranking Latency Cost Modeling
+
+Cross-encoder သည် candidate တစ်ခုချင်းစီအတွက် neural forward pass လိုအပ်သဖြင့် candidate size (top-k) နှင့် linear အချိုးအစားအတိုင်း latency overhead ဖြစ်ပေါ်စေပုံကို အောက်ပါ formula ဖြင့် သရုပ်ပြထားသည်။
 
 ```python
 # Latency cost calculation for a cross-encoder reranking stage.
@@ -94,11 +98,13 @@ print("extra vs retrieve-only:", extra_ms, "ms")
 # extra vs retrieve-only: 1000 ms
 ```
 
-**အဓိကအယူဆ** — Rerank ရဲ့ latency က top-k × per-call ms အတိုင်း တိုးလို့ top-k ကို သေးသေး ထိန်းထားမှ စရိတ်ချုံ့လို့ရတယ်ဆိုတာပါ။
+**အဓိကအယူအဆ** — Reranker overhead သည် `top_k * per_call_ms` အတိုင်း တိုးပွားသဖြင့် system p95 latency budget နှင့် ကိုက်ညီသော top-k candidate threshold ကို စနစ်တကျ သတ်မှတ်ရမည်။
 
-## လေ့ကျင့်ခန်း ၄ — HyDE (Hypothetical Document Embedding) စမ်းသပ်ခြင်း
+---
 
-HyDE မှာ query အတွက် hypothetical answer တစ်ခု ရေးပြီး အဲဒီစာရဲ့ embedding နဲ့ document တွေကို နှိုင်းတာပါ (arxiv.org/abs/2212.10496)။ တကယ့် LLM မသုံးဘဲ hypothetical answer ကို hardcoded လုပ်ထားပြီး query တိုက်ရိုက် score နဲ့ နှိုင်းပြပါမယ်။
+## လေ့ကျင့်ခန်း ၄ — HyDE (Hypothetical Document Embeddings) Retrieval Alignment
+
+Raw question embedding နှင့် LLM-generated hypothetical answer document embedding တို့၏ target corpus စာရွက်စာတမ်းများနှင့် cosine similarity ကွာခြားချက်ကို နှိုင်းယှဉ်ထားသည်။
 
 ```python
 # HyDE comparison: query-direct embedding vs hypothetical-document embedding.
@@ -117,7 +123,7 @@ docs = {
 def cosine(a, b):
     dot = sum(x * y for x, y in zip(a, b))
     na = math.sqrt(sum(x * x for x in a))
-    nb = math.sqrt(sum(x * x for x in b))
+    nb = math.sqrt(sum(y * y for y in b))
     return dot / (na * nb)
 
 for doc_id, vec in docs.items():
@@ -130,11 +136,13 @@ for doc_id, vec in docs.items():
 # d3 direct: 0.196 | HyDE: 0.662
 ```
 
-**အဓိကအယူဆ** — HyDE က question ပုံစံ query ထက် answer ပုံစံ hypothetical document က document တွေနဲ့ ပိုတူညီမှုရှိလို့ d2 နဲ့ d3 ရဲ့ score တွေ တက်လာတာ မြင်ရတယ်ဆိုတာပါ။
+**အဓိကအယူအဆ** — HyDE သည် query intent ကို answer-like structure အဖြစ် ကြိုတင် projection ပြုလုပ်ပေးသဖြင့် direct question match ထက် semantic overlap ပိုမိုမြင့်မားသော documents (ဥပမာ d2) ကို ရှာဖွေနိုင်စွမ်း တိုးတက်စေသည်။
 
-## လေ့ကျင့်ခန်း ၅ — Multi-query Expansion နဲ့ RRF Fusion
+---
 
-Query တစ်ခုကို paraphrase ၃ မျိုးရေးပြီး တစ်ခုစီအတွက် ranked list သတ်မှတ်ပါမယ်။ ပြီးတာနဲ့ RRF formula (score = sum of 1/(k + rank), k=60) သုံးပြီး ranking တွေကို တစ်ခုတည်းသော fused ranking အဖြစ် ပေါင်းပြပါမယ်။
+## လေ့ကျင့်ခန်း ၅ — Multi-Query Expansion & RRF Score Fusion
+
+Query paraphrases ၃ ခုမှ ထွက်ပေါ်လာသော independent ranking lists များကို Reciprocal Rank Fusion (`1 / (60 + rank)`) ဖြင့် consensus fused ranking အဖြစ် ပေါင်းစပ်ပုံ ဖြစ်သည်။
 
 ```python
 # Multi-query expansion fused with Reciprocal Rank Fusion (RRF).
@@ -172,11 +180,13 @@ print("Fused order:", [doc_id for doc_id, _ in fused])
 # Fused order: ['d1', 'd2', 'd3', 'd4']
 ```
 
-**အဓိကအယူဆ** — RRF က score အစား rank ကို အသုံးပြုလို့ scale မတူတဲ relevance score တွေရှိစေကာမှ ranking များစွာကို တညီတည်း ပေါင်းနိုင်တယ်ဆိုတာပါ။
+**အဓိကအယူအဆ** — RRF သည် absolute scores များကို normalize လုပ်ရန် မလိုဘဲ rank ordering အပေါ်တွင် aggregate ပြုလုပ်သဖြင့် diverse query formulations များမှ consensus candidate ranking ကို တည်ငြိမ်စွာ ထုတ်ယူနိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၆ — MMR (Maximal Marginal Relevance) အပြည့်အစုံ
+---
 
-Document ၆ ခုရဲ့ embedding တွေကို သတ်မှတ်ပြီး MMR formula (score = lambda × sim(q,d) − (1 − lambda) × max sim(d, selected)) နဲ့ lambda 0.3 နဲ့ 0.9 ၂ မျိုး သုံးပြီး ရွေးပါမယ်။ Lambda မြင့်ရင် relevance က ထင်ရှားပြီး lambda နိမ့်ရင် diversity က ထင်ရှားလာပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၆ — MMR (Maximal Marginal Relevance) Diversity Selection
+
+Hyperparameter λ (relevance vs diversity weight) တန်ဖိုးနှစ်ခု (0.9 vs 0.3) ဖြင့် greedy MMR selection algorithm ကို execute လုပ်ပြီး redundant candidates များကို penalize ပြုလုပ်ပုံ ဖြစ်သည်။
 
 ```python
 # Full MMR (Maximal Marginal Relevance) selection with two lambda values.
@@ -195,7 +205,7 @@ docs = {
 def cosine(a, b):
     dot = sum(x * y for x, y in zip(a, b))
     na = math.sqrt(sum(x * x for x in a))
-    nb = math.sqrt(sum(x * x for x in b))
+    nb = math.sqrt(sum(y * y for y in b))
     return dot / (na * nb)
 
 relevance = {doc_id: cosine(query, vec) for doc_id, vec in docs.items()}
@@ -224,4 +234,4 @@ for lam in (0.9, 0.3):
 # lambda = 0.3 -> ['d1', 'd6', 'd5']
 ```
 
-**အဓိကအယူဆ** — lambda = 0.9 မှာ d1 နဲ့ တူတဲ့ d2, d3 တွေ ဆက်ရွေးခံရပေမယ့် lambda = 0.3 မှာတော့ တူတဲ့ document တွေကို ကြဉ်ပြီး ကွဲပြားတဲ့ d6, d5 တွေ ရွေးခံရတာပါ။
+**အဓိကအယူအဆ** — λ=0.9 တွင် query နှင့် အလွန်ဆင်တူသော near-duplicates များ (d1, d3, d2) ရွေးချယ်ခံရပြီး λ=0.3 တွင် redundant candidates များကို ရှောင်ရှား၍ information space ကို ပိုမိုလွှမ်းခြုံနိုင်သော diverse documents (d1, d6, d5) ကို ရွေးချယ်ပေးသည်။

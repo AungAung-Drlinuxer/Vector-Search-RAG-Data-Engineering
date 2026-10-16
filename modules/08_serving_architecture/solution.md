@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Retrieval API function ရေးပါ
 
-`/search` endpoint ကို simulate လုပ်တဲ့ function ကို ဒီမှာ ရေးပြထားပါတယ်။ tenant_id မတူတဲ့ items တွေကို ဘယ်တော့မှ မပြပါနဲ့ — real system မှာဆို ဒါက SQL `WHERE tenant_id = $1` clause နဲ့ လုပ်တာပါ။
+`/search` endpoint ကို simulate လုပ်သော function ကို အောက်တွင် ပြထားသည်။ Tenant_id မတူညီသော item များ response တွင် ပါဝင်မည် မဟုတ်ပါ — real system တွင် ဤ filter ကို SQL `WHERE tenant_id = $1` clause ဖြင့် အကောင်အထည်ဖော်သည်။
 
 ```python
 # Retrieval API simulation: query_vector + top_k + filters (tenant ACL)
@@ -46,11 +46,11 @@ print("count =", len(results))
 # count = 3
 ```
 
-**အဓိကအယူဆ** — ACL filter က Python မှာ မဟုတ်ဘဲ database query ထဲမှာ တည်နေရာချထားဖို့က လုံခြုံမှုအတွက် အရေးကြီးဆုံးပါ။
+**အဓိကအယူဆ** — ACL filter ကို Python layer တွင် မထားဘဲ database query ထဲ predicate အဖြစ် ထည့်သွင်းခြင်းသည် security အတွက် အဓိက အရေးပါဆုံး ဒီဇိုင်း ဆုံးဖြတ်ချက်ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — Embedding cache တည်ဆောက်ပါ
 
-query string တူလျှင် cache hit ဖြစ်ပြီး embedding နောက်တစ်ခါ မထုတ်ပါနော်။ real system မှာ embedding API call က ကုန်ကျစရိတ်ရှိလို့ cache က ကယ်တင်ပေးပါတယ်။
+Query string တူညီပါက cache hit ဖြစ်ပြီး embedding ကို ထပ်မံ တွက်ချက်ခြင်း မရှိပါ။ Real system တွင် embedding API call သည် ကုန်ကျစရိတ်နှင့် latency ရှိသဖြင့် cache က ထိုကုန်ကျမှုကို ဖယ်ရှားပေးသည်။
 
 ```python
 # Embedding cache with a deterministic stand-in "model" (no real API call)
@@ -94,11 +94,11 @@ print("dim:", len(v3))
 # dim: 8
 ```
 
-**အဓိကအယူဆ** — cache key က query string တစ်ခုတည်းနဲ့ ရိုးရိုးရှင်းရှင်း အလုပ်လုပ်ပြီး hit/miss counts က cache အလုပ်လုပ်မှုကို ပြောပြပေးပါတယ်။
+**အဓိကအယူဆ** — cache key အဖြစ် query string တစ်ခုတည်းက လုံလောက်ပြီး hit/miss count များသည် cache ၏ ထိရောက်မှုကို ထင်ဟပ်စေသည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Result cache (query + filter hash key)
 
-query တူပေမယ့် filter မတူရင် cache hit မဖြစ်ရပါဘူး — ဒါကြောင့် key မှာ (query, filters) နှစ်ခုလုံး ပါဝင်ရမယ်။ dict order က အရေးကြီးလို့ `sort_keys=True` နဲ့ JSON serialize လုပ်ပါတယ်။
+Query တူသော်လည်း filter မတူပါက cache hit မဖြစ်ရပါ — ထို့ကြောင့် key တွင် (query, filters) နှစ်ခုလုံး ပါဝင်ရသည်။ Dict order မတူညီမှုကြောင့် key မကွဲစေရန် `sort_keys=True` ဖြင့် JSON serialize လုပ်သည်။
 
 ```python
 # Result cache keyed on the hash of (query + normalized filters)
@@ -146,11 +146,11 @@ print("entries =", len(cache._store))
 # entries = 2
 ```
 
-**အဓိကအယူဆ** — cache key မှာ query နဲ့ filter နှစ်ခုလုံး ပါဝင်မှ cross-tenant ဒါမှမဟုတ် မမှန်တဲ့ result တွေ ပြန်မပေးမှာပါ။
+**အဓိကအယူဆ** — cache key တွင် query နှင့် filter နှစ်ခုလုံး ပါဝင်မှသာ cross-tenant သို့မဟုတ် မမှန်ကန်သော result များ ပြန်လည်ပေးခြင်းကို ကာကွယ်နိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Pool နဲ့ concurrency simulation
 
-pool size 3 နဲ့ acquire ၃ ခါ အရင် အောင်မြင်ပြီး စတုတ္ထအကြိမ်က release မလုပ်မချင်း စောင့်ရမယ်နော်။ connection တွေက dummy object တွေပါ — real system မှာ Postgres connection တွေပါ။
+Pool size 3 ဖြင့် acquire သုံးကြိမ် အောင်မြင်ပြီး စတုတ္ထအကြိမ်သည် release မလုပ်မချင်း block ဖြစ်သည်။ Connection များသည် dummy object များသာဖြစ်ပြီး — real system တွင် Postgres connection များဖြစ်သည်။
 
 ```python
 # Connection pool with blocking acquire via queue.Queue
@@ -201,11 +201,11 @@ print("got after release:", c4)
 # got after release: conn-2
 ```
 
-**အဓိကအယူဆ** — pool က connection ပြန်လည်အသုံးပြုခြင်းနဲ့ အလွန်အကျွံ ဖွင့်မခံရစေတာကြောင့် bounded resource တွေကို စနစ်တကျ ထိန်းပေးပါတယ်။
+**အဓိကအယူဆ** — Pool သည် connection reuse နှင့် bounded resource ကို အလွန်အကျွံ သုံးစွဲမှုမှ ကာကွယ်ခြင်းဖြင့် resource allocation ကို စနစ်တကျ ထိန်းချုပ်ပေးသည်။
 
 ## လေ့ကျင့်ခန်း ၅ — pgvector SQL ရေးပါ (အလုပ်မလုပ်ပါဘူး၊ ဖတ်ဖို့ပါ)
 
-ဒါက ဖတ်ဖို့ပါ — pgvector ရဲ့ `<=>` operator က cosine distance အတွက်ပါ။ tenant_id filter က WHERE clause ထဲ ပါရမယ်၊ နဲ့ index မတပ်ရသေးရင် exact search ပါလို့ comment မှာ ဖော်ပြထားပါတယ်။
+ဤ exercise သည် read-only ဖြစ်သည် — pgvector ၏ `<=>` operator သည် cosine distance အတွက်ဖြစ်သည်။ tenant_id filter သည် WHERE clause ထဲ ပါဝင်ပြီး vector index မရှိပါက exact search ဖြစ်ကြောင်း comment တွင် ဖော်ပြထားသည်။
 
 ```python
 # This exercise is read-only: the SQL below is NOT executed here.
@@ -235,11 +235,11 @@ print(SQL.strip())
 # LIMIT 3;                      -- top 3
 ```
 
-**အဓိကအယူဆ** — pgvector မှာ vector search နဲ့ SQL filter တွေက တူညီတဲ့ query တစ်ခုထဲ ပေါင်းလုပ်လို့ရတာက hybrid filtering ရဲ့ အားသာချက်ပါ။
+**အဓိကအယူဆ** — pgvector တွင် vector search နှင့် SQL filter များကို query တစ်ခုတည်းအတွင်း ပေါင်းစပ်နိုင်ခြင်းသည် hybrid filtering ၏ အဓိက အားသာချက်ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Hybrid architecture စာတမ်းရေးပါ (essay)
 
-Essay ကို python block ထဲမှာ string အဖြစ် ထည့်ပြီး print ထုတ်ပါမယ် — မေးခွန်းသုံးခုလုံးကို ဖြေရှင်းထားပြီး official docs နှစ်ခု ကိုးကားထားပါတယ်။ ဂဏန်းတွေကို အထောက်အထားမရှိဘဲ မထည့်ပါနော်။
+Essay ကို Python block ထဲတွင် string အဖြစ် ထည့်သွင်းပြီး print ထုတ်သည် — မေးခွန်းသုံးခုလုံးကို ဖြေဆိုထားပြီး official docs နှစ်ခု ကိုးကားထားသည်။ အထောက်အထားမရှိသော ဂဏန်းများ မပါဝင်ပါ။
 
 ```python
 # Essay is stored as a string and printed — deterministic, offline.
@@ -296,4 +296,4 @@ print(ESSAY)
 # index that can always be rebuilt from Postgres.
 ```
 
-**အဓိကအယူဆ** — vector store က rebuild လုပ်လို့ရတဲ့ derived index တစ်ခုပါ — source of truth ကတော့ Postgres မှာသာ နေရမယ်။
+**အဓိကအယူဆ** — Vector store သည် rebuild လုပ်၍ရသော derived index ဖြစ်ပြီး source of truth သည် Postgres တွင်သာ တည်ရှိရမည်။

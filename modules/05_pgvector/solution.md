@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — vector column ဆောက်တာ
+## လေ့ကျင့်ခန်း ၁ — Vector Column Schema ဒီဇိုင်း
 
-`CREATE EXTENSION` နဲ့ extension အရင်ဖွင့်ပြီးမှ `vector(768)` type နဲ့ embedding column ဆောက်ရမယ်၊ cosine သုံးမယ့်အတွက် value တွေကို normalize လုပ်ထားဖို့လည်း လိုအပ်ပါတယ်နော်။ အောက်မှာ schema နဲ့ HNSW index ကို တွဲရေးပြထားပါတယ်။
+pgvector extension ကို enable လုပ်ပြီး `vector(768)` data type ဖြင့် table ဆောက်ကာ cosine distance metric အတွက် `vector_cosine_ops` operator class သုံးစွဲသည့် HNSW index တည်ဆောက်ပုံ ဖြစ်သည်။
 
 ```python
 # Exercise 1: build the chunks table schema SQL (printed, not executed -- no DB in this exercise).
@@ -39,11 +39,13 @@ for stmt in sql_statements:
 # ---
 ```
 
-**အဓိကအယူဆ** — 768 dimension, cosine ယူဆချက်အတွက် `vector(768)` column နဲ့ `vector_cosine_ops` operator class ကိုတွဲသုံးရပါတယ်။
+**အဓိကအယူအဆ** — 768 dimensions နှင့် cosine similarity လိုအပ်ချက်အတွက် `vector(768)` type နှင့် `vector_cosine_ops` operator class ကို တွဲဖက် အသုံးပြုရသည်။
 
-## လေ့ကျင့်ခန်း ၂ — distance operator သုံးခွဲခြားခြင်း
+---
 
-`<->` က L2, `<=>` က cosine, `<#>` က negative inner product ဖြစ်ပြီး၊ normalize လုပ်ထားရင် L2 နဲ့ cosine က `L2 = sqrt(2 * cosine)` ဆိုတဲ့ ဆက်စပ်မှုနဲ့ တစ်ပြိုင်တည်း order တူသွားတယ်၊ inner product သုံးမယ်ဆို `vector_ip_ops` class လိုပါတယ်နော်။ ဒီ code က ဒါကို pure Python နဲ့ သက်သေပြပါတယ်။
+## လေ့ကျင့်ခန်း ၂ — Distance Operators နှိုင်းယှဉ်ချက် (`<->`, `<=>`, `<#>`)
+
+`<->` (L2 distance), `<=>` (Cosine distance) နှင့် `<#>` (Negative inner product) တို့၏ သင်္ချာသဘောတရားကို pure Python ဖြင့် တွက်ချက်ပြထားသည်။ Unit-normalized vectors များတွင် `L2^2 = 2 * cosine_distance` ဖြစ်သဖြင့် relative ranking အစဉ်လိုက်သည် တူညီသည်။
 
 ```python
 # Exercise 2: show <-> (L2), <=> (cosine), <#> (negative inner product) with plain math.
@@ -85,11 +87,13 @@ print("Check L2^2 == 2*cosine:",
 # Check L2^2 == 2*cosine: 0.133333 == 0.133333
 ```
 
-**အဓိကအယူဆ** — normalize လုပ်ထားရင် L2, cosine, inner product ranking သုံးခုလုံး အစဉ်လိုက်တူပြီး၊ unnormalized ဖြစ်ရင် cosine အတွက် `<=>` + `vector_cosine_ops` ကို ခွဲခြားသုံးသင့်ပါတယ်။
+**အဓိကအယူအဆ** — Normalized vectors များတွင် distance metrics သုံးခုလုံး ranking monotonicity ရှိပြီး unnormalized vectors များအတွက် cosine distance ကို တိုက်ရိုက်လိုချင်ပါက `<=>` နှင့် `vector_cosine_ops` ကို ရွေးချယ်ရသည်။
 
-## လေ့ကျင့်ခန်း ၃ — စာပိုဒ်ရှေ့ပိုင်းအတွက် RRF fusion (Python)
+---
 
-RRF က `1 / (60 + rank)` formula နဲ့ rank နှစ်ခုကို ပေါင်းပြီး brute-force cosine နဲ့ keyword ranking နှစ်ခုလုံးရဲ့ အားသာချက် ရောနေတဲ့ fused ranking ထုတ်ပေးပါတယ်၊ deterministic ဖြစ်အောင် tie ကို ID နဲ့ ဖြေရှင်းထားပါတယ်။
+## လေ့ကျင့်ခန်း ၃ — Reciprocal Rank Fusion (RRF) Implementation
+
+Dense vector similarity ranking နှင့် lexical keyword term ranking တို့ကို Reciprocal Rank Fusion (`1 / (60 + rank)`) ဖြင့် deterministic score fusion ပြုလုပ်ပုံ ဖြစ်သည်။
 
 ```python
 # Exercise 3: Reciprocal Rank Fusion of a cosine ranking and a keyword ranking.
@@ -134,11 +138,13 @@ print("RRF fused ranking:", fused)
 # RRF fused ranking: [1, 2, 3]
 ```
 
-**အဓိကအယူဆ** — RRF က score တန်ဖိုးမသုံးပါဘူး၊ rank position ပေါ်အခြေခံထားလို့ scale မတူတဲ့ ranking နှစ်ခုကို လွယ်လွယ်ပေါင်းလို့ရပါတယ်။
+**အဓိကအယူအဆ** — RRF သည် absolute scores များအပေါ် မှီခိုခြင်းမရှိဘဲ ordinal rank positions များကိုသာ အသုံးပြုသဖြင့် heterogeneous search algorithms များကို ပေါင်းစပ်ရာတွင် hyperparameter tuning overhead အနည်းဆုံးဖြစ်သည်။
 
-## လေ့ကျင့်ခန်း ၄ — HNSW နဲ့ IVFFlat ရွေးချယ်တာ
+---
 
-million-level data အတွက် HNSW က build ကြာပေမယ့် query latency နဲ့ recall ကို ပိုသာပြီး၊ IVFFlat က build မြန်ပေမယ့် recall က `probes` အပေါ်မူတည်ပြီး data အသစ်ထည့်ရင် cluster ပျက်လို့ retrain လိုနိုင်ပါတယ်နော်။ အောက် code က dataset size, latency budget, recall target အပေါ် အခြေခံပြီး အကြံပေးတဲ့ decision helper ပါ။
+## လေ့ကျင့်ခန်း ၄ — HNSW vs IVFFlat Index Selection Framework
+
+Scale, latency requirement, recall threshold နှင့် update frequency အပေါ် အခြေခံ၍ HNSW သို့မဟုတ် IVFFlat index အမျိုးအစားနှင့် parameter setting များကို dynamic ဆုံးဖြတ်ပေးသော logic ဖြစ်သည်။
 
 ```python
 # Exercise 4: deterministic index-choice helper (scripted logic, no real DB).
@@ -175,11 +181,13 @@ for t in tips:
 # Tip: Set hnsw.ef_search ~= 100, tune upward if recall is short.
 ```
 
-**အဓိကအယူဆ** — recall မြင့်မြင့်နဲ့ latency နည်းနည်း လိုချင်ရင် HNSW၊ build မြန်မြန်နဲ့ memory သက်သာချင်ရင် probes တင်ပေးရတဲ့ IVFFlat ကို ရွေးသင့်ပါတယ်။
+**အဓိကအယူအဆ** — High-recall, low-latency target များအတွက် HNSW ကို ဦးစားပေးရပြီး memory-constrained သို့မဟုတ် rapid bulk loading အခြေအနေများတွင် IVFFlat ကို ရွေးချယ်ရသည်။
 
-## လေ့ကျင့်ခန်း ၅ — jsonb metadata နဲ့ GIN index + filtered search
+---
 
-`metadata->>'source'` condition နဲ့ distance ordering နှစ်ခုလုံး query ထဲမှာ ပါလာပြီး၊ pre-filter မဖြစ်ရင် vector index က row တွေ ဖြတ်သွားပြီး post-filter ကြောင့် ရလဒ် လျော့နိုင်တာကို သတိထားရပါတယ်။ index build တွေအတွက် SQL ကို string အနေနဲ့ ထုတ်ပြပါတယ်။
+## လေ့ကျင့်ခန်း ၅ — JSONB Metadata + GIN Index ဖြင့် Filtered Vector Search
+
+JSONB column အပေါ် GIN index တည်ဆောက်ပြီး selective metadata filter နှင့် vector similarity distance ordering ပေါင်းစပ် query ရေးသားပုံ ဖြစ်သည်။
 
 ```python
 # Exercise 5: emit valid SQL for jsonb metadata + GIN + filtered vector search.
@@ -214,11 +222,13 @@ for stmt in sql:
 # ---
 ```
 
-**အဓိကအယူဆ** — GIN က metadata filter ကို မြန်စေပြီး၊ filter condition က vector index scan မတိုင်ခင် အလုပ်လုပ်နေမှ ရလဒ် လျော့သလို post-filter ပြဿနာ မဖြစ်ပါဘူး။
+**အဓိကအယူအဆ** — GIN index သည် JSONB metadata filtering ကို accelerate လုပ်ပေးပြီး filter predicate သည် pre-filter အဖြစ် အလုပ်လုပ်နိုင်မှသာ top-k candidate truncation မဖြစ်ပေါ်စေမည်။
 
-## လေ့ကျင့်ခန်း ၆ — maintenance_work_mem, parallel build, EXPLAIN ဖတ်တာ
+---
 
-`maintenance_work_mem` တန်ဖိုးက IVFFlat sample data တွေနဲ့ HNSW graph ကို memory ထဲ ဆောက်ပေးပြီး၊ `max_parallel_maintenance_workers` က build ကို CPU များများနဲ့ အလုပ်ခွဲပေးပါတယ်၊ memory မလုံရင် disk ပေါ် spill လုပ်ပြီး build နှေးသွားတယ်နော်။ အောက်မှာ sample EXPLAIN output ကို ဖတ်ပြပါတယ်။
+## လေ့ကျင့်ခန်း ၆ — Resource Tuning (`maintenance_work_mem`) နှင့် EXPLAIN Analysis
+
+`EXPLAIN` query execution plan ကို programmatic parse ပြုလုပ်၍ vector index scan node နှင့် post-filter placement ကို စစ်ဆေးသည့်အပြင် index build အမြန်နှုန်းအတွက် resource allocation settings များကို ဖော်ပြထားသည်။
 
 ```python
 # Exercise 6: parse a scripted (deterministic) EXPLAIN output stand-in and read key facts.
@@ -253,4 +263,4 @@ print("  SET max_parallel_maintenance_workers = 4; -- parallel HNSW/IVFFlat buil
 #   SET max_parallel_maintenance_workers = 4; -- parallel HNSW/IVFFlat build
 ```
 
-**အဓိကအယူဆ** — EXPLAIN မှာ `Index Scan` နဲ့ index name ကို မြင်ရပြီး၊ maintenance memory နဲ့ parallel workers တိုးလိုက်ရင် build ရဲ့ sampling/graph-building အပိုင်းတွေ မြန်လာပါတယ်။
+**အဓိကအယူအဆ** — Index scan နှင့် filter ordering ကို EXPLAIN ဖြင့် verify လုပ်ပြီး `maintenance_work_mem` တိုးမြှင့်ခြင်းဖြင့် in-memory graph construction throughput ကို အမြင့်ဆုံး ရရှိစေသည်။

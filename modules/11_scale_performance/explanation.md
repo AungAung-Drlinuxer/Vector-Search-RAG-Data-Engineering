@@ -1,27 +1,27 @@
 # M11 — Scale နှင့် Performance: Quantization၊ Sharding၊ Rebuild နှင့် Write Throughput
 
-ဒီ module မှာ vector search ကို data အရမ်းများလာတဲ့အခါ ဘယ်လို မြန်အောင်၊ memory သက်သက်သာအောင် လုပ်နိုင်တယ် ဆိုတာကို လေ့လာရမယ်ပါ။ အရင်ဆုံး ဘာကြောင့် ဒီနေရာကို မလေ့လာပဲ မဖြစ်နိုင်တဲ့ အခြေအနေတွေ ရှိနေလို့ပါပဲ။
+ဒီ module တွင် vector collection အရွယ်အစား ကြီးလာချိန်၌ search latency နှင့် memory footprint ကို မည်သို့ ထိန်းချုပ်သည်ကို လေ့လာသည်။ Collection ကြီးထွားမှုနှင့်အတူ memory cost နှင့် index maintenance cost နှစ်ခုလုံး scale လိုက်ပါကြီးမားလာသဖြင့် ဒီခေါင်းစဉ်သည် production vector system တိုင်းအတွက် မလွဲမသွေ လိုအပ်သည်။
 
-> ဒီစာစုအုပ်က တရားဝင် open documentation (arxiv, Qdrant docs, FAISS wiki, pgvector GitHub) တွေကနေ ရေးထားတဲ့ original သင်ခန်းစာပါ။ လမ်းညွှန်အားဖြင့် database ချိတ်ဆက်ပြီး run မှာ မဟုတ်ဘူးနော်။ အားလုံးကို Python standard library နဲ့ offline သာ လုပ်ပါမယ်။
+> ဒီစာစုအုပ်က တရားဝင် open documentation (arxiv, Qdrant docs, FAISS wiki, pgvector GitHub) တွေကနေ ရေးထားတဲ့ original သင်ခန်းစာပါ။ Database ချိတ်ဆက် run မည်မဟုတ်ဘဲ အားလုံးကို Python standard library ဖြင့် offline လုပ်ဆောင်သည်။
 
 ## Subtopic 1 — Quantization ဆိုတာ ဘာလဲ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Quantization ဆိုတာ vector ထဲက တန်ဖိုးတွေကို precision လျှော့ချပြီး memory အရွယ်အစား သက်သာအောင် သိမ်းဆည်းတဲ့ နည်းလမ်း ဖြစ်ပါတယ်။ Scalar quantization က float32 (32 bit) အစား int8 (8 bit) သို့မဟုတ် binary (1 bit) နဲ့ သိမ်းတာပါ။ Product Quantization (PQ) က dimension တွေကို subvector အပိုင်းခွဲကာ codebook ဖြင့် သိမ်းဆည်းတာ ဖြစ်ပါတယ်။
+Quantization ဆိုသည်မှာ vector component တန်ဖိုးများ၏ numerical precision လျှော့ချ၍ memory footprint သက်သာအောင် သိမ်းဆည်းသည့် နည်းလမ်းဖြစ်သည်။ Scalar quantization တွင် float32 (32 bit) အစား int8 (8 bit) သို့မဟုတ် binary (1 bit) ဖြင့် သိမ်းသည်။ Product Quantization (PQ) တွင် dimension များကို subvector အဖြစ် ခွဲခြမ်းပြီး subvector တစ်ခုချင်းစီကို codebook ထဲရှိ centroid id ဖြင့် ကိုယ်စားပြု သိမ်းဆည်းသည်။
 
 ### ဘာကြောင့် လဲ
 
-Vector တစ်ခုက fp32 မှာ dimension တစ်ခုကို 4 byte ယူပါတယ်။ Chunk တစ်သန်း၊ dimension 768 ရှိရင် memory က ကြီးလွန်းသွားပြီး server တစ်လုံးထဲ မဆံ့တော့ပါဘူး။ Quantization မလုပ်ဘူးဆိုရင် hardware ဈေးကြီးလို့ စရိတ်တက်သွားပြီး search ရဲ့ အရေအတွက်ကိုလည်း ကန့်သတ်ရတယ်ပါ။ Jégou et al. ရဲ့ PQ စာတမ်း (https://arxiv.org/abs/0903.2314) မှာ ဒီ memory problem ကို အဓိက ဖြေရှင်းခဲ့တာပါ။
+fp32 vector တစ်ခုသည် dimension တစ်ခုအတွက် 4 byte ယူသည်။ Chunk တစ်သန်း၊ dimension 768 ရှိပါက memory footprint သည် ~3 GB ရှိပြီး single-server RAM budget ကို ကျော်လွန်နိုင်သည်။ Quantization မလုပ်ပါက hardware cost မြင့်တက်ပြီး cache efficiency လည်း ကျဆင်းသဖြင့် search throughput ကန့်သတ်ချက် ဖြစ်လာသည်။ Jégou et al. ၏ PQ စာတမ်း (https://arxiv.org/abs/0903.2314) သည် ဤ memory problem ကို အဓိက ဖြေရှင်းချက်အဖြစ် တင်ပြထားသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Vector ရဲ့ တန်ဖိုးတွေကို ပြောင်းလို့ရတဲ့ ပုံစံနည်းနည်းထဲ ရောက်အောင် လုပ်ပါတယ်။
-၂။ Scalar quantization မှာ float တန်ဖိုးကို int အဆင့်ထဲ မြှောက်ပြီး သိမ်းပါတယ်။
-၃။ Binary quantization မှာ ပုစ္ဆာသင်္ချာသဘောနဲ့ အနှုတ်/အပေါင်း သာ သိမ်းပါတယ်။
-၄။ PQ မှာ dimension တွေကို subvector အပိုင်းလိုက် ခွဲပါတယ်။
-၅။ Subvector တိုင်းကို အနီးဆုံး centroid (cluster center) တစ်ခုနဲ့ ကိုယ်စားပြုပါတယ်။
-၆။ Memory သက်သာပေမယ့် recall နည်းနိုင်တဲ့ အပေးအယူ ရှိတယ်ဆိုတာကို လက်ခံရပါမယ်။
+၁။ Vector component တန်ဖိုးများကို ကိုယ်စားပြုနိုင်သော discrete level အရေအတွက် ကန့်သတ်ထားသည့် space သို့ map ပြောင်းသည်။
+၂။ Scalar quantization တွင် float တန်ဖိုးကို integer level သို့ scale ပြောင်း၍ သိမ်းသည်။
+၃။ Binary quantization တွင် component တစ်ခုချင်းစီ၏ လက္ခဏာ (sign) ကိုသာ 1 bit ဖြင့် သိမ်းသည်။
+၄။ PQ တွင် dimension များကို subvector အဖြစ် အပိုင်းလိုက် ခွဲခြမ်းသည်။
+၅။ Subvector တစ်ခုချင်းစီကို အနီးဆုံး centroid (cluster center) id ဖြင့် ကိုယ်စားပြုသည်။
+၆။ Memory reduction နှင့် recall degradation သည် တိုက်ရိုက် trade-off ဖြစ်သည် — oversampling + re-scoring ဖြင့် ပြန်လည်ကောင်းမွန်အောင် လုပ်နိုင်သည်။
 
 ### ဥပမာ
 
@@ -55,25 +55,25 @@ print("memory: %d bytes -> %d bytes (x%.1f smaller)" %
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Qdrant ရဲ့ quantization guide (https://qdrant.tech/documentation/guides/quantization/) မှာ scalar, binary, product quantization သုံးမျိုးလုံးကို တရားဝင် support လုပ်တယ်လို့ ပြောထားပါတယ်။ Memory ၄ ဆ သက်သာရင် တကယ့် production မှာ hardware စရိတ် သိသိသာသာ ကျသွားနိုင်ပါတယ်။ ဒါပေမယ့် တိကျမှု နည်းနည်းလေ စျေးသက်သာမှု များများ ဆိုတဲ့ အပေးအယူကို နားလည်ဖို့ အရေးကြီးပါတယ်နော်။
+Qdrant ၏ quantization guide (https://qdrant.tech/documentation/guides/quantization/) တွင် scalar, binary, product quantization သုံးမျိုးလုံးကို တရားဝင် support လုပ်ကြောင်း ဖော်ပြထားသည်။ Memory ၄ ဆ သက်သာခြင်းသည် production scale တွင် hardware cost ကို တိုက်ရိုက် သက်ရောက်မှုရှိသည်။ Compression တိုးလေ၊ approximation error တိုးလေ ဖြစ်သောကြောင့် memory reduction နှင့် recall degradation ၏ trade-off ကို workload အလိုက် ချိန်ညှိရမည်။
 
 ## Subtopic 2 — Memory နဲ့ Recall ရဲ့ အပေးအယူ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Recall (ရှာဖွေမှု တိကျနှုန်း) နဲ့ memory usage က တစ်ခုတည်း မဟုတ်ပါ။ Quantization ပြင်းရင် memory ကျပေမယ့် အချို့အဖြေတွေ ပျောက်သွားနိုင်ပါတယ်။ ဒါကြောင့် oversampling (လိုအပ်သည်ထက် ပိုရှာပြီး re-scoring ပြန်လုပ်သည့်နည်း) သုံးတတ်ပါတယ်။
+Recall နှင့် memory usage သည် သီးခြား ချိန်ညှိရသော axis နှစ်ခုဖြစ်သည်။ Quantization aggressiveness နှင့် recall သည် trade-off ဆက်နွယ်မှုရှိသည် — compression မြင့်တင်လိုက်ပါက approximate distance တွင် ranking error များလာပြီး recall ကျဆင်းနိုင်သည်။ ဤကျဆင်းမှုကို oversampling (လိုအပ်သည်ထက် candidate ပိုဆွဲပြီး original vector ဖြင့် re-scoring ပြန်လုပ်သည့်နည်း) ဖြင့် ပြန်လည်ကောင်းမွန်အောင် လုပ်လေ့ရှိသည်။
 
 ### ဘာကြောင့် လဲ
 
-Quantize လုပ်ပြီးတဲ့နောက် ကိန်းတွေ ပြောင်းသွားလို့ ရှေ့မှာတုံးတူမတူတော့ပါဘူး။ ဒါကြောင့် ပျောက်တဲ့အဖြေတွေ ရှိလာပြီး recall ကျနိုင်ပါတယ်။ Qdrant docs က quantization သုံးရင် `search` မှာ `oversampling` parameter နဲ့ ပိုရှာပြီး re-scoring လုပ်ဖို့ အကြံပေးထားပါတယ်။ Memory ကို တစ်ဖက်တစ်ချက်ကြည့်ပြီး မှန်တဲ့အဖြေ ဘယ်လောက်ရမလဲ ဆုံးဖြတ်ရတာ အရေးကြီးပါတယ်။
+Quantization ပြီးနောက် distance approximation တွင် error ရောဝင်လာသဖြင့် ranking order ပျက်ယွင်းနိုင်ပြီး true nearest neighbor များ top-k အပြင် ရောက်သွားကာ recall ကျဆင်းသည်။ Qdrant docs တွင် quantization သုံးပါက `search` ၌ `oversampling` parameter ဖြင့် candidate ပိုဆွဲ၍ re-scoring လုပ်ရန် အကြံပြုထားသည်။ Memory budget နှင့် recall target နှစ်ခုလုံးကို တစ်ပြိုင်နက် ချိန်ညှိဆုံးဖြတ်ရသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Quantized representation နဲ့ ရှေ့ဆုံး candidate တွေကို များများ ဆွဲထုတ်ပါတယ်။
-၂။ Candidate တိုင်းရဲ့ original full vector (fp32) ကို ပြန်ထုတ်ပါတယ်။
-၃။ Full vector တွေနဲ့ exact score ပြန်တွက်ပါတယ်။
-၄။ Top-k ကို ပြန်ရွေးပါတယ်။
-၅။ Oversampling များရင် recall တက်ပေမယ့် latency တက်ပါတယ်နော်။
+၁။ Quantized representation ဖြင့် candidate များကို oversampling factor ဖြင့် ပိုမိုဆွဲထုတ်သည်။
+၂။ Candidate တစ်ခုချင်းစီ၏ original full-precision (fp32) vector ကို ပြန်ယူသည်။
+၃။ Full vector များဖြင့် exact distance ပြန်တွက်သည်။
+၄။ Re-score ပြီး candidate များထဲမှ top-k ကို ပြန်ရွေးသည်။
+၅။ Oversampling factor မြင့်လေ recall မြင့်လေ၊ တစ်ဖက်တွင် latency နှင့် compute cost မြင့်လေ ဖြစ်သည်။
 
 ### ဥပမာ
 
@@ -118,24 +118,24 @@ for over in (1, 2, 4):  # oversampling factor: fetch k*over then re-score
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Qdrant docs မှာ quantization သုံးတဲ့အခါ re-scoring အတွက် original vectors ထားပြီး oversampling ဆိုတဲ့ နည်းလမ်းကို တရားဝင် ဖော်ပြထားပါတယ်။ ဒီဥပမာက အဲဒီသဘောကို offline Python နဲ့ ပြထားတာပါ။ Production မှာ recall budget နဲ့ memory budget နှစ်ခုလုံးကို တစ်ပြိုင်တည်း ညှိရပါတယ်။
+Qdrant docs တွင် quantization အသုံးပြုချိန်၌ original vector များကို re-scoring အတွက် ထားရှိပြီး oversampling ဖြင့် recall ပြန်လည်ကောင်းမွန်စေသည့် pattern ကို တရားဝင် ဖော်ပြထားသည်။ ဒီဥပမာက ထို mechanism ကို offline Python ဖြင့် ပြသထားခြင်းဖြစ်သည်။ Production တွင် recall budget နှင့် memory budget နှစ်ခုလုံးကို တစ်ပြိုင်နက် ချိန်ညှိရသည်။
 
 ## Subtopic 3 — Product Quantization (PQ) အခြေခံ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Product Quantization (PQ) က Jégou et al. 2011 စာတမ်း (https://arxiv.org/abs/0903.2314) က မိတ်ဆက်ခဲ့တဲ့ နည်းပါတယ်။ FAISS wiki (https://github.com/facebookresearch/faiss/wiki) မှာလည်း `IndexIVFPQ` လိုမျိုးတွေနဲ့ တရားဝင် support လုပ်ပါတယ်။
+Product Quantization (PQ) သည် Jégou et al. 2011 စာတမ်း (https://arxiv.org/abs/0903.2314) တွင် မိတ်ဆက်ထားသော compression နည်းလမ်းဖြစ်သည်။ FAISS wiki (https://github.com/facebookresearch/faiss/wiki) တွင် `IndexIVFPQ` စသည့် index အမျိုးအစားများဖြင့် တရားဝင် support လုပ်ထားသည်။
 
 ### ဘာကြောင့် လဲ
 
-Scalar quantization က တစ်ချည်းချည်း ၄ ဆပဲ သက်သာပါတယ်။ PQ က codebook id (ဥပမာ — 8 bit) တစ်ခုနဲ့ subvector တစ်ခုလုံးကို ကိုယ်စားပြလို့ compression ratio က ပိုကြီးပါတယ်။ ဥပမာ — 768 dim, fp32 vector တစ်ခုက 3072 byte ယူပေမယ့် PQ မှာ subvector 96 ခု၊ id တစ်ခုကို 1 byte ဆိုရင် 96 byte ပဲ ယူပါတယ်။ ဒါက ၃၂ ဆ သက်သာတာပါပဲ။
+Scalar quantization သည် fp32 → int8 အတွက် compression ratio ၄ ဆသာ ပေးနိုင်သည်။ PQ သည် subvector တစ်ခုလုံးကို codebook id တစ်ခု (ဥပမာ — 8 bit) ဖြင့် ကိုယ်စားပြုသဖြင့် compression ratio သိသိသာသာ ပိုမြင့်သည်။ ဥပမာ — 768 dim fp32 vector တစ်ခုသည် 3072 byte ယူသော်လည်း subvector 96 ခု၊ id တစ်ခုလျှင် 1 byte ဆိုပါက 96 byte သာ ယူသည် — ၃၂ ဆ သက်သာသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Vector ရဲ့ dimension တွေကို `m` ခု တန်းတူအပိုင်းလိုက် ခွဲပါတယ်။
-၂။ အပိုင်းတိုင်းအတွက် centroid 256 ခု နဲ့ codebook တစ်ခု တည်ဆောက်ပါတယ်။
-၃။ Vector တစ်ခုချင်းစီကို subvector တိုင်းရဲ့ အနီးဆုံး centroid id တွေနဲ့ encode လုပ်ပါတယ်။
-၄။ Search မှာ encode ထားတဲ့ ကိန်းတွေနဲ့ approximate distance တွက်ပါတယ်။
+၁။ Vector ၏ dimension များကို `m` ခု တန်းတူ subvector အဖြစ် ခွဲခြမ်းသည်။
+၂။ Subspace တစ်ခုချင်းစီအတွက် centroid 256 ခုပါ codebook တစ်ခု တည်ဆောက်သည်။
+၃။ Vector တစ်ခုချင်းစီကို subvector တစ်ခုချင်းစီ၏ အနီးဆုံး centroid id ဖြင့် encode လုပ်သည်။
+၄။ Search အချိန်တွင် code များပေါ်၌ approximate distance တွက်ချက်သည်။
 
 ### ဥပမာ
 
@@ -190,24 +190,24 @@ print("memory: %d bytes -> %d bytes (x%.1f smaller)" % (D * 4, M, (D * 4) / M))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-FAISS wiki မှာ PQ က memory အများဆုံးသက်သာတဲ့ option အဖြစ် ဖော်ပြထားပြီး `m` နဲ့ `nbits` ရွေးချယ်မှုအပေါ် မူတည်ပါတယ်။ Recall က အခြေအနေပေါ် ကျနိုင်တာကြောင့် ကိုယ့် dataset နဲ့ စမ်းကြည့်ပြီး codebook အရွယ် ရွေးရပါတယ်။
+FAISS wiki တွင် PQ ကို memory သက်သာမှု အမြင့်ဆုံး option အဖြစ် ဖော်ပြထားပြီး compression ပမာဏသည် `m` နှင့် `nbits` ရွေးချယ်မှုအပေါ် မူတည်သည်။ Dataset အလိုက် recall ကျဆင်းမှု မတူညီနိုင်သဖြင့် ကိုယ်ပိုင် dataset ပေါ်တွင် စမ်းသပ်ပြီး codebook configuration ရွေးချယ်ရမည်။
 
 ## Subtopic 4 — Dimension ဖြတ်ခြင်း နဲ့ တခြား compression နည်းတွေ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Dimension Reduction (dimension လျှော့ချခြင်း) က memory နဲ့ compute နှစ်ခုလုံး သက်သာစေပါတယ်။ PQ မှာ subvector အပိုင်းရေ `m` ကို လျှော့တာဟာလည်း ဒီနည်းနဲ့ တူတူ ဆင်တာပါပဲ။
+Dimension reduction သည် memory နှင့် compute နှစ်ခုလုံးကို တစ်ပြိုင်နက် သက်သာစေသည်။ PQ တွင် subvector အရေအတွက် `m` လျှော့ချခြင်းသည်လည်း အလားတူ compression axis တစ်ခုဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Distance တွက်တဲ့အခါ dimension တိုင်းကို မြှောက်ပေါင်းရပါတယ်။ Dimension တိုလျှင် latency တိုပါတယ်။ ဒါပေမယ့် အချက်အလက် ဆုံးရှုံးမှု ရှိလာပြီး recall ကျနိုင်ပါတယ်။ ဒီနေရာမှာလည်း အပေးအယူ ရှိတယ်ဆိုတာ မမေ့ပါနော်။
+Distance တွက်ချက်မှုသည် dimension တိုင်းအတွက် multiply-accumulate လုပ်ရသဖြင့် dimension လျော့လေ latency လျော့လေ ဖြစ်သည်။ တစ်ဖက်တွင် information ဆုံးရှုံးမှုကြောင့် ranking error ဖြစ်ပေါ်ပြီး recall ကျဆင်းနိုင်သည် — ဤနေရာတွင်လည်း compression နှင့် recall trade-off တည်ရှိသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Vector တွေရဲ့ အရေးကြီးတဲ့ direction တွေကို ဖော်ပြပါတယ်။
-၂။ အရေးမကြီးတဲ့ component တွေကို ချန်ပစ်ပါတယ်။
-၃။ ကျန်တဲ့ component တွေနဲ့ပဲ ရှာပါတယ်။
-၄။ ကျန်ခဲ့တဲ့အချက်အလက်ကြောင့် recall ဘယ်လောက်ထိခိုက်လဲ တိုင်းပါတယ်။
+၁။ Vector များ၏ အဓိက variance ရှိသော direction များကို ထိန်းသိမ်းသည်။
+၂။ Contribution နည်းသော component များကို ဖယ်ရှားသည်။
+၃။ ကျန်ရှိသော component များဖြင့်သာ search လုပ်သည်။
+၄။ ဖယ်ရှားလိုက်သော information ကြောင့် recall မည်မျှထိခိုက်သည်ကို တိုင်းတာသည်။
 
 ### ဥပမာ
 
@@ -243,25 +243,25 @@ print("recall@5 = %.2f" % r)
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Qdrant docs မှာ တစ်ဖက်က quantization နဲ့ တစ်ဖက်က indexing level (HNSW graph) တွေ ပေါင်းစပ်သုံးတဲ့ နည်းကို ပြောထားပါတယ်။ Memory budget တစ်ခုထဲ အပိုင်းတွေကို ဘယ်လိုခွဲမလဲ ဆိုတာ ဒီမှာလည်း အတူတူပါပဲ။ Model ကိုရွေးတဲ့အခါ သူ့ embedding ရဲ့ dimension အရွယ် ကြိုတွက်ထားဖို့ အရေးကြီးပါတယ်။
+Qdrant docs တွင် quantization နှင့် indexing level (HNSW graph) ကို ပေါင်းစပ်အသုံးပြုသည့် နည်းလမ်းကို ဖော်ပြထားသည်။ Memory budget တစ်ခုတည်းအတွင်း compression axis များကို မည်သို့ ခွဲဝေမည်ဆိုသည့် ဆုံးဖြတ်ချက်နှင့် အတူတူပင်ဖြစ်သည်။ Embedding model ရွေးချယ်ချိန်တွင် ၎င်း၏ output dimension ကြောင့် ဖြစ်ပေါ်မည့် memory footprint ကို ကြိုတင်တွက်ချက်ထားရမည်။
 
 ## Subtopic 5 — Sharding၊ Index Rebuild နဲ့ Write Throughput
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Sharding ဆိုတာ data တွေကို node/server အများအပြားထဲ ခွဲဝေသိမ်းဆည်းသည့် နည်းလမ်းဖြစ်ပါတယ်။ Index rebuild နဲ့ bulk load ရဲ့ နည်းလမ်းတွေကလည်း ဒီခေါင်းစဉ်အောက်တွင် အကျုံးဝင်ပါတယ်။
+Sharding ဆိုသည်မှာ data ကို node/server အများအပြားအကြား ခွဲဝေသိမ်းဆည်းသည့် နည်းလမ်းဖြစ်သည်။ Index rebuild နှင့် bulk load pattern များသည်လည်း ဤခေါင်းစဉ်အောက်တွင် အကျုံးဝင်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Index တစ်ခုကို insert တစ်ခုချင်းနဲ့ တည်ဆောက်ရင် တစ်ခုနဲ့တစ်ခု ကြားမှာ လမ်းကြောင်းတွေ ထပ်တိုးရလို့ အလုပ်များပါတယ်။ Data အားလုံးကို အရင်တင်ပြီးမှ index ဆောက်ရင် (build after load) အမြန်ဆုံး ဖြစ်ပါတယ်။ pgvector README (https://github.com/pgvector/pgvector#performance) မှာလည်း data load ပြီးမှ index create လုပ်ဖို့ အကြံပေးထားပါတယ်။ Server တစ်လုံးထဲ ဒေတာ များပြားလာပါက memory မလုံလောက်ခြင်းနှင့် QPS (Queries Per Second) မတက်နိုင်တော့ခြင်းများ ကြုံရပါတယ်။
+Index တစ်ခုကို insert တစ်ခုချင်းစီဖြင့် တည်ဆောက်ပါက insert တိုင်းတွင် index structure ပြန်လည် update လုပ်ရသဖြင့် per-insert cost မြင့်တက်သည်။ Data အားလုံးကို အရင်တင်ပြီးမှ index တည်ဆောက်ခြင်း (build after load) သည် အမြန်ဆုံး လမ်းကြောင်းဖြစ်သည်။ pgvector README (https://github.com/pgvector/pgvector#performance) တွင်လည်း data load ပြီးမှ index create လုပ်ရန် အကြံပြုထားသည်။ Server တစ်လုံးတည်းတွင် data များပြားလာပါက memory capacity ပြတ်လပ်ခြင်းနှင့် QPS (Queries Per Second) ကန့်သတ်ချက် ရောက်ခြင်းတို့ ဖြစ်ပေါ်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Data တွေကို shard key (partition key) ဖြင့် ခွဲခြားပါတယ်။
-၂။ ရှာတဲ့အခါ shard တိုင်းကို ဝင်ရှာပြီး အဖြေတွေ ပြန်ပေါင်းပါတယ်။
-၃။ Bulk load မှာ ဒေတာအားလုံးကို အရင်တင်ပါတယ်။
-၄။ Index ကို ဒေတာအားလုံး ပြီးမှ တည်ဆောက်ပါတယ်။
-၅။ ရံဖန်ရံခါ index ကို rebuild လုပ်ပြီး query performance ကောင်းမွန်အောင် ထိန်းသိမ်းပါတယ်။
+၁။ Data ကို shard key (partition key) အလိုက် ခွဲဝေသည်။
+၂။ Query အချိန်တွင် shard တိုင်း၌ search လုပ်ပြီး local result များကို merge လုပ်သည်။
+၃။ Bulk load တွင် data အားလုံးကို အရင်တင်သည်။
+၄။ Data load ပြီးဆုံးမှသာ index တည်ဆောက်သည်။
+၅။ Index ကို ပုံမှန် rebuild လုပ်ပြီး query performance ကို ထိန်းသိမ်းသည်။
 
 ### ဥပမာ
 
@@ -311,15 +311,15 @@ CREATE INDEX ON items USING hnsw (embedding vector_cosine_ops);
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-pgvector README မှာ တရားဝင် performance အကြံပေးချက်တွေနဲ့ benchmark နည်းလမ်းတွေ ထည့်ပေးထားပါတယ်။ ဒီအကြံပေးချက်တွေက "insert ပြီးသလို index update လုပ်" ထက် "load အားလုံးပြီးမှ index build" က မြန်တယ် ဆိုတဲ့သဘောပါ။ Sharding က system ကြီးလာတဲ့အခါ horizontal scaling (server ထပ်ထည့်ပြီး ခံနိုင်ရည်တက်အောင် လုပ်တဲ့နည်း) ရဲ့ အခြေခံ ဖြစ်ပါတယ်နော်။
+pgvector README တွင် တရားဝင် performance အကြံပြုချက်များနှင့် benchmark နည်းလမ်းများ ပါဝင်သည်။ ၎င်းအကြံပြုချက်များ၏ အနှစ်ချုပ်မှာ — insert တိုင်း၌ index update လုပ်ခြင်းထက် load အားလုံးပြီးမှ index build လုပ်ခြင်းက write throughput သိသိသာသာ ပိုမြန်သည်။ Sharding သည် system ကြီးထွားလာချိန်တွင် horizontal scaling (server အရေအတွက် တိုး၍ capacity တိုးချဲ့ခြင်း) ၏ အခြေခံဖြစ်သည်။
 
 ## အနှစ်ချုပ်
 
-- Quantization (scalar, binary, product) က vector memory ကို ၄ ဆ သို့မဟုတ် ၄ ဆထက်ပို သက်သာစေပါတယ်။
-- Memory သက်သာလာရင် recall ကျနိုင်တဲ့ အပေးအယူ အမြဲရှိပါတယ်။
-- Oversampling နဲ့ re-scoring က quantization ရဲ့ recall ပျောက်ဆုံးမှုကို ပြန်ဖြည့်ပေးပါတယ်။
-- PQ က vector ကို subvector အပိုင်းလိုက် ကုဒ်နံပါတ်နဲ့ သိမ်းတဲ့နည်း ဖြစ်ပါတယ်။
-- Dimension ဖြတ်ခြင်းက compute ပါ သက်သာစေပေမယ့် အချက်အလက် ဆုံးရှုံးမှု ရှိပါတယ်။
-- Sharding က data ကို server အများထဲ ခွဲပြီး scale တက်စေပါတယ်။
-- Build after load — ဒေတာအားလုံး အရင်တင်ပြီးမှ index တည်ဆောက်တာက write throughput အကောင်းဆုံး နည်းပါတယ်။
-- တရားဝင် sources: https://arxiv.org/abs/0903.2314 , https://qdrant.tech/documentation/guides/quantization/ , https://github.com/facebookresearch/faiss/wiki , https://github.com/pgvector/pgvector#performance တို့ကို ဖတ်ကြည့်ဖို
+- Quantization (scalar, binary, product) သည် vector memory footprint ကို ၄ ဆ သို့မဟုတ် ထို့ထက်ပို၍ လျှော့ချပေးသည်။
+- Memory reduction တိုင်းတွင် recall degradation ၏ trade-off အမြဲ ပါဝင်သည်။
+- Oversampling နှင့် re-scoring သည် quantization ကြောင့် ဆုံးရှုံးသော recall ကို ပြန်လည်ကောင်းမွန်စေသည်။
+- PQ သည် vector ကို subvector အလိုက် codebook id ဖြင့် encode လုပ်သည့် နည်းလမ်းဖြစ်သည်။
+- Dimension reduction သည် compute ကိုပါ သက်သာစေသော်လည်း information ဆုံးရှုံးမှု ရှိသည်။
+- Sharding သည် data ကို server အများအပြားအကြား ခွဲဝေ၍ scale တိုးစေသည်။
+- Build after load — data အားလုံး တင်ပြီးမှ index တည်ဆောက်ခြင်းသည် write throughput အမြင့်ဆုံး pattern ဖြစ်သည်။
+- တရားဝင် sources: https://arxiv.org/abs/0903.2314 , https://qdrant.tech/documentation/guides/quantization/ , https://github.com/facebookresearch/faiss/wiki , https://github.com/pgvector/pgvector#performance တို့ကို ဖတ်ရှုလေ့လာပါ။

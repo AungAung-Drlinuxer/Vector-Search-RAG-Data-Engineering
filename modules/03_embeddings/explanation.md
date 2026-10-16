@@ -1,7 +1,7 @@
 # M3 — Embedding Model ရွေးချယ်မှု၊ Dimension၊ Distance Metric နှင့် Caching
 
-ဒီ module မှာ embedding model ဘယ်လိုရွေးမလဲ၊ dimension နဲ့ storage ဘယ်လိုတွက်မလဲ၊ distance metric တွေရဲ့ ဆက်စပ်မှု၊ caching နဲ့ version စီမံခန့်ခွဲမှုကို လေ့လာကြပါမယ်။
-ရည်ညွှန်း documentation တွေကတော့ arXiv စာတမ်း (2210.07316, 2309.07597, 2212.03533, 2205.13147) တွေနဲ့ https://sbert.net/ ပါ။
+ဒီ module တွင် embedding model ရွေးချယ်မှု စံနှုန်းများ၊ dimension နှင့် storage တွက်ချက်ခြင်း၊ distance metric များ၏ ဆက်စပ်မှု၊ caching နှင့် version စီမံခန့်ခွဲမှုကို လေ့လာသည်။
+ရည်ညွှန်း documentation များမှာ arXiv စာတမ်းများ (2210.07316, 2309.07597, 2212.03533, 2205.13147) နှင့် https://sbert.net/ တို့ ဖြစ်သည်။
 
 ---
 
@@ -9,25 +9,25 @@
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Embedding model ဆိုတာ text ကို number အစုအဝေး (vector) အဖြစ်ပြောင်းပေးတဲ့ model ပါ။
-Vector ထဲမှာ စကားလုံးရဲ့ အဓိပ္ပာယ်ကို number တွေနဲ့ capture လုပ်ထားပါတယ်။
-Multilingual model ဆိုတာ ဘာသာစကား များစွာကို တစ်ခုတည်းရဲ့ vector space ထဲမှာ ပြောင်းပေးနိုင်တဲ့ model ကို ဆိုလိုပါတယ်။
+Embedding model သည် text ကို dense vector တစ်ခုအဖြစ် ပြောင်းလဲပေးသော model ဖြစ်သည်။
+Vector အတွင်းတွင် စာသား၏ semantic information ကို numeric form ဖြင့် encode လုပ်ထားသည်။
+Multilingual model သည် ဘာသာစကား များစွာကို single shared vector space တစ်ခုအတွင်း embed လုပ်နိုင်သော model ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Model မှားရွေးရင် ရှာတွေ့မှု အရည်အသွေး ကျဆင်းပါတယ်။
-ဥပမာ — အင်္ဂလိပ် corpus နဲ့ train လုပ်ထားတဲ့ model ကို မြန်မာစာ နဲ့ သုံးရင် အဓိပ္ပာယ်မတူတဲ့ စာတွေကို ဆင်တူတယ်လို့ မှားပြပါတယ်။
-ဒါကြောင့် corpus က ဘာသာ ဘယ်လောက်ပါလဲ၊ domain က ဘာလဲဆိုတာကို အရင်စဉ်းစားရပါတယ်။
-MTEB စာတမ်း (arXiv 2210.07316) မှာ embedding တွေရဲ့ တကယ့်အလုပ်လုပ်ပုံကို စမ်းသပ်တဲ့ benchmark အကြောင်း ရှင်းပြထားပါတယ်။
-ဒါကြောင့် model ရွေးတဲ့အခါ benchmark ရလဒ်ကို ကြည့်ပြီး ရွေးသင့်ပါတယ်။
+Model ရွေးချယ်မှု မှားယွင်းပါက retrieval quality ကျဆင်းသည်။
+ဥပမာ — English corpus ဖြင့် train လုပ်ထားသော model ကို မြန်မာစာအတွက် အသုံးပြုပါက semantic မတူညီသော စာသားများကို မြင့်မားသော similarity score ဖြင့် မှားယွင်းစွာ ရမှတ်ပေးသည်။
+ထို့ကြောင့် corpus ၏ ဘာသာစကား ဖွဲ့စည်းမှုနှင့် domain ကို ဦးစွာ သတ်မှတ်ရန် လိုအပ်သည်။
+MTEB စာတမ်း (arXiv 2210.07316) တွင် embedding model များ၏ လုပ်ငန်းဆောင်တာကို စမ်းသပ်သည့် benchmark ကို ဖော်ပြထားသည်။
+Model ရွေးချယ်ရာတွင် benchmark ရလဒ်များကို အခြေခံ၍ ဆုံးဖြတ်သင့်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ ကိုယ့် corpus ရဲ့ ဘာသာစကား အခြေအနေကို စစ်ပါ — မြန်မာလား၊ multilingual လား။
-၂။ Domain ကို သတ်မှတ်ပါ — ဥပမာ ဆေးဘက်စာ၊ ဥပဒေစာ၊ general စာ။
-၃။ ထိပ်တန်း MTEB-style benchmark ရလဒ်တွေနဲ့ နာမည်ကြီး model တွေကို နှိုင်းယှဉ်ပါ။
-၄။ ကိုယ့် data အတွက် ကိုယ်ပိုင် သေးသေးလေး evaluation set ဆောက်ပါ — လက်တွေ့ကျပါတယ်။
-၅။ Model size၊ license၊ speed တွေကို အထက်ဖော်ပြချက်တွေနဲ့ တွဲပြီး ဆုံးဖြတ်ပါ။
+၁။ Corpus ၏ ဘာသာစကား ဖွဲ့စည်းမှုကို စစ်ဆေးပါ — monolingual (မြန်မာ) လား၊ multilingual လား။
+၂။ Domain ကို သတ်မှတ်ပါ — ဥပမာ ဆေးဘက်ဆိုင်ရာ၊ ဥပဒေ၊ general text။
+၃။ MTEB-style benchmark ရလဒ်များတွင် ဦးဆောင်နေသော model များကို နှိုင်းယှဉ်ပါ။
+၄။ ကိုယ်ပိုင် data အတွက် သေးငယ်သော labeled evaluation set တစ်ခု တည်ဆောက်ပါ — benchmark စာရင်းများထက် ပိုမိုတိကျသော ဆုံးဖြတ်ချက် ရရှိစေသည်။
+၅။ Model size၊ license၊ inference speed တို့ကို အထက်ပါ စံနှုန်းများနှင့် တွဲဖက်၍ ဆုံးဖြတ်ပါ။
 
 ### ဥပမာ
 
@@ -59,9 +59,9 @@ for m in candidates:
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-မြန်မာ corpus အတွက် multilingual model ရွေးတာက အရေးကြီးဆုံး ဆုံးဖြတ်ချက်ပါ။
-မှားရင် နောက်ပိုင်း tuning လုပ်တာ ခက်ပြီး အချိန်ကုန်ပါတယ်။
-Model တစ်ခြမ်းလွဲရင် နောက်စနစ်တစ်ခုလုံး လွဲသွားတတ်ပါတယ်နော်။
+မြန်မာ corpus အတွက် multilingual model ရွေးချယ်မှုသည် အရေးအပါဆုံး ဆုံးဖြတ်ချက် ဖြစ်သည်။
+Model ရွေးချယ်မှု မှားယွင်းပါက downstream tuning ဖြင့် ပြင်ဆင်ရန် ခက်ခဲပြီး ကုန်ကျစရိတ် မြင့်မားသည်။
+Embedding layer မှားယွင်းပါက စနစ်တစ်ခုလုံး၏ retrieval quality ကျဆင်းသွားသည်။
 
 ---
 
@@ -69,25 +69,25 @@ Model တစ်ခြမ်းလွဲရင် နောက်စနစ်တ�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Dimension (dim) ဆိုတာ vector တစ်ခုထဲမှာ number ဘယ်လောက်ပါလဲဆိုတာကို ဆိုလိုပါတယ်။
-ဥပမာ — 768 dim ဆိုရင် vector ထဲမှာ number ၇၆၈ လုံးပါတယ်။
-Storage ကတော့ ဒီ number တွေကို သိမ်းဖို့ disk ဘယ်လောက်လိုမလဲ ဆိုတာပါ။
+Dimension (dim) ဆိုသည်မှာ vector တစ်ခုတွင် ပါဝင်သော scalar value အရေအတွက် ဖြစ်သည်။
+ဥပမာ — dim 768 ဖြစ်ပါက vector တစ်ခုတွင် float value ၇၆၈ ခု ပါဝင်သည်။
+Storage ဆိုသည်မှာ ထို value များ သိမ်းဆည်းရန် လိုအပ်သော disk ပမာဏ ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Dimension မြင့်ရင် အဓိပ္ပာယ် ပိုစုံပေမယ့် storage လည်း များပါတယ်။
-Storage ကြောင့် ရှာဖွေမှု speed ထိခိုက်ပြီး ကုန်ကျစရိတ်လည်း တက်ပါတယ်။
-ဒါကြောင့် ကြိုတွက်ပြီး ဒီဇိုင်းလုပ်ဖို့ လိုပါတယ်။
-Formula ကတော့ — တစ် vector ရဲ့ byte = dim × 4 (fp32 အတွက်) ပါ။
-fp32 ဆိုတာ number တစ်ခုကို 4 byte နဲ့ သိမ်းတဲ့ နည်းပါ။
+Dimension မြင့်လေ semantic representation ပိုမိုစုံလင်လေ ဖြစ်သော်လည်း storage ပမာဏလည်း တိုးပွားလေ ဖြစ်သည်။
+Storage ပမာဏသည် search speed ကို သက်ရောက်မှုရှိပြီး infrastructure ကုန်ကျစရိတ်လည်း တိုးစေသည်။
+ထို့ကြောင့် capacity ကို ကြိုတင်တွက်ချက်ပြီး ဒီဇိုင်းချရန် လိုအပ်သည်။
+Formula — vector တစ်ခု၏ byte ပမာဏ = dim × 4 (fp32 အတွက်)။
+fp32 သည် float value တစ်ခုကို 4 byte ဖြင့် သိမ်းဆည်းသော precision format ဖြစ်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
 ၁။ Vector အရေအတွက်ကို သတ်မှတ်ပါ။
 ၂။ Dimension ကို သတ်မှတ်ပါ။
-၃။ တစ် vector bytes = dim × 4 လို့ တွက်ပါ။
-၄။ စုစုပေါင်း bytes = အရေအတွက် × တစ် vector bytes လို့ တွက်ပါ။
-၅။ GB ပြောင်းဖို့ 10 ကိုး (1,000,000,000) နဲ့ စားပါ။
+၃။ Vector တစ်ခု၏ byte ပမာဏ = dim × 4 ဖြင့် တွက်ချက်ပါ။
+၄။ စုစုပေါင်း byte = vector အရေအတွက် × vector တစ်ခု၏ byte ဖြင့် တွက်ချက်ပါ။
+၅။ GB သို့ ပြောင်းရန် 10⁹ (1,000,000,000) ဖြင့် စားပါ။
 
 ### ဥပမာ
 
@@ -114,10 +114,10 @@ print(f"total      : {total_gb} GB")
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Vector သန်းပေါင်းများစွာ သိမ်းတဲ့အခါ storage က အလွန်အမင်း တက်သွားတတ်ပါတယ်။
-ကြိုတွက်ထားရင် server capacity ကို မှန်မှန်ကန်ကန် စားပါတယ်။
-pgvector မှာ သိမ်းတဲ့ vector type (vector သို့ halfvec) အလိုက် size က ပြောင်းပါတယ်။
-PostgreSQL + pgvector stack မှာ index memory ကိုပါ တွဲတွက်ဖို့ လိုပါတယ်နော်။
+Vector သန်းချီ သိမ်းဆည်းသောအခါ storage ပမာဏ သိသာစွာ တိုးပွားသည်။
+ကြိုတင်တွက်ချက်ထားပါက server capacity planning ကို တိကျစွာ ပြုလုပ်နိုင်သည်။
+pgvector တွင် vector type (vector သို့ halfvec) အလိုက် storage size ကွာခြားသည်။
+PostgreSQL + pgvector stack တွင် index memory footprint ကိုပါ တွဲဖက်တွက်ချက်ရန် လိုအပ်သည်။
 
 ---
 
@@ -125,23 +125,22 @@ PostgreSQL + pgvector stack မှာ index memory ကိုပါ တွဲတ�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-L2 normalization ဆိုတာ vector ရဲ့ အလျား (length) ကို 1 အဖြစ် ပြောင်းလိုက်တဲ့ လုပ်ဆောင်ချက်ပါ။
-အလျားဆိုတာ vector ရဲ့ magnitude (ပမာဏ) ကို ဆိုလိုပါတယ်။
-Normalize လုပ်ပြီးရင် vector ရဲ့ ဦးတည်ချက် (direction) ကိုပဲ ကျန်ပါတယ်။
+L2 normalization ဆိုသည်မှာ vector ၏ L2 norm (magnitude) ကို 1 ဖြစ်အောင် ပြောင်းလဲသည့် operation ဖြစ်သည်။
+Normalize ပြုလုပ်ပြီးနောက် vector တွင် direction information သာ ကျန်ရှိသည်။
 
 ### ဘာကြောင့် လဲ
 
-Distance metric သုံးမျိုးရဲ့ ဆက်စပ်မှုက ဒီ normalization အပေါ် မူတည်ပါတယ်။
-Normalize လုပ်ထားတဲ့ vector တွေမှာ — cosine similarity နဲ့ dot product က တူညီတဲ့ ranking ပေးပါတယ်။
-ဒါကြောင့် pgvector မှာ normalized vector တွေသာ သိမ်းရရင် dot product (fast) ကို သုံးပြီး cosine နဲ့ တူညီတဲ့ ရလဒ်ရပါတယ်။
-Normalize မလုပ်ရင် dot product က vector ပမာဏကြီးတဲ့ အရာတွေကို မြှောက်ပေးလို့ ranking မှားပါတယ်။
+Distance metric သုံးမျိုး၏ ဆက်စပ်မှုသည် ဒီ normalization အပေါ် မူတည်သည်။
+Normalized vector များအတွက် cosine similarity နှင့် dot product သည် တူညီသော ranking ပေးသည်။
+ထို့ကြောင့် normalized vector များကိုသာ သိမ်းဆည်းပါက dot product (ပိုမိုမြန်ဆန်သည်) ဖြင့် cosine နှင့် တူညီသော ရလဒ် ရရှိနိုင်သည်။
+Normalization မပြုလုပ်ပါက dot product သည် magnitude ကြီးမားသော vector များကို ဦးစားပေးသဖြင့် ranking ပုံပျက်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Vector တစ်ခုရဲ့ norm (အလျား) ကို တွက်ပါ — တန်ဖိုးတစ်ခုစီရဲ့ နှစ်ထပ်ကိန်းပေါင်းပြီး square root ရှာပါ။
-၂။ တန်ဖိုးတစ်ခုစီကို norm နဲ့ စားပါ။
-၃။ ရလဒ် vector ရဲ့ norm က 1 ဖြစ်သွားပါတယ်။
-၄။ Normalized vector တွေအတွက် cosine = dot ဖြစ်တာကို စစ်ပါ။
+၁။ Vector ၏ norm ကို တွက်ချက်ပါ — value တစ်ခုစီ၏ နှစ်ထပ်ကိန်း ပေါင်းလဒ်၏ square root ဖြစ်သည်။
+၂။ Value တစ်ခုစီကို norm ဖြင့် စားပါ။
+၃။ ရလဒ် vector ၏ norm သည် 1 ဖြစ်လာသည်။
+၄။ Normalized vector များအတွက် cosine = dot ဖြစ်ကြောင်း စစ်ဆေးပါ။
 
 ### ဥပမာ
 
@@ -182,11 +181,11 @@ print("cos(norm)  :", cosine(na, nb))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Cosine က စာသားရှာဖွေမှုမှာ သုံးများတဲ့ metric ပါ။
-Normalize လုပ်ထားရင် dot product နဲ့ ပိုမြန်စေပြီး ရလဒ်တူပါတယ်။
-PostgreSQL + pgvector မှာ `<=>` (cosine) နဲ့ `<#>` (negative dot) operator တွေကို သုံးလို့ရပါတယ်။
-Model တချို့ (arXiv 2212.03533 — GeText စာတမ်းအုပ်စု) က normalize လုပ်ထားတဲ့ output ပေးပါတယ်။
-SQL ကို ဒီလို သုံးလို့ရပါတယ် —
+Cosine သည် text retrieval တွင် အသုံးအများဆုံး metric ဖြစ်သည်။
+Vector များ normalized ဖြစ်နေပါက dot product ကို အသုံးပြုခြင်းဖြင့် query speed မြင့်တက်ပြီး ရလဒ် ranking မှာ တူညီသည်။
+PostgreSQL + pgvector တွင် `<=>` (cosine distance) နှင့် `<#>` (negative dot product) operator များ ရရှိနိုင်သည်။
+Model အချို့ (arXiv 2212.03533 — GeText စာတမ်းအုပ်စု) သည် normalized output ကို တိုက်ရိုက်ထုတ်ပေးသည်။
+SQL အသုံးပြုပုံ ဥပမာ —
 
 ```sql
 -- Valid for PostgreSQL with the pgvector extension (never executed here).
@@ -208,24 +207,24 @@ LIMIT 5;                         -- a '[...]' literal with fewer fails: expected
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Matryoshka embedding ဆိုတာ vector ရဲ့ ရှေ့ပိုင်း အပိုင်းကိုပဲ ဖြတ်သုံးလို့ရတဲ့ model ကို ဆိုလိုပါတယ်။
-နာမည်က ရုရှား puppet အထုပ် (အကြီးထဲ အသေးဝင်) ကနေ လာပါတယ်။
-ဥပမာ — 1024 dim vector ရဲ့ ရှေ့ 256 ခုကိုပဲ သုံးလို့ရပါတယ်။
+Matryoshka embedding ဆိုသည်မှာ vector ၏ ရှေ့ပိုင်း prefix ကို သီးသန့် ဖြတ်ယူ၍ အသုံးပြုနိုင်သော representation ဖြစ်သည်။
+အမည်မှာ ရုရှား matryoshka doll (အကြီးထဲတွင် အသေး ထည့်ထားသော အရုပ်) မှ ဆင်းသက်လာသည်။
+ဥပမာ — dim 1024 vector ၏ ရှေ့ပိုင်း 256 dimension ကို သီးသန့် အသုံးပြုနိုင်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Storage ချွေတာချင်ပေမယ့် accuracy လည်း ဆုံးရှုံးစေချင်ပါတယ်။
-Matryoshka နည်း (arXiv 2205.13147) က သင်ယူချိန်မှာ ရှေ့ပိုင်း dims တွေကို အဓိပ္ပာယ်အပြည့် ပါအောင် စောစော train လုပ်ပေးပါတယ်။
-ဒါကြောင့် ဖြတ်လိုက်တဲ့ အပိုင်းက လုပ်ငန်းသုံးလို့ရတဲ့ အရည်အသွေး ရှိပါတယ်။
-Reranking မှာ ကြီးတဲ့ dim အပြည့်၊ screening မှာ သေးတဲ့ dim — ဒီလို နှစ်ဆင့် သုံးလို့ရပါတယ်။
+Storage ချွေတာလိုသော်လည်း accuracy ဆုံးရှုံးမှုကိုလည်း ကန့်သတ်လိုသည်။
+Matryoshka နည်း (arXiv 2205.13147) တွင် training အဆင့်၌ prefix dimension များကိုပင် သီးသန့် objective ဖြင့် train လုပ်သဖြင့် prefix များတွင် semantic information စုစည်းနေသည်။
+ထို့ကြောင့် truncate လုပ်ထားသော vector သည် production အသုံးပြုနိုင်သော quality ရှိသည်။
+Screening အဆင့်တွင် dim အသေး၊ reranking အဆင့်တွင် dim အပြည့် — နှစ်ဆင့် ခွဲ၍ အသုံးပြုနိုင်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ Model ထုတ်ပေးတဲ့ vector အပြည့်ကို ယူပါ။
-၂။ ကိုယ်လိုချင်တဲ့ dim (ဥပမာ 256) ကို သတ်မှတ်ပါ။
-၃။ Vector ရဲ့ ရှေ့ပိုင်း 256 ခုကို ဖြတ်ယူပါ။
-၄။ ဖြတ်ထားတဲ့ အပိုင်းကို ပြန် normalize လုပ်ပါ။
-၅။ ချက်ချင်း screening လုပ်ပြီး ကောင်းတဲ့ candidate တွေကို အပြည့်နဲ့ rerank လုပ်ပါ။
+၁။ Model ၏ full-dimension vector output ကို ယူပါ။
+၂။ လိုချင်သော truncated dim (ဥပမာ 256) ကို သတ်မှတ်ပါ။
+၃။ Vector ၏ ရှေ့ပိုင်း prefix 256 dimension ကို ဖြတ်ယူပါ။
+၄။ ဖြတ်ယူထားသော vector ကို ပြန်လည် L2 normalize ပြုလုပ်ပါ။
+၅။ Truncated vector ဖြင့် screening ပြုလုပ်ပြီး၊ top candidate များကို full-dimension vector ဖြင့် rerank ပြုလုပ်ပါ။
 
 ### ဥပမာ
 
@@ -265,9 +264,9 @@ print("truncated norm :", math.sqrt(sum(x * x for x in truncate_renorm(full, 4))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Large corpus မှာ storage နဲ့ search ကုန်ကျစရိတ်က အဓိက ပြဿနာပါ။
-Matryoshka နဲ့ သေးတဲ့ dim ကို အဆင့်တစ် (screening) မှာ သုံးပြီး ကြီးတဲ့ dim ကို အဆင့်နှစ် (rerank) မှာ သုံးနိုင်ပါတယ်။
-ဒါက speed နဲ့ accuracy ကို ချိန်ညှိပေးပါတယ်နော်။
+Large-scale corpus တွင် storage နှင့် query ကုန်ကျစရိတ်သည် အဓိက ကန့်သတ်ချက် ဖြစ်သည်။
+Matryoshka ဖြင့် truncated dim ကို အဆင့်တစ် (screening) တွင်လည်းကောင်း၊ full dim ကို အဆင့်နှစ် (reranking) တွင်လည်းကောင်း အသုံးပြုနိုင်သည်။
+ဒီ နှစ်ဆင့် approach သည် speed နှင့် accuracy ကြား trade-off ကို ချိန်ညှိပေးသည်။
 
 ---
 
@@ -275,34 +274,34 @@ Matryoshka နဲ့ သေးတဲ့ dim ကို အဆင့်တစ် (
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-Batch encoding ဆိုတာ text အစုအဝေးကို တစ်ခါတည်း model ထဲ ထည့်တဲ့ နည်းပါ။
-Cache ဆိုတာ တစ်ခါတွက်ပြီးတဲ့ embedding ကို နောက်ထပ် မတွက်ရအောင် သိမ်းထားတဲ့ စနစ်ပါ။
-Version စီမံခန့်ခွဲမှု ဆိုတာ model ပြောင်းတဲ့အခါ embedding တွေကို ဘယ်လို နောက်ဆက် ဆက်ထားမလဲဆိုတာပါ။
+Batch encoding ဆိုသည်မှာ text အုပ်စုတစ်ခုကို model ထဲသို့ တစ်ကြိမ်တည်း ပေးပို့၍ encode ပြုလုပ်ခြင်း ဖြစ်သည်။
+Cache ဆိုသည်မှာ ယခင်တွက်ချက်ပြီးသော embedding များကို သိမ်းဆည်းထားပြီး ပြန်လည်တွက်ချက်မှု ရှောင်ရှားသည့် စနစ် ဖြစ်သည်။
+Version စီမံခန့်ခွဲမှု ဆိုသည်မှာ embedding model ပြောင်းလဲသောအခါ vector များ၏ model version ကို ခြေရာခံ ထိန်းသိမ်းခြင်း ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-တူညီတဲ့ text ကို ထပ်ခါထပ်ခါ encode လုပ်ရင် အချိန်နဲ့ငွေ အမြောက်အမြား ဆုံးပါတယ်။
-Model ပြောင်းလိုက်တဲ့အခါ vector space တစ်ခုလုံး ပြောင်းသွားပါတယ်။
-အသစ်နဲ့ အဟောင်း vector တွေကို ရောရှာရင် ranking မှားပါတယ်။
-ဒါကြောင့် version tag ခံပြီး သီးသန့် index ဆောက်ဖို့ လိုပါတယ်။
+တူညီသော text ကို ထပ်ခါထပ်ခါ encode ပြုလုပ်ပါက compute အချိန်နှင့် ကုန်ကျစရိတ် မြင့်မားသည်။
+Embedding model ပြောင်းလဲလိုက်ပါက vector space တစ်ခုလုံး ပြောင်းလဲသွားသည်။
+Version မတူညီသော vector များကို တစ် index တည်းတွင် ရောနှောရှာဖွေပါက similarity score များ အဓိပ္ပာယ်မရှိတော့ဘဲ ranking ပုံပျက်သည်။
+ထို့ကြောင့် version tag ခံပြီး index ကို သီးသန့် တည်ဆောက်ရန် လိုအပ်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
 ၁။ Batch size သတ်မှတ်ပါ — ဥပမာ 32။
-၂။ Text တွေကို batch အလိုက် ခွဲပါ။
-၃။ Cache key ကို (model_version, text hash) နဲ့ ဆောက်ပါ။
-၄။ Cache မှာ ရှိရင် မတွက်ပဲ ယူသုံးပါ။
-၅။ Model ပြောင်းတဲ့အခါ version အသစ်နဲ့ တွက်ပြီး index အသစ်ဆောက်ပါ — တစ်ခါတည်း လဲလှယ်ပါ။
-၆။ Cache ကို version ခွဲထားတာကြောင့် model ပြောင်းရင် အဟောင်း cache ကို မှားသုံးတာ ရှောင်နိုင်ပါတယ်။
+၂။ Text များကို batch များအလိုက် ခွဲပါ။
+၃။ Cache key ကို (model_version, text hash) အဖြစ် တည်ဆောက်ပါ။
+၄။ Cache hit ဖြစ်ပါက ပြန်လည်တွက်ချက်မှု မပြုလုပ်ဘဲ သိမ်းထားသော vector ကို အသုံးပြုပါ။
+၅။ Model ပြောင်းလဲသောအခါ version အသစ်ဖြင့် embedding များကို ပြန်လည်တွက်ချက်ပြီး index အသစ် တည်ဆောက်ပါ — atomic swap ဖြင့် အစားထိုးပါ။
+၆။ Cache ကို version ခွဲ၍ သိမ်းထားသဖြင့် model ပြောင်းပြီးနောက် version မကိုက်ညီသော cache ကို မှားယွင်းစွာ အသုံးပြုမိခြင်းကို ကာကွယ်နိုင်သည်။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Embedding ကို တစ်ခါ ပြောင်းလိုက်ရင် index တစ်ခုလုံး ပြန်တွက်ရပါတယ်။ Version မှတ်ထားရင် ဘယ် chunk က ဘယ် model နဲ့ တွက်ထားလဲ သိပြီး migration ကို တစ်ဆင့်ချင်း လုပ်နိုင်ပါတယ်။
+Embedding model တစ်ကြိမ် ပြောင်းလဲလိုက်ပါက index တစ်ခုလုံးကို ပြန်လည်တွက်ချက်ရသည်။ Version မှတ်တမ်း ရှိနေပါက chunk တစ်ခုစီကို ဘယ် model ဖြင့် တွက်ချက်ထားကြောင်း ခွဲခြားသိရှိနိုင်ပြီး migration ကို အဆင့်လိုက် လုပ်ဆောင်နိုင်သည်။
 
 ## အနှစ်ခုပ်
 
-- Model ရွေးချယ်မှုက ဘာသာစကားနှင့် domain ပေါ်မှာ မူတည်ပါတယ်။
-- Dimension က storage နှင့် ကုန်ကျစရိတ်ကို တိုက်ရိုက် ဆုံးဖြတ်ပါတယ်။
-- Normalize လုပ်ပြီးရင် cosine နှင့် dot product အဖြေ တူပါတယ်။
-- Matryoshka ဖြင့် dimension ဖြတ်တာက သေးတဲ့ index ကို ဖန်တီးပေးပါတယ်။
-- Embedding version ကို cache နှင့် index မှာ တွဲမှတ်ထားပါ။
+- Model ရွေးချယ်မှုသည် corpus ၏ ဘာသာစကားနှင့် domain အပေါ် မူတည်သည်။
+- Dimension သည် storage ပမာဏနှင့် ကုန်ကျစရိတ်ကို တိုက်ရိုက် ဆုံးဖြတ်သည်။
+- L2 normalization ပြုလုပ်ပြီးနောက် cosine နှင့် dot product တို့၏ ranking ရလဒ် တူညီသည်။
+- Matryoshka truncation ဖြင့် storage ပမာဏ သေးငယ်သော index တည်ဆောက်နိုင်သည်။
+- Embedding version ကို cache နှင့် index တို့တွင် တွဲဖက်မှတ်တမ်းတင်ထားရမည်။

@@ -1,48 +1,48 @@
 ## လေ့ကျင့်ခန်း ၁ — Fixed-size chunking ကို လက်တွေ့စမ်းကြည့်ပါ
 
-ဒီလေ့ကျင့်ခန်းမှာ fixed-size chunking (စာသားကို အရွယ်အတိအကျ ဖြတ်တာ) ကို Python နဲ့ ရေးပါ။ စာသားတစ်ခုကို စာလုံး ၅၀ စီနဲ့ ဖြတ်ပြီး chunk စာရင်း ထုတ်ပါ။ ကိုယ်တိုင်ရေးထားတဲ့ စာသားနဲ့ စမ်းပါ။
+ဒီလေ့ကျင့်ခန်းတွင် fixed-size chunking ကို Python ဖြင့် တည်ဆောက်ပါ။ စာသားတစ်ခုကို စာလုံး ၅၀ စီဖြင့် ဖြတ်တောက်ပြီး chunk စာရင်း ထုတ်ပါ။ ကိုယ်ပိုင်ရေးသားထားသော စာသားဖြင့် စမ်းသပ်ပါ။
 
-**Hints:** `range` နဲ့ list slicing ကိုသုံးပါ။ စာလုံးခွဲရန် `str.split()` လုံလောက်ပါတယ်။
+**Hints:** `range` နှင့် list slicing ကို သုံးပါ။ Word-level ခွဲခြမ်းရန် `str.split()` လုံလောက်သည်။
 
-**Expected behavior:** စာသားကို စာလုံး ၅၀ စီရှိတဲ့ အပိုင်းများအဖြစ် ပြပါတယ်။ chunk တိုင်းရဲ့ အရွယ်အစား အတိအကျ ၅၀ ရှိမှုကို လက်တွေ့ကြည့်ရှုနိုင်ပါတယ်။
+**Expected behavior:** စာသားကို စာလုံး ၅၀ စီပါသော chunk များအဖြစ် ထုတ်ပြသည်။ Chunk တိုင်း၏ အရွယ်အစား အတိအကျ ၅၀ ဖြစ်မှုကို စစ်ဆေးနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — Overlap ထည့်ပြီး စာကြောင်းပျက်မှု ကာကွယ်ပါ
 
-Overlap (chunk နှစ်ခုကြား ထပ်နေတဲ့ စာသား) မပါတဲ့ fixed-size chunking မှာ ဝါကျတစ်ခု နှစ်ပိုင်းကွဲသွားတာကို မြင်ရပါမယ်။ chunk size ၃၀ နဲ့ overlap ၁၀ သုံးပြီး ဒီပျက်ကွက်မှု သက်သာသွားတာကို ပြပါ။ နှစ်မျိုးစလုံးရဲ့ output ကို ယှဉ်ပြီး ရေးပါ။
+Overlap မပါသော fixed-size chunking တွင် စာကြောင်းတစ်ခု နှစ်ပိုင်း ကွဲသွားခြင်းကို တွေ့ရမည်။ chunk size ၃၀ နှင့် overlap ၁၀ သုံးပြီး boundary ပြတ်တောက်မှု သက်သာသွားကြောင်း ပြသပါ။ Configuration နှစ်မျိုးလုံး၏ output ကို နှိုင်းယှဉ်ရေးပါ။
 
-**Hints:** step ကို `chunk_size - overlap` သုံးပါ။ overlap ၁၀ မှ သုညအထိ ပြောင်းကြည့်ပါ။
+**Hints:** step ကို `chunk_size - overlap` ဖြင့် သတ်မှတ်ပါ။ Overlap ၁၀ မှ သုညအထိ ပြောင်းလဲစမ်းသပ်ပါ။
 
-**Expected behavior:** overlap မပါတဲ့အခါ ဝါကျတစ်ချောင်း နှစ် chunk ကြား ပြတ်သွားတာ မြင်ရပါတယ်။ overlap ထည့်ရင် ထပ်နေတဲ့ စာလုံးများကြောင့် အဓိပ္ပာယ် ဆက်နေတာ လက်တွေ့စစ်ကြည့်နိုင်ပါတယ်။
+**Expected behavior:** Overlap မပါသောအခါ စာကြောင်းတစ်ကြောင်း chunk နှစ်ခုကြား ပြတ်တောက်သွားသည်။ Overlap ထည့်ပါက ထပ်နေသော စာလုံးများကြောင့် context ဆက်စပ်မှု မပြတ်တောက်ကြောင်း စစ်ဆေးနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Recursive text splitting အလုပ်လုပ်ပုံ ပြန်ရေးပါ
 
-Recursive splitter (ကြားခံ အမှတ်အသားများနဲ့ အဆင့်ဆင်း ဖြတ်တဲ့ နည်း) က ဘာကြောင့် ဝါကျနယ်နိမိတ်ကို ထိန်းပေးနိုင်တယ်ဆိုတာ ကိုယ်တိုင်ရေးတဲ့ Python function နဲ့ သက်သေပြပါ။ separator စာရင်း `["\n\n", "\n", ". ", " "]` ကို အဆင့်လိုက် သုံးပြီး chunk size ကို မကျော်အောင် ခွဲပါ။
+Recursive splitter သည် sentence boundary ကို အဘယ်ကြောင့် ထိန်းသိမ်းနိုင်ကြောင်း ကိုယ်ပိုင်ရေးသားသော Python function ဖြင့် သက်သေပြပါ။ separator list `["\n\n", "\n", ". ", " "]` ကို အဆင့်လိုက် အသုံးပြုပြီး chunk size မကျော်လွန်အောင် ခွဲပါ။
 
-**Hints:** separator တစ်ခုမကျော်ရင် နောက်တစ်ခုဆီ ဆင်းပါ။ LangChain docs ရဲ့ recursive splitting သဘောနဲ့ ယှဉ်ဖို့ https://python.langchain.com/docs/concepts/text_splitters/ ဖွင့်ကြည့်ပါ။
+**Hints:** Separator တစ်ခု မကိုက်ညီပါက နောက်တစ်ခုသို့ ဆင်းပါ။ LangChain docs ၏ recursive splitting သဘောတရားနှင့် နှိုင်းယှဉ်ရန် https://python.langchain.com/docs/concepts/text_splitters/ တွင် ဖတ်ရှုပါ။
 
-**Expected behavior:** ရလဒ် chunk များမှာ ဝါကျပျက်မှု သိသိသာသာ နည်းသွားတာကို မြင်ရပါတယ်။ separator အဆင့်ဆင်းခြင်း မှတ်တမ်းကို print လုပ်ပြီး စောင့်ကြည့်နိုင်ပါတယ်။
+**Expected behavior:** ရလဒ် chunk များတွင် စာကြောင်းပြတ်တောက်မှု သိသာစွာ လျော့နည်းသည်။ Separator အဆင့်ဆင်း အသုံးပြုမှု မှတ်တမ်းကို print လုပ်၍ စောင့်ကြည့်နိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Token-based chunking နဲ့ ဂဏန်းခြင်း
 
-Token (model ဖတ်တဲ့ စာသားယူနစ်) နဲ့ စာလုံးရဲ့ ကွာခြားချက်ကို တွက်ပြပါ။ ကိုယ်တိုင်ရေးတဲ့ simple tokenizer တစ်ခုကို `re.findall(r"\w+|\S", text)` နဲ့ ရေးပါ။ ယူဆချက်က 10,000 tokens၊ chunk size 512 tokens၊ overlap 64 tokens ဆိုရင် စုစုပေါင်း chunk အရေအတွက်ကို formula နဲ့ တွက်ပြပါ။
+Token နှင့် စာလုံး၏ ကွာခြားချက်ကို တွက်ချက်ပြပါ။ Simple tokenizer တစ်ခုကို `re.findall(r"\w+|\S", text)` ဖြင့် ရေးပါ။ ယူဆချက် — 10,000 tokens၊ chunk size 512 tokens၊ overlap 64 tokens ဖြစ်ပါက စုစုပေါင်း chunk အရေအတွက်ကို formula ဖြင့် တွက်ချက်ပြပါ။
 
-**Hints:** formula က `1 + ceil((total - chunk) / (chunk - overlap))` ပါတယ်။ တွက်ချက်မှုကို print လုပ်ပြပါ။ Hugging Face tokenizers အစစ်ကို https://huggingface.co/docs/tokenizers/index မှာ ဖတ်ပါ။
+**Hints:** formula မှာ `1 + ceil((total - chunk) / (chunk - overlap))` ဖြစ်သည်။ တွက်ချက်မှုကို print လုပ်ပြပါ။ Hugging Face tokenizers အကြောင်းကို https://huggingface.co/docs/tokenizers/index တွင် ဖတ်ရှုပါ။
 
-**Expected behavior:** tokenized result နဲ့ တွက်ချက်မှု နှစ်မျိုးလုံး ထွက်ပါတယ်။ ယူဆချက် အရေအတွက်နဲ့ formula ကနေ 20 chunks ရမယ် ဆိုတာ မိမိကိုယ်တိုင် တွက်ပြီး အတည်ပြုနိုင်ပါတယ်။
+**Expected behavior:** Tokenized result နှင့် chunk count တွက်ချက်မှု နှစ်ခုလုံး ထွက်ရှိသည်။ သတ်မှတ်ထားသော parameter များဖြင့် formula အရ 20 chunks ရရှိကြောင်း ကိုယ်တိုင် တွက်ချက်အတည်ပြုနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၅ — Parent-child indexing နဲ့ small-to-big retrieval
 
-Small-to-big retrieval (ရှာဖွေရင်း သေးတဲ့ chunk၊ ပြန်တင်ပြရင်း ကြီးတဲ့ parent) ကို Python dict တွေနဲ့ ပြန်ရေးပါ။ child chunk များမှာ keyword search (`in` စစ်ချက်နဲ့) လုပ်ပြီး အမှတ်အများဆုံး child က parent အပြည့်အစုံကို ပြနိုင်ရပါမယ်။ parent တွေကို paragraphs၊ child တွေက sentences အဖြစ် ယူဆပါ။
+Small-to-big retrieval (retrieval unit သည် child chunk၊ generation unit သည် parent) ကို Python dict များဖြင့် တည်ဆောက်ပါ။ Child chunk များတွင် keyword search (`in` operator ဖြင့်) ပြုလုပ်ပြီး score အမြင့်ဆုံး child ၏ parent အပြည့်အစုံကို ပြန်လည်ထုတ်ပြရမည်။ Parent များကို paragraphs၊ child များကို sentences အဖြစ် ယူဆပါ။
 
-**Hints:** parent တစ်ခုကို `{"parent_id", "parent_text", "children"}` ပုံစံနဲ့ သိမ်းပါ။ child ရလဒ်က parent ကို ပြန်ညွှန်ရပါတယ်။ LlamaIndex ရဲ့ ဆီလျော်တဲ့ အယူအဆကို https://docs.llamaindex.ai/en/stable/ မှာ ဖတ်ပါ။
+**Hints:** Parent တစ်ခုကို `{"parent_id", "parent_text", "children"}` ပုံစံဖြင့် သိမ်းပါ။ Child ရလဒ်သည် parent ကို ပြန်လည်ညွှန်းဆိုရမည်။ LlamaIndex ၏ သက်ဆိုင်ရာ အယူအဆကို https://docs.llamaindex.ai/en/stable/ တွင် ဖတ်ရှုပါ။
 
-**Expected behavior:** ရှာဖွေတဲ့ query က သေးငယ်တဲ့ child ကို တွေ့ပြီး ပြန်တင်တဲ့အခါ ကြီးတဲ့ parent paragraph အပြည့် ထွက်ပါတယ်။ child မှ parent ဆီ ညွှန်ပြတဲ့ ဆက်သွယ်မှုကို လက်တွေ့စစ်ကြည့်နိုင်ပါတယ်။
+**Expected behavior:** Query နှင့် ကိုက်ညီသော child chunk ကို ရှာတွေ့ပြီး၊ ပြန်လည်ထုတ်ပြရာတွင် parent paragraph အပြည့်အစုံ ထွက်ရှိသည်။ Child မှ parent သို့ ညွှန်းပြသော ဆက်သွယ်မှုကို စစ်ဆေးနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Chunk metadata ဒီဇိုင်းနဲ့ permission filter
 
-ခန်း ၆ မှာ metadata (chunk နဲ့အတူ သိမ်းတဲ့ အချက်အလက်) ပါတဲ့ chunk schema တစ်ခု ဒီဇိုင်းပါ။ field တွေက `source`, `section`, `page`, `permission`, `chunk_index` ပါ။ permission မတူတဲ့ user နှစ်ယောက်အတွက် retrieval simulation ရေးပြီး secret document ကို filtered-out ဖြစ်တာ ပြပါ။ SQL တစ်ခုလည်း pgvector အတွက် ရေးပြပါ။
+ခန်း ၆ တွင် metadata ပါဝင်သော chunk schema တစ်ခု ဒီဇိုင်းချပါ။ Field များမှာ `source`, `section`, `page`, `permission`, `chunk_index` တို့ ဖြစ်သည်။ Permission မတူညီသော user နှစ်ယောက်အတွက် retrieval simulation ရေးပြီး secret document filtered-out ဖြစ်ကြောင်း ပြသပါ။ pgvector အတွက် SQL တစ်ခုလည်း ရေးပါ။
 
-**Hints:** `filter(allowed, chunks)` ဆိုတဲ့ pure function ရေးပါ။ `cosine similarity` နေရာမှာ ရိုးရိုး keyword score နဲ့ အစားထိုးပြီး deterministic ဖြစ်အောင် လုပ်ပါ။
+**Hints:** `filter(allowed, chunks)` pure function တစ်ခု ရေးပါ။ `cosine similarity` နေရာတွင် deterministic keyword score ဖြင့် အစားထိုးပါ။
 
 ```sql
 -- Valid for PostgreSQL with pgvector; not executed by this lesson.
@@ -53,4 +53,4 @@ ORDER BY embedding <=> :query_vec
 LIMIT 5;
 ```
 
-**Expected behavior:** admin user က document အားလုံး မြင်ပြီး guest user က secret document မြင်မရပါ။ permission filter က ရလဒ် မျက်နှာပြင်မှာ တိုက်ရိုက် သက်ရောက်တာကို စောင့်ကြည့်နိုင်ပါတယ်။
+**Expected behavior:** Admin user သည် document အားလုံး ရရှိပြီး guest user သည် secret document ရရှိခြင်း မရှိပါ။ Permission filter သည် retrieval ရလဒ်အပေါ် တိုက်ရိုက် သက်ရောက်ကြောင်း စောင့်ကြည့်နိုင်သည်။

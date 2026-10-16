@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — Embedding ထဲက PII စစ်ဆေးပါ
+## လေ့ကျင့်ခန်း ၁ — Ingestion Gate PII Redaction Pipeline
 
-Email နဲ့ ဖုန်းနံပါတ်ကို regex နဲ့ ရှာပြီး `[REDACTED]` လို့ အစားထိုးတဲ့ function ကို `re.sub()` သုံးပြီး ရေးထားပါတယ်။ PII က embedding ထဲ ဝင်သွားရင် search လုပ်သူက indirect နည်းနဲ့ ဆွဲထုတ်လို့ ရနိုင်လို့ ingestion အဆင့်မှာ ဒီ redaction ကို အရင်လုပ်ဖို့ အရေးကြီးပါတယ်နော်။
+Regex patterns အသုံးပြု၍ text chunk အတွင်းရှိ email addresses နှင့် phone numbers များကို `[REDACTED]` အဖြစ် အစားထိုးသန့်စင်ပြီးမှ embedding generation သို့ ပို့ဆောင်သည့် sanitization logic ဖြစ်သည်။
 
 ```python
 # Exercise 1: PII redaction before embedding (standard library only, deterministic, offline).
@@ -25,11 +25,13 @@ print("PII remaining:", "@" in clean or "09-777" in clean)
 # PII remaining: False
 ```
 
-**အဓိကအယူဆ** — Embedding ထဲ PII ဝင်မသွားအောင် ingestion အဆင့်မှာ redaction ကို အရင်လုပ်ပါရမယ်၊ မဟုတ်ရင် permission မရှိသူကလည်း vector search နဲ့ ကိုယ်ရေးအချက်အလက်ကို ဆွဲထုတ်လို့ ရနိုင်ပါတယ်နော်။
+**အဓိကအယူအဆ** — Vector embedding တွက်ချက်ခြင်းမတိုင်မီ PII redaction ပြုလုပ်ခြင်းဖြင့် high-dimensional vector space အတွင်း sensitive identity data persistence ဖြစ်ကျန်ခဲ့မှုကို ကာကွယ်နိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၂ — ACL filter ကို cosine ranking ထဲ ထည့်ပါ
+---
 
-Cosine similarity နဲ့ rank တွက်ပြီးမှ allowed document list ထဲ မပါတဲ့ doc တွေကို ဖျက်လိုက်တဲ့ ပုံစံက document-level ACL ရဲ့ core mechanics ကို Python နဲ့ ပြန်တည်ဆောက်တာပါ။ Score အမြင့်ဆုံး ရှိနေလည်း allowed မဟုတ်ရင် top-k ထဲ မပါတော့တာက ဒီလေ့ကျင့်ခန်းရဲ့ အဓိက သင်ချက်ပါတယ်။
+## လေ့ကျင့်ခန်း ၂ — In-Query Document-Level ACL Enforcement
+
+Cosine similarity တွက်ချက်မှုနှင့် authorization filtering (`allowed_doc_ids`) ကို ပေါင်းစပ်ပြီး unauthorized documents များ similarity မြင့်မားနေသော်လည်း candidate pool မှ drop ပြုလုပ်သည့် retrieval authorization pattern ဖြစ်သည်။
 
 ```python
 # Exercise 2: Cosine ranking with a document-level ACL filter (standard library only, deterministic).
@@ -38,7 +40,7 @@ import math
 def cosine(a, b):
     dot = sum(x * y for x, y in zip(a, b))
     na = math.sqrt(sum(x * x for x in a))
-    nb = math.sqrt(sum(x * x for x in b))
+    nb = math.sqrt(sum(y * y for y in b))
     return dot / (na * nb)
 
 def search(query_vec, docs, allowed_doc_ids, k=3):
@@ -65,11 +67,13 @@ print("With ACL  :", [(i, round(s, 3)) for i, s in search(query, docs, allowed)]
 # With ACL  : [('doc2', 0.994), ('doc3', 0.707), ('doc4', 0.0)]
 ```
 
-**အဓိကအယူဆ** — Filter မရှိရင် permission ချိုးဖျက်တဲ့ document က score အမြင့်ဆုံးနဲ့ top-k ထဲ ပေါ်လာတယ်၊ ဒါကြောင့် rank လုပ်ပြီးမှ allowed list နဲ့ စစ်ဖို့ မဖြစ်မနေ လိုအပ်ပါတယ်နော်။
+**အဓိကအယူအဆ** — Authorization boundaries များကို retrieval stage တွင် တိုက်ရိုက် enforce လုပ်ခြင်းဖြင့် information leak ကို algorithmic level တွင် တားဆီးနိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၃ — pgvector + row-level security အတွက် SQL ရေးပါ
+---
 
-Row-level security (RLS) ကို enable လုပ်ပြီး `USING (owner = current_user)` policy နဲ့ user က ကိုယ်ပိုင် doc တွေကိုပဲ cosine distance `<=>` နဲ့ ရှာတဲ့ SQL သုံးခုကို ဒီ block ထဲမှာ string အနေနဲ့ ပြထားပါတယ်၊ run မှာ မဟုတ်ဘူးနော်။ ဒီ mechanics က လေ့ကျင့်ခန်း ၂ က Python filter နဲ့ အတူတူပါပဲ။
+## လေ့ကျင့်ခန်း ၃ — PostgreSQL Row-Level Security (RLS) DDL & Policy Design
+
+PostgreSQL + pgvector table ပေါ်တွင် RLS policy enable ပြုလုပ်ပြီး current user context အပေါ် အခြေခံ၍ dynamic filtering ပြုလုပ်သော standard SQL statements များ ဖြစ်သည်။
 
 ```python
 # Exercise 3: DDL, RLS policy, and a pgvector SELECT — kept as strings (not executed here).
@@ -120,11 +124,13 @@ print(DDL.strip(), RLS.strip(), QUERY.strip(), sep="\n---\n")
 # LIMIT 3;
 ```
 
-**အဓိကအယူဆ** — RLS policy ကို database ထဲမှာ တည်ဆောက်ထားရင် user က သူမကိုယ်ပိုင်တဲ့ row တွေကိုပဲ query ထဲ မြင်ရတယ်၊ ဒါက ACL ကို application ထက် အောက်ခြေမှာ သေချာစေတဲ့ နည်းလမ်းပါတယ်နော်။
+**အဓိကအယူအဆ** — RLS ကို အသုံးပြုခြင်းဖြင့် application code တွင် filter ထည့်သွင်းရန် မေ့လျော့ခဲ့သည့်တိုင် database engine က authorization security policy ကို transparently enforce လုပ်ပေးသည်။
 
-## လေ့ကျင့်ခန်း ၄ — Multi-tenant isolation နည်းလမ်းနှစ်မျိုး နှိုင်းယှဉ်ပါ
+---
 
-Schema-per-tenant ပုံစံ (dict-of-dicts) နဲ့ shared-table-with-tenant-id ပုံစံ (list + tenant_id) နှစ်မျိုးလုံးကို query လုပ်စမ်းပြီး Tenant A က Tenant B ရဲ့ doc ဘယ်တစ်ခုမှ မရလာစေရန် ပြထားပါတယ်။ Shared-table ပုံစံမှာ `tenant_id` match စစ်တာကို မေ့လိုက်ရင် cross-tenant leak ဖြစ်တာကို စမ်းသပ်မှုနဲ့ သက်သေပြပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၄ — Multi-Tenant Isolation Architecture နှိုင်းယှဉ်ချက်
+
+Schema-per-tenant physical separation နှင့် shared table with tenant_id filter models နှစ်ခု၏ implementation mechanics နှင့် filter မပါဝင်သော buggy query တွင် cross-tenant leak ဖြစ်ပေါ်ပုံကို သရုပ်ပြထားသည်။
 
 ```python
 # Exercise 4: schema-per-tenant (dict-of-dicts) vs shared table (list with tenant_id), offline & deterministic.
@@ -159,11 +165,13 @@ print("shared table A (bug):", query_shared_table("tenantA", apply_filter=False)
 # shared table A (bug): ['A-doc1', 'A-doc2', 'B-doc1']
 ```
 
-**အဓိကအယူဆ** — Tenant ခွဲမှုကို application မှာ လုပ်မယ်ဆိုရင် filter တစ်ကြိမ် မေ့လိုက်တာနဲ့ cross-tenant leak ဖြစ်တာပါ၊ real system မှာ `tenant_id = current_setting('app.tenant_id')` လို policy နဲ့ database ကနေ ထိန်းသင့်ပါတယ်နော်။
+**အဓိကအယူအဆ** — Shared-table multi-tenancy သည် query predicate များအပေါ် မှီခိုသဖြင့် developer bugs များတွင် leak ဖြစ်နိုင်ခြေရှိပြီး schema/database per tenant သည် structural isolation အာမခံချက် ပိုမိုမြင့်မားသည်။
 
-## လေ့ကျင့်ခန်း ၅ — Audit log နဲ့ access မှတ်တမ်း ရေးပါ
+---
 
-`retrieval_request(user, query, results, allowed)` လို event တွေကို JSON line တစ်ကြောင်းချင်း append တဲ့ audit logger ကို timestamp function ကနေ deterministic ရယူပြီး ရေးထားပါတယ်။ Denied result တွေကိုပါ log ထဲ မှတ်ထားတာက နောက်ပြန်စစ်ဆေးဖို့ အထောက်အထား ဖြစ်ပါတယ်။
+## လေ့ကျင့်ခန်း ၅ — Append-Only Structured Audit Logging
+
+User context, search query, retrieved document IDs, authorization grant flag နှင့် timestamp များကို structured JSON-Lines format ဖြင့် မှတ်တမ်းတင်သော audit logging pipeline ဖြစ်သည်။
 
 ```python
 # Exercise 5: JSON-lines audit logger for retrieval requests (deterministic offline clock, no real DB).
@@ -197,11 +205,13 @@ for line in _audit_log:
 # {"user": "aung", "query": "project status", "result_ids": ["doc1"], "allowed": false, "timestamp": "2026-01-01T00:00:02Z"}
 ```
 
-**အဓိကအယူဆ** — ဘယ် user က ဘယ် query နဲ့ ဘယ် doc ကို ကြည့်ခဲ့လဲဆိုတာကို append-only မှတ်တမ်းနဲ့ ဖမ်းထားရင် ဖျက်ခံခဲ့ရတဲ့ result တွေပါ ပါဝင်စွာ သက်သေပြနိုင်ပါတယ်နော်။
+**အဓိကအယူအဆ** — Audit logs များသည် immutable append-only ဖြစ်ရမည်ဖြစ်ပြီး post-incident forensics အတွက် access denials များကိုပါ explicit track လုပ်ရမည်။
 
-## လေ့ကျင့်ခန်း ၆ — Delete propagation နှင့် provenance မှတ်တမ်းပါ
+---
 
-Doc တစ်ခုကို ဖျက်ရင် သူ့ကနေ ဆွဲထုတ်ထားတဲ့ chunk တွေ၊ embedding တွေနဲ့ audit log reference တွေအထိ cascade လိုက်ဖျက်တဲ့ function ကို `dict.pop()` နဲ့ list comprehension သုံးပြီး ရေးထားပါတယ်။ `source_url` နဲ့ `license` provenance ကတော့ deletion record အသစ်မှာ ကျန်ရှိအောင် သိမ်းထားပါတယ်၊ orphan embedding ကျန်နေရင် license ချိုးဖျက်မှု ဖြစ်နိုင်လို့ပါ။
+## လေ့ကျင့်ခန်း ၆ — Cascade Deletion Engine နှင့် Data Provenance Tracking
+
+Source document ဖျက်သိမ်းမှုတွင် downstream chunks, embedding vectors နှင့် audit references များကို cascade atomic purge ပြုလုပ်ပြီး compliance retention အတွက် provenance metadata (source URL, license) ကို သီးခြား deletion audit log တွင် ထိန်းသိမ်းပုံ ဖြစ်သည်။
 
 ```python
 # Exercise 6: cascade delete with provenance + retention record (standard library only, deterministic).
@@ -243,4 +253,4 @@ print("deletion log   :", deletion_log)
 # deletion log   : [{'doc_id': 'doc1', 'chunks_deleted': ['c1', 'c2'], 'provenance': {'source_url': 'https://example.com/a', 'license': 'CC-BY-4.0'}, 'retention_note': 'provenance kept for compliance, content purged'}]
 ```
 
-**အဓိကအယူဆ** — Source doc ကို ဖျက်လိုက်လည်း သူ့ကို ညွှန်နေတဲ့ chunk နဲ့ embedding တွေ ကျန်နေရင် PII ဒါမှမဟုတ် license ချိုးဖျက်မှု ဖြစ်တယ်၊ ဒါကြောင့် delete ကို cascade လုပ်ပြီး provenance ကတော့ deletion record ထဲ ကျန်ရှိအောင် သိမ်းရပါတယ်နော်။
+**အဓိကအယူအဆ** — Document deletion request တွင် relational chunks နှင့် vector store embeddings များကို cascade purge ပြုလုပ်ခြင်းဖြင့် orphan vector persistence ကြောင့် ဖြစ်ပေါ်နိုင်သော privacy ချိုးဖောက်မှုများကို ကာကွယ်နိုင်သည်။

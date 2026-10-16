@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — Idempotent ပြန်လုပ်တာ စမ်းကြည့်ပါ
+## လေ့ကျင့်ခန်း ၁ — Idempotent Pipeline Ingestion
 
-Content hash ကို key အဖြစ်သုံးပြီး record တွေကို dict ထဲ ထည့်ကြည့်တာ ပါတယ်။ တူညီတဲ့ record နှစ်ခါ ထည့်လိုက်တော့လည်း အရေအတွက် မတိုးဘူးဆိုတာ မြင်ရပါလိမ့်မယ်နော်။
+Content hash (SHA-256) ကို deterministic key အဖြစ် အသုံးပြု၍ records များကို dictionary store ထဲသို့ ထည့်သွင်းခြင်းဖြင့် identical batch ကို ထပ်ခါတလဲလဲ execute ပြုလုပ်သော်လည်း duplicate rows များ မဖြစ်ပေါ်စေသည့် idempotent ingestion pattern ဖြစ်သည်။
 
 ```python
 import hashlib
@@ -35,11 +35,13 @@ print("idempotent:", size_after_run1 == size_after_run2 == 10)
 # idempotent: True
 ```
 
-**အဓိကအယူဆ** — Content hash နဲ့ upsert လုပ်ခြင်းက pipeline ပြန် run တဲ့အခါ data ပုံတူပွားမှုကို ကာကွယ်ပေးလို့ backfill နဲ့ retry တွေမှာ ဒဏ်ခံနိုင်ပါတယ်။
+**အဓိကအယူအဆ** — Ingestion logic တွင် content hash-based deduplication နှင့် upsert semantics ကို အသုံးပြုခြင်းဖြင့် pipeline retries နှင့် backfills များတွင် data mutation ကင်းစင်စေသည်။
 
-## လေ့ကျင့်ခန်း ၂ — Backfill rate limit တွက်ပါ
+---
 
-Chunk ၁ သန်းကို စက္ကန့်မှာ ၅၀၀၀ နှုန်းနဲ့ process လုပ်ရင် ဘယ်လောက်ကြာမလဲဆိုတာ formula နဲ့တကွ တွက်ပြထားပါတယ်။
+## လေ့ကျင့်ခန်း ၂ — Backfill Throughput နှင့် Rate Limit Modeling
+
+Total chunk volume နှင့် ingestion throughput rate တို့အပေါ် အခြေခံ၍ backfill duration ကို mathematical formula `duration = volume / rate` ဖြင့် တွက်ချက်ပုံ ဖြစ်သည်။
 
 ```python
 TOTAL_CHUNKS = 1_000_000
@@ -64,11 +66,13 @@ print("matches 200 sec / ~0.056 h:", seconds == 200.0 and round(hours, 4) == 0.0
 # matches 200 sec / ~0.056 h: True
 ```
 
-**အဓိကအယူဆ** — Backfill မတိုင်ခင် စုစုပေါင်းအချိန်ကို total ÷ rate နဲ့ ခန့်မှန်းတွက်ကြည့်ဖို့က rate limit နဲ့ quota စီမံခန့်ခွဲဖို့အတွက် ပထမဆုံး လုပ်သင့်တဲ့ အဆင့်ပါတယ်။
+**အဓိကအယူအဆ** — Large-scale backfill မစတင်မီ upstream embedding API rate limits (TPM/RPM quotas) နှင့် processing duration ကို ကြိုတင် profile ပြုလုပ်ရမည်။
 
-## လေ့ကျင့်ခန်း ၃ — Dead-letter queue နဲ့ retry ရေးပါ
+---
 
-Fail တဲ့ record တွေကို retry ၃ ကြိမ် လုပ်ပြီးမှ dead-letter list ထဲ ထည့်ပြထားပါတယ်။ Random မသုံးဘဲ record id အရ deterministic အရင်းပြ သတ်မှတ်ထားလို့ run တိုင်း output တူပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၃ — Dead-Letter Queue (DLQ) နှင့် Exponential Retry Pattern
+
+Batch processing တွင် fail ဖြစ်သော records များကို bounded retries (max_retries=3) ပြုလုပ်ပြီး limit ကျော်လွန်ပါက execution ကို block မလုပ်ဘဲ Dead-Letter Queue (DLQ) ထံသို့ isolate routing ပြုလုပ်သည့် logic ဖြစ်သည်။
 
 ```python
 def fails(record_id):
@@ -108,11 +112,13 @@ print("retries per dead record:", counts)
 # retries per dead record: {3: 3, 6: 3, 9: 3}
 ```
 
-**အဓိကအယူဆ** — Retry ၃ ကြိမ် ကျော်လို့သာ dead-letter queue ထဲ ထည့်တာက fail တဲ့ record တွေ မပျောက်ဘဲ နောက်မှ ပြန်စစ်ဆေးနိုင်အောင် စောင့်ပေးပါတယ်။
+**အဓိကအယူအဆ** — Unrecoverable bad payloads များကြောင့် pipeline တစ်ခုလုံး stall မဖြစ်စေရန် DLQ architecture ဖြင့် သီးခြား isolate ပြုလုပ်ပြီး asynchronous debugging ပြုလုပ်နိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၄ — Dual-write နဲ့ shadow index ပြောင်းကြည့်ပါ
+---
 
-Embedding version ကို v1 ကနေ v2 ပြောင်းတဲ့ migration ကို shadow index ဖြည့်တာ၊ နှိုင်းယှဉ်တာ၊ cut-over လုပ်တာ အဆင့်တွေနဲ့ simulation လုပ်ပြထားပါတယ်။
+## လေ့ကျင့်ခန်း ၄ — Dual-Write, Shadow Indexing နှင့် Zero-Downtime Cut-Over
+
+Embedding model version v1 မှ v2 သို့ upgrade ပြုလုပ်ရာတွင် dual-write pattern ဖြင့် background shadow index တည်ဆောက်ခြင်း၊ shadow parity စစ်ဆေးခြင်းနှင့် atomic read path cut-over ပြုလုပ်ခြင်းတို့ကို programmatic simulation ပြုလုပ်ထားသည်။
 
 ```python
 # Scripted deterministic stand-ins for embedding models (no real model calls)
@@ -154,11 +160,13 @@ for doc_id in docs:
 #   d3 served: [3, 2]
 ```
 
-**အဓိကအယူဆ** — Shadow index အလုပ်ဖြစ်တာကို သေချာစစ်ပြီးမှ read path ကို cut-over လုပ်တာက embedding version migration ကို downtime နဲ့ risk နည်းနည်း လုပ်နိုင်စေပါတယ်။
+**အဓိကအယူအဆ** — Production vector index re-embedding တွင် active search traffic ကို အနှောင့်အယှက်မဖြစ်စေဘဲ shadow index build ပြီးမှ atomic switch ပြုလုပ်ရသည်။
 
-## လေ့ကျင့်ခန်း ၅ — DAG dependency ကို topological sort နဲ့ ဖြေရှင်းပါ
+---
 
-Task တွေရဲ့ dependency ကနေ run order ကို topological sort နဲ့ တွက်ပြပြီး cycle ရှိရင် error ပေးတာကိုပါ စမ်းပြထားပါတယ်။
+## လေ့ကျင့်ခန်း ၅ — DAG Topological Sorting နှင့် Cycle Detection
+
+Data orchestration engine များ (Airflow, Dagster) ၏ core scheduler logic ဖြစ်သော Directed Acyclic Graph (DAG) task dependencies များကို Python `graphlib.TopologicalSorter` ဖြင့် linear execution order တွက်ချက်ခြင်းနှင့် cyclic dependency error handling ကို စစ်ဆေးသည်။
 
 ```python
 from graphlib import TopologicalSorter, CycleError
@@ -188,11 +196,13 @@ except CycleError:
 # cycle test: no error (unexpected)
 ```
 
-**အဓိကအယူဆ** — Airflow/Dagster လို tool တွေမှာ DAG က cycle မရှိရဘူးဆိုတာကို topological sort က သက်သေပြပြီး task တွေကို မှီခိုမှုအတိုင်း အစီအစဉ်ချပေးပါတယ်။
+**အဓိကအယူအဆ** — Task scheduling တွင် topological sort သည် execution order ကို acyclic property အာမခံချက်ဖြင့် sequence ချပေးသည်။
 
-## လေ့ကျင့်ခန်း ၆ — Streaming window နဲ့ CDC style changelog စမ်းပါ
+---
 
-ဟောင်း version နဲ့ အသစ် version dict နှစ်ခုကို primary key အရ diff လုပ်ပြီး INSERT/UPDATE/DELETE event တွေ ထုတ်ပြထားပါတယ်။
+## လေ့ကျင့်ခန်း ၆ — Streaming Windows နှင့် Change Data Capture (CDC) Diff Engine
+
+Database snapshots နှစ်ခုအကြား primary key equality အပေါ် အခြေခံ၍ INSERT, UPDATE, DELETE mutation events များကို deterministic stream အဖြစ် ထုတ်လုပ်ပေးသော CDC-style engine ဖြစ်သည်။
 
 ```python
 def diff_to_changelog(old_state, new_state, pk="id"):
@@ -235,4 +245,4 @@ for i, (old, new) in enumerate(windows, start=1):
 # window 5 events: []
 ```
 
-**အဓိကအယူဆ** — Snapshot နှစ်ခုကို primary key အရ diff လုပ်တာက streaming pipeline မှာ INSERT/UPDATE/DELETE event တွေကို window တိုင်း သေချာ ထုတ်နိုင်စေတဲ့ CDC အခြေခံသဘောပါတယ်။
+**အဓိကအယူအဆ** — Change Data Capture (CDC) events များကို streaming window အလိုက် consume ပြုလုပ်ခြင်းဖြင့် source database ပြောင်းလဲမှုများကို downstream vector store ထံသို့ near real-time sync ပြုလုပ်နိုင်သည်။

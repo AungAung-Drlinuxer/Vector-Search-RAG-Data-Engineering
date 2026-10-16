@@ -1,47 +1,57 @@
-## လေ့ကျင့်ခန်း ၁ — Bi-encoder နဲ့ Cross-encoder ကွာခြားချက် ဖော်ပြခြင်း
+## လေ့ကျင့်ခန်း ၁ — Bi-encoder vs Cross-encoder Architectural Differences
 
-**Task:** bi-encoder နဲ့ cross-encoder ရဲ့ ကွာခြားချက်ကို ကိုယ်ပိုင် စကားလုံးတွေနဲ့ ၃ ကြိမ် ရေးပါ။ တစ်ခုစီအတွက် ဘယ်အချိန် သုံးသင့်တယ်ဆိုတာလည်း ထည့်ပြောပေးပါ။ ( sbert.net မှာ ဖော်ပြထားတဲ့ အတိအကျအတိုင်း ဖြစ်ရမယ်နော် )
+Bi-encoder နှင့် Cross-encoder architecture နှစ်ခု၏ အခြေခံကွာခြားချက်များ၊ computation complexity၊ document vector pre-computation/caching စွမ်းရည်နှင့် multi-stage retrieval pipeline တွင် ၎င်းတို့၏ role ကို သုံးသပ်ဖော်ပြပါ။
 
-**Hints:** bi-encoder က query နဲ့ document ကို သီးသန့် embed လုပ်တယ်။ cross-encoder က နှစ်ခုကို တွဲပြီး တစ်ပြိုင်နက် သုံးသပ်တယ်။ latency က အဓိက ခွဲခြားချက်ပါ။
+**Hints:** SBERT documentation (https://sbert.net/) ကို ကိုးကားပါ။ Bi-encoder သည် query နှင့် document ကို သီးခြားစီ encode လုပ်သဖြင့် offline caching ဖြစ်နိုင်ပြီး Cross-encoder သည် (query, document) pair ကို joint full-attention ဖြင့် cross-examine လုပ်သဖြင့် O(N) inference cost ရှိသည်။
 
-**Expected behavior:** ရလဒ်မှာ embedding သီးသန့် သုံးတဲ့ အချက်၊ တွဲသုံးတဲ့ အချက်၊ နဲ့ offline တွင် cache လုပ်လို့ ရ/မရ ကွာခြားချက် ပါဝင်ပါတယ်။
+**Expected behavior:** Caching capability, computation cost, retrieval vs reranking stages တွင် အသုံးချပုံ ကွာခြားချက် ၃ ခုကို တိကျစွာ output ထုတ်နိုင်ရမည်။
 
-## လေ့ကျင့်ခန်း ၂ — Cosine Score နဲ့ Manual Reranking
+---
 
-**Task:** query တစ်ခုနဲ့ document ၅ ခုရှိတဲ့ စာရင်းတစ်ခု သတ်မှတ်ပါ။ ပထမ ဦးစွာ cosine similarity နဲ့ score တွေ တွက်ပါ။ ပြီးရင် score အမြင့်ဆုံး ၃ ခုကို ပြန်ရွေးပြပါ။ ရွေးထားတဲ့ ၃ ခုကို နောက်ဆုံးမှာ အမြင့်ဆုံးက ရှေ့ရှိစေမယ့် အစီအစဉ်နဲ့ ထုတ်ပြပါ။
+## လေ့ကျင့်ခန်း ၂ — Cosine Similarity Scoring & Top-K Manual Reranking
 
-**Hints:** standard library ထဲက math နဲ့ sorted ကိုသာ သုံးပါ။ key=lambda နဲ့ reverse=True ကို သတိရပါ။
+Query vector တစ်ခုနှင့် candidate document vectors ၅ ခုအကြား cosine similarity တွက်ချက်ပြီး score အမြင့်ဆုံး top-3 candidates ကို ascending/descending order အလိုက် deterministic rerank ပြုလုပ်ပါ။
 
-**Expected behavior:** Program က document ၅ ခုလုံးရဲ့ cosine score ကို ပုံနှိပ်ပြီး၊ top-3 rerank လုပ်ထားတဲ့ အစီအစဉ်ကို နောက်ဆုံးမှာ ပြပါတယ်။
+**Hints:** Standard library `math` module နှင့် `sorted(..., key=lambda ..., reverse=True)` ကို အသုံးပြုပါ။
 
-## လေ့ကျင့်ခန်း ၃ — Latency ကုန်ကျစရိတ် တွက်ချက်ခြင်း
+**Expected behavior:** Document ၅ ခုလုံး၏ cosine similarity scores များကို output ထုတ်ပြီး top-3 reranked list ကို ပြသရမည်။
 
-**Task:** reranking တစ်ခါလုပ်ရင် ဘယ်လောက် စရိတ်ကြာတယ်ဆိုတာ တွက်ပြပါ။ ယူဆချက် — cross-encoder တစ်ခါ call လုပ်ရင် 50 ms ကြာတယ်၊ top-k မှာ 20 ရှိတယ်။ ကျွန်တော်တို့ rerank မလုပ်ဘဲ retrieve တာနဲ့ ဘယ်လောက် ခြားတယ်ဆိုတာ ရှင်းပြပါ။
+---
 
-**Hints:** 20 × 50 ms = 1,000 ms ပါ။ တွက်ချက်ပုံ formula ကို code ထဲမှာ comment နဲ့ ပြပါ။
+## လေ့ကျင့်ခန်း ၃ — Cross-encoder Reranking Latency Cost Modeling
 
-**Expected behavior:** Code က တွက်ချက်မှု အဆင့်ဆင့်ကို ပုံနှိပ်ပြပြီး နောက်ဆုံးမှာ စုစုပေါင်း latency ကို ပြပါတယ်။ ကိန်းဂဏန်းတွေက ယူဆချက်ပေါ် မူတည်တယ်ဆိုတာ comment လို့ ရေးပါ။
+Top-k candidate size နှင့် cross-encoder latency overhead အကြား ဆက်စပ်မှုကို ပုံဖော်ပါ။ Assumed cross-encoder inference latency (50 ms per pair) နှင့် candidate size (top-k = 20) အပေါ် အခြေခံ၍ pure retrieval သီးသန့် latency နှင့် end-to-end latency ကို နှိုင်းယှဉ်တွက်ချက်ပါ။
 
-## လေ့ကျင့်ခန်း ၄ — HyDE (Hypothetical Document Embedding) စမ်းသပ်ခြင်း
+**Hints:** Formula: `total_rerank_ms = top_k * per_call_ms`။ Sizing decision များအတွက် assumption များကို explicit comments ဖြင့် ဖော်ပြပါ။
 
-**Task:** query တစ်ခုကို "hypothetical answer" (တွေးဆ ထားတဲ့ အဖြေစာ) တစ်ခုအဖြစ် ပြောင်းရေးပါ။ ပြီးရင် ထိုစာနဲ့ document တွေကို cosine similarity တွက်ပါ။ query တိုက်ရိုက် သုံးတဲ့ score နဲ့ နှိုင်းယှဉ်ပြပါ။
+**Expected behavior:** Candidate size အလိုက် ကုန်ကျမည့် total latency overhead ကို ရှင်းလင်းစွာ တွက်ချက်ပြသနိုင်ရမည်။
 
-**Hints:** တကယ့် LLM မသုံးပါနော် — hypothetical answer ကို code ထဲမှာ hardcoded လုပ်ပါ။ ဘာကြောင့်လဲဆိုတော့ lesson တွေက offline ဖြစ်ရလို့ပါ။ arxiv.org/abs/2212.10496 က HyDE စာတမ်း ဖြစ်ပါတယ်။
+---
 
-**Expected behavior:** နှစ်မျိုးသော score list (query-direct နဲ့ HyDE) ပုံနှိပ်ပြီး ဘယ်ဟာ ပိုတူညီမှုရှိတယ်ဆိုတာ ရှင်းပြနိုင်ပါတယ်။
+## လေ့ကျင့်ခန်း ၄ — HyDE (Hypothetical Document Embeddings) Retrieval Alignment
 
-## လေ့ကျင့်ခန်း ၅ — Multi-query Expansion နဲ့ RRF Fusion
+Question-style query တစ်ခုကို deterministic hypothetical answer (stand-in representation) အဖြစ် transform လုပ်ပြီး corpus documents များနှင့် cosine similarity တွက်ချက်ကာ direct query match နှင့် နှိုင်းယှဉ်ပါ။
 
-**Task:** query တစ်ခုကို မတူတဲ့ ပုံစံ ၃ မျိုးဖြင့် ရေးပါ ( paraphrase ၃ ခု )။ တစ်ခုစီအတွက် ranked list တစ်ခုစီ သတ်မှတ်ပါ။ ပြီးရင် Reciprocal Rank Fusion (RRF) နဲ့ တစ်ခုတည်းသော ranking ပြုလုပ်ပါ။
+**Hints:** Gao et al. (arXiv:2212.10496) အရ HyDE သည် query space မှ document space သို့ semantic alignment ပြုလုပ်ပေးသည်။ Offline execution အတွက် deterministic dummy generator ကို အသုံးပြုပါ။
 
-**Hints:** RRF formula — score = sum of 1 / (k + rank)၊ k = 60 ကို ယူဆပါ။ docs.ragas.io က metrics တွေအတွက် တရားဝင် documentation ပါ။
+**Expected behavior:** Direct query scores နှင့် HyDE transformed scores နှစ်မျိုးလုံးကို output ထုတ်ပြီး semantic similarity ပြောင်းလဲမှုကို သရုပ်ပြနိုင်ရမည်။
 
-**Expected behavior:** နောက်ဆုံးမှာ fused ranking က document ID တွေ အစီအစဉ်မှန်နဲ့ ထွက်ပါတယ်။ တစ် query ချင်းရဲ့ rank တွေက အလွယ် ကြည့်နိုင်ရပါတယ်။
+---
 
-## လေ့ကျင့်ခန်း ၆ — MMR (Maximal Marginal Relevance) အပြည့်အစုံ
+## လေ့ကျင့်ခန်း ၅ — Multi-Query Expansion & RRF Score Fusion
 
-**Task:** document ၆ ခုရဲ့ embedding တွေ သတ်မှတ်ပါ။ lambda တန်ဖိုး ၂ မျိုး (0.3 နဲ့ 0.9) သုံးပြီး MMR နဲ့ ရွေးပါ။ နှစ်ခုစလုံးရဲ့ ရလဒ်ကို နှိုင်းယှဉ်ပြပါ။
+Query တစ်ခုအတွက် alternative paraphrases ၃ ခုထုတ်လုပ်ပြီး discrete ranking lists ၃ ခုကို Reciprocal Rank Fusion (RRF, k=60) ဖြင့် single robust ranking အဖြစ် ပေါင်းစပ်ပါ။
 
-**Hints:** MMR formula — score = lambda × sim(q, d) − (1 − lambda) × max sim(d, selected)။ selected list ဗလာ ဆိုရင် ပထမ ရွေးချယ်မှုက အမြင့်ဆုံး relevance အတိုင်း ဖြစ်ပါတယ်။
+**Hints:** Formula: `RRF_score(d) = Σ [1 / (k + rank(d))]`။ Input ranking lists အသီးသီး၏ rank positions များကို aggregate ပြုလုပ်ပါ။
 
-**Expected behavior:** lambda = 0.9 မှာ relevance က ပိုထင်ရှားပြီး၊ lambda = 0.3 မှာ diversity ( ရလဒ် ကွဲပြားမှု ) က ပိုထင်ရှားတာ မြင်ရပါတယ်။ ရလဒ် ကွာခြားချက်ကို ကိုယ်ပိုင် စာသားနဲ့ ရှင်းပြပါ။
+**Expected behavior:** Variant query တစ်ခုချင်းစီ၏ rankings များနှင့် final fused order ကို deterministic အစီအစဉ်အတိုင်း ရရှိရမည်။
+
+---
+
+## လေ့ကျင့်ခန်း ၆ — MMR (Maximal Marginal Relevance) Diversity Selection
+
+Document candidate pool မှ top results များကို ရွေးချယ်ရာတွင် relevance နှင့် diversity အကြား trade-off ကို ထိန်းချုပ်သည့် MMR algorithm ကို parameter λ တန်ဖိုးနှစ်မျိုး (λ=0.9 နှင့် λ=0.3) ဖြင့် execute လုပ်ပါ။
+
+**Hints:** MMR formulation: `argmax_{d_i ∈ R \ S} [ λ * Sim1(d_i, q) - (1 - λ) * max_{d_j ∈ S} Sim2(d_i, d_j) ]`။ λ=0.9 သည် relevance ကို ဦးစားပေးပြီး λ=0.3 သည် diversity ကို ဦးစားပေးသည်။
+
+**Expected behavior:** λ တန်ဖိုး ကွဲပြားမှုအပေါ် မူတည်၍ ရွေးချယ်ခံရသော document subsets များ၏ structural difference ကို ရှင်းလင်းစွာ ပြသနိုင်ရမည်။

@@ -1,43 +1,40 @@
-# M13 — Capstone: End-to-end ဒီဇိုင်းနှင့် Storage/Memory/QPS တွက်စက်
+# M13 — Capstone: End-to-End System Design & Capacity Sizing Engine
 
-Ingest ကနေ evaluate အထိ တစ်ခုတည်း pipeline ဒီဇိုင်းကို စုစည်းပြီး storage, memory နှင့် QPS တွေကို Python နဲ့ တွက်သင်ရမယ့် module ပါတယ်။
+Ingestion မှ Evaluation အထိ RAG data engineering pipeline အဆင့် ၈ ခုလုံးကို comprehensive architecture design အဖြစ် ပေါင်းစည်းပြီး Storage, HNSW Memory Footprint နှင့် QPS Capacity Planning များကို mathematical modeling ဖြင့် တည်ဆောက်သည့် Capstone module ဖြစ်သည်။
 
-## ဒီ module မှာ ဘာသင်မလဲ
+## သင်ယူလေ့လာမည့် အကြောင်းအရာများ
 
-- Ingest → chunk → embed → index → retrieve → rerank → evaluate ကြားထဲက ဆက်စပ်မှုကို တစ်ပုံတည်း မြင်ရမယ်
-- Storage တွက်ချက်မှု — chunk အရေအတွက် × dimension × bytes ဖော်မျူလာနဲ့ တွက်နည်း
-- HNSW index (Malkov & Yashunin, 2016 စာတမ်းအရ graph-based ရှာဖွေမှု) memory ခန့်မှန်းချက်
-- QPS (Query Per Second — စက္ကန့်အလိုက် query အရေအတွက်) နှင့် p95 latency (request ၉၅% ရောက်တဲ့ အချိန်)
-- Chunking နှင့် embedding ရွေးချယ်မှုက query ရလဒ်အပေါ် ဘယ်လိုသက်ရောက်လဲ
-- Offline, deterministic တွက်စက် script တစ်ခု ရေးတာ
+- End-to-end RAG architecture: Ingestion → Chunking → Embedding → Indexing → Retrieval → Reranking → Generation → Evaluation lifecycle
+- Vector storage formulation: Chunk volume × Embedding dimension × Precision bytes (fp32 vs fp16/halfvec)
+- HNSW index memory profiling: Multi-layer graph topology, `M`, `ef_construction` နှင့် link overheads
+- QPS (Queries Per Second) throughput နှင့် p95/p99 latency profiling
+- Chunk size / Overlap parameters များ၏ downstream retrieval precision နှင့် context completeness အပေါ် သက်ရောက်မှု
+- Deterministic, offline capacity planning calculator engine တည်ဆောက်ခြင်း
 
-## သင်ခန်းစာများ
+## Module အစိတ်အပိုင်းများ
 
-- M13.1 — Pipeline တစ်ခုလုံးရဲ့ ပုံပန်းနဲ့ အဆင့်ဆင့် အလုပ်လုပ်ပုံ
-- M13.2 — Storage တွက်စက် (chunk အရေအတွက် × dimension × bytes)
-- M13.3 — HNSW index memory ခန့်မှန်းချက်
-- M13.4 — QPS နှင့် p95 latency ခန့်မှန်းချက်
-- M13.5 — Chunking/embedding ရွေးချယ်မှုအကျိုးသက်ရောက်မှု
-- M13.6 — Capstone project — deterministic တွက်စက် script
+- M13.1 — End-to-end pipeline lifecycle နှင့် component interactions
+- M13.2 — Raw vector storage estimation (chunk count × dimensions × bytes)
+- M13.3 — HNSW graph topology memory estimation (vector buffer + adjacency list)
+- M13.4 — QPS throughput နှင့် percentile latency modeling
+- M13.5 — Parameter sensitivity analysis (chunking granularities & embedding dimensions)
+- M13.6 — Capstone implementation: End-to-end deterministic retrieval & capacity engine
 
-## လိုအပ်ချက်များ (Prerequisites)
+## Prerequisites
 
-- M01 ကနေ M12 အထိ သင်ခန်းစာတွေ သင်ယူထားဖို့
-- Python standard library အခြေခံ ကောင်းကောင်းသိထားဖို့
-- Cosine similarity, HNSW graph, RRF, recall@k တို့ရဲ့ အယူအဆ နားလည်ထားဖို့
-- PostgreSQL + pgvector အကြောင်း အခြေခံ ဖတ်ဖူးဖို့
+- Modules M01 မှ M12 အထိ သင်ခန်းစာများ အားလုံး
+- Python 3 standard library
+- Vector search concepts (Cosine similarity, HNSW mechanics, RRF fusion, Recall@K evaluation)
+- PostgreSQL + pgvector architecture အခြေခံ
 
-## ဘယ်အချိန်မှာ အသုံးဝင်လဲ
+## Production Use Cases
 
-- Production မှာ deploy မလုပ်ခင် hardware အရွယ်အစား ခန့်မှန်းချင်တဲ့အခါ
-- Pipeline design doc ရေးပြီး ကုန်ကျစရိတ် ခန့်မှန်းချင်တဲ့အခါ
-- Chunk size နဲ့ embedding model ပြောင်းကြည့်ချင်တဲ့အခါ
-- သင်ယူထားတဲ့ အချက်တွေကို တစ်နေရာတည်း ပြန်စုစည်းချင်တဲ့အခါ
+- Infrastructure procurement အတွက် vector database cluster RAM နှင့် NVMe storage sizing ပြုလုပ်ခြင်း
+- Production deployment မတိုင်မီ architectural design document (RFC) ရေးသားခြင်း
+- Cost-to-performance optimization (FP32 vs Halfvec / Scalar Quantization trade-offs)
 
-## ကိုးကား
+## References
 
-- pgvector — https://github.com/pgvector/pgvector
-- HNSW paper — https://arxiv.org/abs/1603.09320
-- Ragas evaluation framework docs — https://docs.ragas.io/
-
-> ဒီ course က official open documentation တွေကနေ ကိုယ်တိုင်ရေးထားတဲ့ original လေ့လာရေး material ပါ။ Commercial course တွေရဲ့ သင်ခန်းစာတွေကို မကူးယူရေးထားပါဘူး။
+- pgvector Official Documentation: https://github.com/pgvector/pgvector
+- HNSW Paper (Malkov & Yashunin, 2016): https://arxiv.org/abs/1603.09320
+- Ragas Retrieval Evaluation Framework: https://docs.ragas.io/

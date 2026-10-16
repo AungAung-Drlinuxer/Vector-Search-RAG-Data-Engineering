@@ -1,8 +1,8 @@
 # M0 — RAG Data Engineering ရဲ့ မြေပုံ၊ Pipeline အဆင့်များနှင့် Vector Search ကို ဘယ်အချိန်သုံးမလဲ
 
-ဒီ module က ဒီ course ရဲ့ ပထမဆုံး အခြေခံသင်ခန်းစာ ဖြစ်ပါတယ်။
-RAG (Retrieval-Augmented Generation — အချက်အလက် ရှာဖွေပြီးမှ အဖြေထုတ်ပေးသည့် စနစ်) ရဲ့ မြေပုံကို ကြည့်ပါမယ်။
-အားလုံးရဲ့ အခြေခံက official documentation တွေပဲ ဖြစ်ပါတယ် — pgvector, LlamaIndex, LangChain ရဲ့ open docs တွေပါ။
+ဒီ module သည် ဒီ course ၏ ပထမဆုံး အခြေခံ သင်ခန်းစာ ဖြစ်သည်။
+RAG (Retrieval-Augmented Generation) ၏ pipeline မြေပုံကို ချပြသည်။
+အကြောင်းအရာအားလုံးသည် official documentation များ — pgvector၊ LlamaIndex၊ LangChain ရှိ open docs များ — ကို အခြေခံသည်။
 
 ---
 
@@ -10,28 +10,28 @@ RAG (Retrieval-Augmented Generation — အချက်အလက် ရှာဖ
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-RAG pipeline ဆိုတာ document တွေကနေ စတာပြီး အဖြေကောင်းတစ်ခု ထွက်လာတဲ့ အဆင့် ၈ ဆင့်ရှိတဲ့ လမ်းကြောင်း ဖြစ်ပါတယ်။
-အဆင့်တွေက — ingest, chunk, embed, index, retrieve, rerank, generate, evaluate ပါ။
-ရိုးရှင်းအောင် ပြောရရင် — အချက်အလက်ကို ယူပါ၊ ဖြတ်ပါ၊ vector ထဲ ပြောင်းပါ၊ သိမ်းပါ၊ ရှာပါ၊ အစီအစဉ်ပြန်ပါ၊ အဖြေရေးပါ၊ စစ်ပါ ဆိုတာပါပဲ။
+RAG pipeline သည် document များမှ စတင်၍ အဖြေတစ်ခု ထုတ်ပေးသည့်အထိ အဆင့် ၈ ဆင့် ပါဝင်သော လုပ်ငန်းစီးဆင်းမှု ဖြစ်သည်။
+အဆင့်များမှာ — ingest၊ chunk၊ embed၊ index၊ retrieve၊ rerank၊ generate၊ evaluate ဖြစ်သည်။
+အနှစ်ချုပ်အားဖြင့် — data ရယူခြင်း၊ ခွဲခြမ်းခြင်း၊ vector အဖြစ် ပြောင်းလဲခြင်း၊ သိမ်းဆည်းခြင်း၊ ရှာဖွေခြင်း၊ အစီအစဉ် ပြန်စီခြင်း၊ အဖြေထုတ်ခြင်း၊ အရည်အသွေး စစ်ဆေးခြင်း တို့ ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-အဆင့်တွေ မခွဲထားရင် စနစ်က ထိန်းချုပ်လို့ မရပါဘူး။
-ဥပမာ — အဖြေတွေ မှားနေရင်၊ အမှားက chunk လား၊ embed လား၊ retrieve လား ဆိုတာ မသိရပါဘူး။
-အဆင့် ၈ ခု ခွဲထားရင် တစ်ခုချင်းစီကို ခွဲစစ်လို့ ရပါတယ်။
-ဒါက data engineer ရဲ့ အဓိက အလုပ် ဖြစ်ပါတယ်။
-LlamaIndex docs မှာလည်း RAG ကို အဆင့်ခွဲပြီး ရှင်းပြထားပါတယ် — https://docs.llamaindex.ai/en/stable/ ကို ကြည့်ပါ။
+အဆင့်များကို မခွဲခြားထားပါက စနစ်ကို observability မရှိဘဲ လည်ပတ်ရသည်။
+အဖြေများ မှားယွင်းနေပါက အမှားသည် chunk၊ embed၊ retrieve အနက် မည်သည့်အဆင့်ကြောင့်ဖြစ်သည်ကို ခွဲခြား၍ မရနိုင်ပါ။
+အဆင့် ၈ ခု ခွဲခြားထားပါက အဆင့်တစ်ခုချင်းစီကို သီးခြား တိုင်းတာ၍ ရသည်။
+ဒါက data engineer ၏ အဓိက တာဝန် ဖြစ်သည်။
+LlamaIndex docs တွင်လည်း RAG ကို အဆင့်ခွဲ၍ ရှင်းပြထားသည် — https://docs.llamaindex.ai/en/stable/ ကို ကြည့်ပါ။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ **ingest** — document (PDF, web page, database record) တွေကို စနစ်ထဲ ယူလာပါတယ်။
-၂။ **chunk** — စာရှည်ကြီးကို အပိုင်းလေးတွေ ဖြတ်ပါတယ် (chunk ဆိုတာ စာအပိုင်းလေး ဖြစ်ပါတယ်)။
-၃။ **embed** — chunk တစ်ခုချင်းစီကို vector (numeric embedding) အဖြစ် ပြောင်းပါတယ်။
-၄။ **index** — vector တွေကို vector store ထဲ သိမ်းပါတယ်။
-၅။ **retrieve** — မေးခွန်းကို vector အဖြစ် ပြောင်းပြီး ဆင်တူတဲ့ chunk တွေကို ရှာပါတယ်။
-၆။ **rerank** — ရှာတွေ့တဲ့ chunk တွေကို အရေးကြီးစွာ ပြန်စီပါတယ်။
-၇။ **generate** — ရွေးချယ်ထားတဲ့ chunk တွေနဲ့အတူ LLM ကို ဖြေဆိုခိုင်းပါတယ်။
-၈။ **evaluate** — အဖြေအရည်အသွေးကို တိုင်းတာပါတယ်။
+၁။ **ingest** — source document (PDF၊ web page၊ database record) များကို စနစ်ထဲသို့ ရယူသည်။
+၂။ **chunk** — စာရှည်များကို retrieve လုပ်၍ရသော အပိုင်းငယ်များအဖြစ် ခွဲခြမ်းသည်။
+၃။ **embed** — chunk တစ်ခုချင်းစီကို numeric embedding vector အဖြစ် ပြောင်းလဲသည်။
+၄။ **index** — vector များကို vector store ထဲ သိမ်းဆည်း၍ search လုပ်နိုင်အောင် စီစဉ်သည်။
+၅။ **retrieve** — query ကို embed လုပ်ပြီး ဆင်တူသော chunk များကို ရှာဖွေသည်။
+၆။ **rerank** — ရရှိလာသော candidate chunk များကို ပိုမိုတိကျသော scorer ဖြင့် အစီအစဉ် ပြန်စီသည်။
+၇။ **generate** — ရွေးချယ်ထားသော chunk များနှင့်အတူ LLM ကို အဖြေထုတ်စေသည်။
+၈။ **evaluate** — အဖြေ၏ အရည်အသွေးကို တိုင်းတာသည်။
 
 ### ဥပမာ
 
@@ -65,9 +65,9 @@ for i, (name, what) in enumerate(stages, 1):
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-အဆင့် ၁-၄ က offline ဘက်ပါ၊ အဆင့် ၅-၈ က online (မေးချိန်) ဘက်ပါ။
-ဒီ နှစ်ခု ခွဲတတ်ရင် စနစ်ကို တည်ငြိမ်အောင် လုပ်လို့ ရပါတယ်။
-Offline ပိုင်းက ကြိုပြင်ဆင်လို့ ရတဲ့နေရာ၊ online ပိုင်းက မြန်မြန်ပြန်ရရတဲ့နေရာပါ။
+အဆင့် ၁–၄ သည် offline (ingestion) ဘက်၊ အဆင့် ၅–၈ သည် online (query-time) ဘက် ဖြစ်သည်။
+ဒီ နှစ်ပိုင်းကို ခွဲခြားသိရှိပါက စနစ်ကို တည်ငြိမ်အောင် ဒီဇိုင်းဆွဲနိုင်သည်။
+Offline ပိုင်းသည် ကြိုတင် ပြင်ဆင်နိုင်သော နေရာ၊ online ပိုင်းသည် latency အနိမ့်ဆုံး လိုအပ်သော နေရာ ဖြစ်သည်။
 
 ---
 
@@ -75,28 +75,28 @@ Offline ပိုင်းက ကြိုပြင်ဆင်လို့ ရ�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-**Keyword search** ဆိုတာ စကားလုံးချင်း တစ်ခုပေါ်တစ်ခု ကိုက်တာကို ရှာတာပါ။
-"database" ဆို ရှာရင် "database" စာလုံးပါတဲ့ chunk ပဲ ထွက်လာပါတယ်။
-**Vector search** ဆိုတာ အဓိပ္ပာယ်အရ ဆင်တူတာကို ရှာတာပါ။
-cosine similarity (vector နှစ်ခုကြား ထောင့်နဲ့ တွက်တဲ့ ဆင်တူမှု အမှတ်) နဲ့ တိုင်းပါတယ်။
-**Hybrid** ဆိုတာ နှစ်မျိုးလုံး ပေါင်းသုံးတာပါ။
+**Keyword search** သည် token အလိုက် တိကျသော စကားလုံး ကိုက်ညီမှုကို ရှာဖွေသည်။
+"database" ဟု ရှာပါက "database" စာလုံးပါသော chunk များသာ ရလဒ်ထွက်သည်။
+**Vector search** သည် semantic similarity — အဓိပ္ပာယ်အရ ဆင်တူမှု — ကို ရှာဖွေသည်။
+Cosine similarity ဖြင့် တိုင်းတာသည်။
+**Hybrid** သည် နှစ်မျိုးကို ပေါင်းစပ် အသုံးပြုသည့် architecture ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Vector search ချည်းပဲ ဆိုရင် အမည်၊ ကုတ်နံပါတ်၊ ဗားရှင်း စတာတွေ မှားတတ်ပါတယ်။
-"error E-4021" လို့ ရှာရင် vector က "E-4021" ကို နားမလည်ပါဘူး၊ keyword က တိုက်ရိုက်ရှာတွေ့ပါတယ်။
-Keyword ချည်းပဲ ဆိုရင် သံစဉ်အရ ဆင်တဲ့ မေးခွန်းတွေ မှားတတ်ပါတယ်။
-"ဘယ်လို data တွေ သိမ်းထားလဲ" နဲ့ "storage plan" က စကားလုံးမတူပေမယ့် အဓိပ္ပာယ် နီးစပ်ပါတယ်။
-ဒါကြောင့် hybrid က အသုံးအများဆုံး ရွေးချယ်မှု ဖြစ်ပါတယ်။
-pgvector က vector search ကို PostgreSQL ထဲမှာ တိုက်ရိုက်ပေးပါတယ် — https://github.com/pgvector/pgvector ကို ကြည့်ပါ။
+Vector search သီးသန့် အသုံးပြုပါက အမည်၊ ကုတ်နံပါတ်၊ version identifier ကဲ့သို့ exact-match token များတွင် အမှားဖြစ်တတ်သည်။
+"error E-4021" ကို ရှာပါက vector search သည် "E-4021" ကို semantic အရ ခွဲခြားနိုင်ခြင်း မရှိဘဲ keyword search က တိုက်ရိုက် ရှာဖွေတွေ့ရှိသည်။
+Keyword search သီးသန့် အသုံးပြုပါက စကားလုံး မတူသော်လည်း အဓိပ္ပာယ် နီးစပ်သော query များ လွတ်သွားတတ်သည်။
+"ဘယ်လို data တွေ သိမ်းထားလဲ" နှင့် "storage plan" သည် token မတူသော်လည်း အဓိပ္ပာယ် နီးစပ်သည်။
+ဒါကြောင့် production စနစ်များတွင် hybrid ကို အများဆုံး ရွေးချယ်ကြသည်။
+pgvector သည် vector search ကို PostgreSQL ထဲတွင် တိုက်ရိုက် ပေးစွမ်းနိုင်သည် — https://github.com/pgvector/pgvector ကို ကြည့်ပါ။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ မေးခွန်းလာရင် နှစ်ခြမ်း လုပ်ပါ — keyword နဲ့ ရှာတာတစ်ခြမ်း၊ vector နဲ့ ရှာတာတစ်ခြမ်း။
-၂။ vector search အတွက် question ကို embed လုပ်ပါတယ်။
-၃။ keyword အတွက် exact token တွေ ထုတ်ပါတယ်။
-၄။ ရလဒ်နှစ်ခုကို ရောမွှေပါ — နောက် module မှာ RRF (Reciprocal Rank Fusion) ကို တွေ့ပါမယ်။
-၅။ ရွေးချယ်မှု စည်းမျဉ်း — အမည်/ကုတ်ရှိရင် keyword၊ အဓိပ္ပာယ်ရှာရင် vector၊ နှစ်မျိုးလုံးလိုရင် hybrid။
+၁။ Query ရောက်လာပါက နှစ်ဖက် parallel ရှာဖွေပါ — keyword retrieval တစ်ဖက်၊ vector retrieval တစ်ဖက်။
+၂။ Vector retrieval အတွက် question ကို embed လုပ်ပါ။
+၃။ Keyword retrieval အတွက် exact token များ ထုတ်ပါ။
+၄။ ရလဒ်နှစ်ခုကို fusion လုပ်ပါ — နောက် module တွင် RRF (Reciprocal Rank Fusion) ကို လေ့လာရမည်။
+၅။ ရွေးချယ်မှု စည်းမျဉ်း — exact identifier ပါပါက keyword၊ semantic query ဖြစ်ပါက vector၊ နှစ်မျိုးလုံး လိုအပ်ပါက hybrid။
 
 ### ဥပမာ
 
@@ -129,9 +129,9 @@ print("score_b =", round(cosine(question, chunk_b), 4))
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-ရွေးချယ်မှုမှန်ရင် မေးခွန်းတော်တော်များများ ပြန်လည် ရပါတယ်။
-ရွေးချယ်မှုမှားရင် အောက်ပိုင်းအဆင့်တွေ အားလုံး မှားသွားပါတယ်။
-ဒါက ဘယ် model ကောင်းလို့မှ မြင့်မားလာတဲ့ အချက် ဖြစ်ပါတယ်။
+Retrieval strategy ရွေးချယ်မှု မှန်ကန်ပါက query အများစုအတွက် သက်ဆိုင်ရာ chunk များ ပြန်လည် ရရှိသည်။
+ရွေးချယ်မှု မှားယွင်းပါက downstream အဆင့်များ အားလုံး၏ အရည်အသွေး ကျဆင်းသည်။
+ဒါက embedding model အရည်အသွေး မြင့်မားမှုဖြင့် ပြန်လည် ကာမိနိုင်သော အချက် မဟုတ်ပါ။
 
 ---
 
@@ -139,24 +139,24 @@ print("score_b =", round(cosine(question, chunk_b), 4))
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-**Latency** ဆိုတာ မေးပြီးမှ အဖြေရရှိအထိ စောင့်ရတဲ့ အချိန်ပါ။
-**Cost** ဆိုတာ pipeline လည်ပတ်ဖို့ ကုန်တဲ့ ပိုက်ဆံနဲ့ စက်အရင်းအမြစ်ပါ။
-အဓိက ကုန်ကျစရိတ်တွေက — embed ခြင်း စရိတ်၊ vector သိမ်းရတဲ့ storage၊ ရှာဖွေချိန်ပါ။
+**Latency** သည် query ပေးချိန်မှ အဖြေ ရရှိချိန်အထိ ကြာမြင့်ချိန် ဖြစ်သည်။
+**Cost** သည် pipeline လည်ပတ်ရန် လိုအပ်သော ငွေကုန်ကြေးကျနှင့် compute/storage resource များ ဖြစ်သည်။
+အဓိက ကုန်ကျစရိတ်များမှာ — embedding generation၊ vector storage၊ retrieval query time တို့ ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Storage အရွယ်ကို မြင်ရရင် ဘယ် plan ယူရမလဲ ကို ကြိုတွက်လို့ ရပါတယ်။
-တွက်တဲ့ ပုံသေနည်းက — `chunks × dimensions × bytes_per_float` ပါ။
-fp32 မှာ float တစ်လုံးက 4 bytes ယူပါတယ် (ဒါက fp32 format ရဲ့ သဘာဝ သတ်မှတ်ချက်ပါ)။
-မှန်းဆပြီး မတွက်ပါနဲ့ — ကိုယ်တိုင်တွက်ပြပါမယ်။
+Storage footprint ကို ကြိုတင် တွက်ချက်နိုင်ပါက capacity plan ကို ကြိုတင် ချမှတ်နိုင်သည်။
+ပုံသေနည်းမှာ — `chunks × dimensions × bytes_per_float` ဖြစ်သည်။
+fp32 တွင် float တစ်လုံးသည် 4 bytes ယူသည် (fp32 format ၏ သတ်မှတ်ချက်)။
+မှန်းဆ၍ မတွက်ပါနှင့် — အောက်တွင် အဆင့်ဆင့် တွက်ပြထားသည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ chunk အရေအတွက်ကို သတ်မှတ်ပါ (ဒီဥပမာမှာ 1,000,000)။
-၂။ embedding dimension ကို သတ်မှတ်ပါ (ဒီဥပမာမှာ 768)။
-၃။ vector တစ်ခုရဲ့ size = `768 × 4` bytes လို့ တွက်ပါ။
-၄။ စုစုပေါင်း = `chunks × vector_size` ပါ။
-၅။ pgvector ရဲ့ indexing (HNSW တို့) က graph structure ထပ်ဆောက်လို့ storage နည်းနည်း တိုးပါတယ် — ဒီအဆင့်မှာ vector data ချည်းပဲ တွက်ပါမယ်။
+၁။ chunk အရေအတွက်ကို သတ်မှတ်ပါ (ဒီဥပမာတွင် 1,000,000)။
+၂။ embedding dimension ကို သတ်မှတ်ပါ (ဒီဥပမာတွင် 768)။
+၃။ vector တစ်ခု၏ size = `768 × 4` bytes။
+၄။ စုစုပေါင်း = `chunks × vector_size`။
+၅။ pgvector ၏ HNSW ကဲ့သို့ index များသည် graph structure ထပ်ဆောက်သဖြင့် storage အနည်းငယ် တိုးသည် — ဒီအဆင့်တွင် raw vector data ကိုသာ တွက်မည်။
 
 ### ဥပမာ
 
@@ -185,10 +185,10 @@ print(f"total size      = {total_mb:,.0f} MB ({total_gb:,.2f} GB)")
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Storage တွက်မမှန်ရင် database က full သွားတတ်ပါတယ်။
-Latency က retrieve နဲ့ generate အဆင့်မှာ အများဆုံး ဖြစ်ပါတယ်။
-Chunk အရေအတွက်နည်းရင် latency ကျပေမယ့် အချက်အလက် လျှော့ပါတယ်။
-ဒီ trade-off က data engineer ရဲ့ ဆုံးဖြတ်ချက်ပါ။
+Storage တွက်ချက်မှု မှားယွင်းပါက database capacity ပြည့်သွားနိုင်သည်။
+Latency သည် retrieve နှင့် generate အဆင့်များတွင် အများဆုံး စုဆောင်းမိသည်။
+Chunk အရေအတွက် လျှော့ချပါက latency ကျသော်လည်း coverage လျော့သည်။
+ဒီ trade-off သည် data engineer ၏ ဆုံးဖြတ်ချက် ဖြစ်သည်။
 
 ---
 
@@ -196,22 +196,22 @@ Chunk အရေအတွက်နည်းရင် latency ကျပေမယ�
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-**Chunking** ဆိုတာ စာရှည်ကြီးကို ဖြတ်တာပါ။
-**Chunk size** ဆိုတာ အပိုင်းတစ်ခုရဲ့ စကားလုံး (သို့) character အရေအတွက်ပါ။
-**Overlap** ဆိုတာ အပိုင်းနှစ်ခု ထပ်နေတဲ့ အပိုင်းပါ — အဓိပ္ပာယ် မပျက်အောင်ပါ။
+**Chunking** သည် document တစ်ခုကို embed လုပ်၍ retrieve ပြန်နိုင်သော retrieval unit (chunk) များအဖြစ် ခွဲခြမ်းခြင်း ဖြစ်သည်။
+**Chunk size** သည် chunk တစ်ခု၏ စကားလုံး (သို့) character အရေအတွက်။
+**Overlap** သည် chunk နှစ်ခုကြား ထပ်နေသော အပိုင်း — boundary တွင် အဓိပ္ပာယ် မပျက်စေရန် ဖြစ်သည်။
 
 ### ဘာကြောင့် လဲ
 
-Chunk ရှည်လွန်းရင် အမှားအင်အား သက်ရောက်တတ်ပါတယ်၊ embed က အဓိပ္ပာယ် နှစ်သက်ကွဲသွားတတ်ပါတယ်။
-Chunk တိုလွန်းရင် အဓိပ္ပာယ်ပြည့်မီတဲ့ အချက်အလက် မပါပါဘူး။
-LangChain docs က chunk size နဲ့ overlap ကို ရွေးရတဲ့ ဆုံးဖြတ်ချက်လို့ ပြောပါတယ် — https://python.langchain.com/docs/concepts/text_splitters/ ကို ကြည့်ပါ။
+Chunk ရှည်လွန်းပါက embedding vector သည် အဓိပ္ပာယ် အမျိုးမျိုး ရောနှောနေပြီး similarity score ရောထွေးသွားသည်။
+Chunk တိုလွန်းပါက LLM အတွက် လုံလောက်သော context မပါဝင်တော့ပါ။
+LangChain docs သည် chunk size နှင့် overlap ရွေးချယ်မှုကို ဒီဇိုင်း ဆုံးဖြတ်ချက်တစ်ခုအဖြစ် ရှင်းပြထားသည် — https://python.langchain.com/docs/concepts/text_splitters/ ကို ကြည့်ပါ။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
 ၁။ text ကို chunk size စကားလုံးအရ ခွဲပါ။
 ၂။ overlap စကားလုံး အရေအတွက်ကို နောက် chunk ထဲ ထပ်ထည့်ပါ။
-၃။ အပိုင်းတစ်ခုချင်း metadata (အရင်းအမြစ်၊ နံပါတ်) ထည့်ပါ။
-၄။ sentence ပိုင်းစည်းနဲ့ ဖြတ်ရင် အဓိပ္ပာယ် ပိုမှန်ပါတယ်။
+၃။ chunk တစ်ခုချင်းစီတွင် metadata (source၊ chunk index) ပါစေပါ။
+၄။ Sentence boundary တွင် ဖြတ်ပါက အဓိပ္ပာယ် ပိုမို ပြည့်စုံသည်။
 
 ### ဥပမာ
 
@@ -244,9 +244,9 @@ for i, c in enumerate(chunks):
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-Chunking က pipeline ရဲ့ အစောဆုံး အဆင့်ပေမယ့် နောက်ဆုံးအထိ သက်ရောက်ပါတယ်။
-Chunk ကောင်းရင် retrieve က သဘာဝကျပါတယ်။
-မကောင်းရင် အောက်ပိုင်းမှာ ကုစားလို့ မရတော့ပါဘူး။
+Chunking သည် pipeline ၏ အစောဆုံး အဆင့် ဖြစ်သော်လည်း နောက်ဆုံး အရည်အသွေးအထိ သက်ရောက်မှု ရှိသည်။
+Chunk boundary ကောင်းမွန်ပါက retrieval precision မြင့်သည်။
+Boundary မှားယွင်းပါက downstream တွင် ပြန်လည် ကုစား၍ မရနိုင်တော့ပါ။
 
 ---
 
@@ -254,34 +254,34 @@ Chunk ကောင်းရင် retrieve က သဘာဝကျပါတယ်
 
 ### ဘာကို ဆိုလိုတာလဲ
 
-RAG မှာ တာဝန်နှစ်မျိုး ရှိပါတယ်။
-**Data engineering တာဝန်** — ingest, chunk, index, pipeline စနစ်တကျလည်ပတ်အောင် လုပ်တာပါ။
-**Model တာဝန်** — embedding model ရွေး၊ LLM ရွေး၊ prompt ရေးတာပါ။
-ခွဲခြားတတ်ရင် ပြဿနာက ဘယ်ဘက်မှာလဲ ဆိုတာ မြန်မြန် ရှာတွေ့ပါတယ်။
+RAG စနစ်တွင် တာဝန် နယ်နိမိတ် နှစ်ခု ရှိသည်။
+**Data engineering တာဝန်** — ingestion၊ chunking၊ indexing၊ pipeline စနစ်တကျ လည်ပတ်မှု။
+**Model တာဝန်** — embedding model ရွေးချယ်မှု၊ LLM ရွေးချယ်မှု၊ prompt ဒီဇိုင်း။
+နယ်နိမိတ် ခွဲခြားနိုင်ပါက incident တစ်ခု၏ root cause ကို မြန်ဆန်စွာ ခွဲခြားနိုင်သည်။
 
 ### ဘာကြောင့် လဲ
 
-အဖြေမှားတဲ့အခါ အားလုံးက model ကို တိုင်တတ်ပါတယ်။
-ဒါပေမယ့် တကယ်တော့ ကြိုမစစ်တဲ့ document၊ မကောင်းတဲ့ chunk၊ metadata မှားတာတွေက အဓိကအကြောင်းရင်း ဖြစ်တတ်ပါတယ်။
-ပြဿနာဘက် မှားတိုင်း အချိန်ကုန်ပါတယ်။
-ဒါကြောင့် တာဝန်နှစ်မျိုး ကြိုပြီး ခွဲသိထားသင့်ပါတယ်။
+အဖြေမှားယွင်းသည့်အခါ အပြစ်ကို model ဘက်သို့ အလွယ်တကူ လွှဲပြောလေ့ ရှိသည်။
+သို့သော် လက်တွေ့တွင် မသန့်စင်ရသေးသော document၊ chunk boundary မှားယွင်းမှု၊ metadata အမှားများက အဓိက root cause ဖြစ်လေ့ ရှိသည်။
+Root cause ဘက် မှားယွင်းစွာ စုံစမ်းပါက incident resolution အချိန် တိုးသည်။
+ဒါကြောင့် တာဝန် နယ်နိမိတ် နှစ်ခုကို ကြိုတင် ခွဲခြားထားသင့်သည်။
 
 ### ဘယ်လို အလုပ်လုပ်လဲ
 
-၁။ အမှားတွေကို ဇယားနဲ့ ခွဲထုတ်ပါ — data အမှား၊ chunk အမှား၊ embedding အမှား၊ index အမှား၊ prompt အမှား။
-၂။ Data ဘက်ကို data engineer က ပိုင်ပါတယ် — ingestion၊ chunking၊ metadata၊ versioning။
-၃။ Model ဘက်ကို ML engineer က ပိုင်ပါတယ် — embedding model၊ reranker၊ generation prompt။
-၄။ Retrieval quality ကို နှစ်ဖက်စလုံး တူတူ စစ်ရပါတယ် — recall@k နဲ့ အဖြေမှန်နှုန်း။
-၅။ တာဝန် မခွဲထားရင် "data မှားလား၊ model မှားလား" ဆိုတာ ဘယ်သူမှ မဖြေနိုင်တော့ပါဘူး။
+၁။ အမှားအယွင်းများကို အမျိုးအစားခွဲပါ — data error၊ chunking error၊ embedding error၊ index error၊ prompt error။
+၂။ Data ဘက်ကို data engineer က ပိုင်သည် — ingestion၊ chunking၊ metadata၊ versioning။
+၃။ Model ဘက်ကို ML engineer က ပိုင်သည် — embedding model၊ reranker၊ generation prompt။
+၄။ Retrieval quality ကို နှစ်ဖက်ပူးပေါင်း တိုင်းတာရသည် — recall@k နှင့် အဖြေမှန်နှုန်း။
+၅။ တာဝန် မခွဲထားပါက "data မှားလား၊ model မှားလား" ဆိုသည့် မေးခွန်းကို ဖြေဆိုနိုင်သူ မရှိတော့ပါ။
 
 ### လက်တွေ့မှာ ဘာကြောင့် အရေးကြီးလဲ
 
-RAG စနစ်တွေမှာ ပြဿနာ အများစုက generation မဟုတ်ဘဲ retrieval ဖြစ်တတ်ပါတယ်။ ဒါကြောင့် pipeline အဆင့်တိုင်းကို သီးခြား တိုင်းတာနိုင်တဲ့ အခြေအနေ ထားရှိဖို့ လိုပါတယ်။
+RAG စနစ်များတွင် ပြဿနာ အများစုသည် generation ဘက်တွင် မဟုတ်ဘဲ retrieval ဘက်တွင် ဖြစ်သည်။ ဒါကြောင့် pipeline အဆင့်တိုင်းကို သီးခြား တိုင်းတာနိုင်သော အခြေအနေ ထားရှိဖို့ လိုသည်။
 
 ## အနှစ်ခုပ်
 
-- RAG က အဆင့် ၈ ခု ရှိပြီး တစ်ဆင့်ချင်း တိုင်းတာလို့ ရပါတယ်။
-- Vector search က အဓိပ္ပာယ် ဆင်တူမှုအတွက်၊ keyword က အတိအကျ စကားလုံးအတွက် သင့်ပါတယ်။
-- ကုန်ကျစရိတ်နှင့် latency ကို အဆင့်တိုင်းမှာ ချိန်ရပါတယ်။
-- Data engineer နှင့် ML engineer တာဝန်ကို ကြိုခွဲထားပါ။
-- Retrieval ကောင်းမှ generation ကောင်းနိုင်တာမို့ အရင်ဆုံး retrieval ကို စစ်ပါ။
+- RAG pipeline တွင် အဆင့် ၈ ခု ရှိပြီး အဆင့်တစ်ခုချင်းစီကို သီးခြား တိုင်းတာနိုင်သည်။
+- Vector search သည် semantic similarity အတွက်၊ keyword search သည် exact token matching အတွက် သင့်တော်သည်။
+- ကုန်ကျစရိတ်နှင့် latency ကို အဆင့်တိုင်းတွင် ချိန်ခွင်လျှာ ညှိရသည်။
+- Data engineer နှင့် ML engineer တာဝန် နယ်နိမိတ်ကို ကြိုတင် ခွဲခြားထားပါ။
+- Retrieval quality ကောင်းမွန်မှသာ generation quality ကောင်းနိုင်သဖြင့် retrieval ကို ဦးစွာ စစ်ဆေးပါ။

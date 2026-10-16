@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — Storage အရွယ် တွက်ပါ
+## လေ့ကျင့်ခန်း ၁ — Vector Storage Footprint Capacity Estimation
 
-chunks × dims × bytes ဆိုတဲ့ formula နဲ့ တိုက်ရိုက်တွက်လို့ ရပါတယ်။ ဒီဂဏန်းကတော့ vector database အတွက် memory ဘယ်လောက် ပြင်ဆင်ရမလဲဆိုတာ ခန့်မှန်းပေးပါတယ်နော်။
+Chunks, Dimensions နှင့် Byte precision အပေါ် အခြေခံ၍ raw vector database storage footprint ကို တွက်ချက်ပြထားသည်။
 
 ```python
 # Storage estimate: chunks * dims * bytes_per_value
@@ -22,11 +22,13 @@ print("approx GB:", total_bytes / 1e9)
 # approx GB: 3.072
 ```
 
-**အဓိကအယူဆ** — fp32 vector တစ်ခုချင်းစီက 768 × 4 = 3,072 bytes ယူလို့ သုံးဘီလီယံခုထဲမှာ ၃ GB ကျော် လိုအပ်ပါတယ်။
+**အဓိကအယူအဆ** — 1M chunks × 768 dimensions × FP32 (4 bytes) သည် 3,072,000,000 bytes (≈ 3.072 GB / 2.86 GiB) raw storage လိုအပ်ပြီး FP16/Halfvec သို့ ပြောင်းလဲပါက 1.43 GiB သို့ လျှော့ချနိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၂ — Chunk size ရွေးမှုရဲ့ အကျိုးသက်ရောက်မှု
+---
 
-chunk ငယ်ရင် အရေအတွက် များပြီး precision ကောင်းပေမယ့် storage နဲ့ index အလုပ် ပိုများပါတယ်။ chunk ကြီးရင်တော့ context များပေမယ့် စာကြောင်းအလွန် ပျောက်လွယ်သွားပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၂ — Chunk Size Granularity Trade-Off Analysis
+
+Chunk size ရွေးချယ်မှုသည် total chunk volume၊ indexing throughput နှင့် downstream retrieval precision/completeness အပေါ် သက်ရောက်ပုံကို နှိုင်းယှဉ်ပြထားသည်။
 
 ```python
 import math
@@ -47,11 +49,13 @@ print("800-word chunks: fewer chunks, richer context, but relevant sentences get
 # 800-word chunks: fewer chunks, richer context, but relevant sentences get diluted
 ```
 
-**အဓိကအယူဆ** — chunk size က recall နဲ့ precision နှစ်ခုလုံးကို ထိခိုက်လို့ corpus နဲ့ query အမျိုးအစားအပေါ် မူတည်ပြီး မျှတတဲ့ အရွယ် ရွေးရပါတယ်။
+**အဓိကအယူအဆ** — Granular chunks များသည် focused lexical precision ကို အားပေးပြီး macro chunks များသည် contextual completeness ကို အားပေးသဖြင့် corpus structure အပေါ် မူတည်၍ ချိန်ညှိရသည်။
 
-## လေ့ကျင့်ခန်း ၃ — HNSW-style graph ဆောက်ပြီး search လုပ်ပါ
+---
 
-level 0 တစ်ထပ်ပဲ ပါတဲ့ ရိုးရိုး graph ကို အနီးဆုံး M=4 ချက်နဲ့ ချိတ်ပြီး entry point ကနေ greedy သွားပါတယ်။ real HNSW က multi-layer ဖြစ်ပေမယ့် ဒီမှာတော့ အတွေးကို အလွယ်ပြထားတာပါနော်။
+## လေ့ကျင့်ခန်း ၃ — Single-Layer Proximity Graph Construction & Greedy Search
+
+Degree M=4 ပါဝင်သော 2D proximity graph တစ်ခုကို တည်ဆောက်ပြီး entry point မှ target query သို့ greedy graph traversal ပြုလုပ်ကာ brute-force exact search နှင့် နှိုင်းယှဉ်ထားသည်။
 
 ```python
 import random
@@ -101,11 +105,13 @@ print("match:", graph_idx == exact_idx)
 # match: False
 ```
 
-**အဓိကအယူဆ** — greedy graph search က အမြဲတမ်း အနီးဆုံးကို မရဘူးဆိုတာက graph ရဲ့ သဘာဝပါ၊ ဒါပေမယ့် ဒေတာနည်းရင်တော့ များသောအားဖြင့် brute-force နဲ့ တူပါတယ်။
+**အဓိကအယူအဆ** — Single-layer greedy search သည် local minimum တွင် trap ဖြစ်နိုင်ပြီး ဤပြဿနာကို ဖြေရှင်းရန် HNSW သည် multi-layer hierarchy နှင့် dynamic beam search (`ef_search`) ကို အသုံးပြုသည်။
 
-## လေ့ကျင့်ခန်း ၄ — Recall@k တိုင်းပါ
+---
 
-graph search နဲ့ brute-force နှစ်ခုလုံးကို query ၁၀၀ ခုမှာ run ပြီး top-5 ထဲ ဘယ်နှစ်ခု ထပ်တယ်ဆိုတာ ပျမ်းမျှတိုင်းပါတယ်။ seed 42 သုံးထားလို့ run တိုင်း တူတဲ့ တန်ဖိုး ပြန်ရပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၄ — Empirical Recall@K Metric Benchmark
+
+Query distribution တစ်လျှောက် graph candidate expansion နှင့် exact top-k sets များ၏ intersection ကို တိုင်းတာ၍ empirical Recall@5 ကို တွက်ချက်ထားသည်။
 
 ```python
 import random
@@ -160,11 +166,13 @@ print("avg recall@5 over 100 queries:", round(avg_recall, 4))
 # avg recall@5 over 100 queries: 0.748
 ```
 
-**အဓိကအယူဆ** — recall@k က graph ရဲ့ အရည်အသွေးကို တိုင်းတာပြတဲ့ metric ဖြစ်ပြီး M တိုးရင် သို့မဟုတ် multi-layer သုံးရင် ပိုကောင်းလာပါတယ်။
+**အဓိကအယူအဆ** — Recall@K metric သည် approximate nearest neighbor (ANN) graph ၏ retrieval accuracy ကို တိုင်းတာသည့် primary quality standard ဖြစ်သည်။
 
-## လေ့ကျင့်ခန်း ၅ — QPS တွက်ပါ
+---
 
-query ၁,၀၀၀ ခုကို `time.perf_counter` နဲ့ ချိန်တာတိုင်းပြီး QPS = 1000 / total_seconds နဲ့ တွက်ပါတယ်။ p95 latency က sorted latencies ထဲက 95% index ထုတ်တာပါ — ဒီဂဏန်းတွေက စက်ပေါ်မူတည်လို့ run တိုင်း နည်းနည်း ကွာနိုင်ပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၅ — QPS Throughput နှင့် Percentile Latency (p95) Modeling
+
+Distance evaluations count ကို profile လုပ်ပြီး assumed execution latency model (1 μs per evaluation) အပေါ် အခြေခံ၍ system QPS throughput နှင့် p95 latency ကို derive လုပ်ပုံ ဖြစ်သည်။
 
 ```python
 import random
@@ -197,7 +205,9 @@ def greedy_search(query, entry=0):
             steps += 1
             d = dist(points[nb], query)
             if d < best_d:
-                best_d, current, improved = d, nb, True
+                best_d = d
+                current = nb
+                improved = True
         if not improved:
             return current, steps
 
@@ -218,11 +228,13 @@ print(f"QPS (model, {STEP_COST_US:.1f} us per eval): {len(queries) / (total_us /
 # QPS (model, 1.0 us per eval): 29280
 ```
 
-**အဓိကအယူဆ** — QPS နဲ့ p95 latency က index ဒီဇိုင်းရဲ့ speed/recall trade-off ကို ပြပြီး production မှာ SLA ချမှတ်ဖို့ အသုံးဝင်ပါတယ်။
+**အဓိကအယူအဆ** — Distance calculations count သည် query execution latency ၏ အဓိက bottleneck ဖြစ်ပြီး index parameter tuning ဖြင့် QPS နှင့် latency ကို ထိန်းချုပ်နိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၆ — End-to-end pipeline ဒီဇိုင်းပါ
+---
 
-ingest ကနေ evaluate အထိ တစ်ခုတည်း script ထဲ စုထားပါတယ်။ embedding model အစား hash-based deterministic vector ကို scripted stand-in အဖြစ် သုံးထားတာပါ — real system မှာတော့ embedding model သုံးရပါတယ်နော်။
+## လေ့ကျင့်ခန်း ၆ — Unified End-to-End Pipeline Consolidation
+
+Ingestion မှ Evaluation အထိ stages အားလုံးကို deterministic pure Python script တစ်ခုတည်းတွင် ပေါင်းစပ်၍ end-to-end execution ပြုလုပ်ပုံ ဖြစ်သည်။
 
 ```python
 import random
@@ -285,7 +297,9 @@ def greedy_search(query, entry=0):
             steps += 1
             d = dist(vecs[nb], query)
             if d < best_d:
-                best_d, current, improved = d, nb, True
+                best_d = d
+                current = nb
+                improved = True
         if not improved:
             return current, steps
 
@@ -329,4 +343,4 @@ print("recall@5 is identical on every run (seed 42)")
 # recall@5 is identical on every run (seed 42)
 ```
 
-**အဓိကအယူဆ** — pipeline တစ်ခုလုံးကို deterministic stand-in တွေနဲ့ စုပြီး run ကြည့်တာက storage, chunking, indexing, reranking, evaluation တွေ အတူတကွ ဘယ်လို ဆက်စပ်လဲဆိုတာကို အလွယ်မြင်အောင် ပြပေးပါတယ်။
+**အဓိကအယူအဆ** — End-to-end pipeline ကို programmatic model တစ်ခုတည်းအဖြစ် တည်ဆောက်ခြင်းဖြင့် storage, indexing, retrieval, reranking နှင့် evaluation အဆင့်များအကြား parameter sensitivity ကို တိကျစွာ ခန့်မှန်းနိုင်သည်။

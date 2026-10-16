@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — JSON ဒေတာအမျိုးအစား သိမ်းတယ်
+## လေ့ကျင့်ခန်း ၁ — JSON Data Serialization & Canonicalization
 
-PostgreSQL မှာ `json` က text အတိုင်းသိမ်းတာပါ၊ `jsonb` က parsed binary ဖြစ်တဲ့အတွက် comparison နဲ့ indexing ပိုသင့်တယ်။ Ingest pipeline ထဲမှာ Python dict ကနေ `json.dumps` နဲ့ string ပြောင်းတာက `json`/`jsonb` column ထဲ ဘာသွားလဲကို ကြိုမြင်တာပါတယ်။ Key တွေမှာ double quote ပါလာတာလည်း သတိထားကြည့်လိုက်ပါနော်။
+PostgreSQL တွင် `json` type သည် exact text representation အတိုင်း သိမ်းဆည်းပြီး `jsonb` type သည် parsed binary representation ဖြင့် သိမ်းဆည်းသောကြောင့် whitespace stripping နှင့် key deduplication တို့ကို internally ပြုလုပ်သည်။ Ingestion pipeline တွင် downstream database သို့ payload မပို့မီ canonical JSON serialization ပြုလုပ်ပုံကို အောက်ပါ script တွင် ပြသထားသည်။
 
 ```python
 import json
@@ -25,11 +25,13 @@ print("jsonb-style view   :", json.dumps(json.loads(" { \"doc_id\" : 1 , \"lang\
 # jsonb-style view   : {"doc_id":1,"lang":"my"}
 ```
 
-**အဓိကအယူဆ** — `json` က raw text အတိုင်းသိမ်းပြီး `jsonb` က parsed canonical form ဖြစ်လို့၊ search pipeline မှာ `jsonb` ကို သုံးတာက ပိုစိတ်ချရတယ်။
+**အဓိကအယူအဆ** — Metadata querying နှင့် GIN indexing လိုအပ်ချက်များအတွက် `jsonb` type သည် query performance ပိုမိုမြင့်မားသည်။
 
-## လေ့ကျင့်ခန်း ၂ — Text extraction နဲ့ boilerplate ဖယ်တယ်
+---
 
-HTML string ကနေ `<nav>` နဲ့ `<footer>` ထဲက boilerplate တွေကို marker နဲ့ အစားထိုးပြီး မဖြုတ်ခင် tag တွေအကုန်ဖျက်တယ်၊ နောက်မှ marker ပါတဲ့ အပိုင်းတွေကို ဖယ်တယ်။ Main content text ကတော့ ကျန်ရစ်တာပါတယ်။
+## လေ့ကျင့်ခန်း ၂ — Text Extraction နှင့် Boilerplate Removal
+
+HTML structure မှ `<nav>` နှင့် `<footer>` အစိတ်အပိုင်းများကို raw tag strip မပြုလုပ်မီ targeted marker (`[[BOILER]]`) ဖြင့် ကြိုတင် replace လုပ်ပြီး ဖယ်ရှားခြင်းဖြင့် core document content ကို သန့်ရှင်းစွာ ရယူနိုင်သည်။
 
 ```python
 import re
@@ -62,11 +64,13 @@ print("Main content kept  :", "Corpus ingestion" in clean)
 # Main content kept  : True
 ```
 
-**အဓိကအယူဆ** — Boilerplate ကို marker နဲ့ အစားထိုးပြီးမှ tag strip လုပ်တာက nav/footer text တွေ မှားရောထွက်မသွားအောင် အာမခံပေးတယ်။
+**အဓိကအယူအဆ** — Unstructured HTML parsing တွင် hierarchical markers များ သတ်မှတ်၍ boilerplate များကို strip ပြုလုပ်ခြင်းသည် retrieval noise ကို လျှော့ချပေးသည်။
 
-## လေ့ကျင့်ခန်း ၃ — Unicode normalization လုပ်တယ်
+---
 
-Unicode မှာ visually တူတဲ့ string နှစ်ခုက codepoint အရ မတူနိုင်ပါတယ်။ `unicodedata.normalize('NFC', ...)` နဲ့ composed form ပြောင်းပြီးမှ `==` နဲ့ တူညီမှုစစ်ရတာပါတယ်။ ဒီနမူနာမှာ Burmese context string ထဲ ပေါင်းထားတဲ့ diacritic နဲ့ precomposed အက္ခရာကို နှိုင်းပြထားတာပါနော်။
+## လေ့ကျင့်ခန်း ၃ — Unicode Normalization (NFC)
+
+Visual အားဖြင့် ထပ်တူညီသော်လည်း underlying Unicode codepoints ကွဲပြားနေသော string များကို `unicodedata.normalize('NFC', ...)` ဖြင့် canonical composed representation ပြောင်းလဲပြီးမှ equality verification ပြုလုပ်ပုံ ဖြစ်သည်။
 
 ```python
 import unicodedata
@@ -95,11 +99,13 @@ print("NFC length equal :", len(n1) == len(n2))
 # NFC length equal : True
 ```
 
-**အဓိကအယူဆ** — Ingest လုပ်ခါစမှာ အကုန်လုံးကို NFC normalize လုပ်ပြီးမှ hash နဲ့ duplicate စစ်တာက အရေးကြီးဆုံးအဆင့်ပါတယ်။
+**အဓိကအယူအဆ** — Ingestion stage ၏ အစောပိုင်းတွင် NFC normalization ပြုလုပ်ခြင်းသည် hash mismatch နှင့် tokenization fragmentation ပြဿနာများကို ဖြေရှင်းပေးသည်။
 
-## လေ့ကျင့်ခန်း ၄ — Duplicate စစ်ဖို့ content fingerprint သုံးတယ်
+---
 
-Document ငါးပိုင်းမှာ တူညီတဲ့ content နှစ်ခု ရောထားတယ်၊ SHA-256 fingerprint နဲ့ ဖမ်းပါတယ်။ Normalize (whitespace collapse) လုပ်ပြီးမှ hash လုပ်တာက superficially ကွာခြားတဲ့ copy တွေကိုပါ ဖမ်းပေးတယ်။
+## လေ့ကျင့်ခန်း ၄ — Content Fingerprinting ဖြင့် Duplicate Detection
+
+Whitespace collapse normalization ပြုလုပ်ထားသော text ကို SHA-256 hash ထုတ်ယူပြီး content fingerprint အလိုက် documents များကို bucket grouping ပြုလုပ်သည့် logic ဖြစ်သည်။
 
 ```python
 import hashlib
@@ -137,11 +143,13 @@ for fp, ids in groups.items():
 # fp=ae6ca6f2cce3... ids=[5] -> unique
 ```
 
-**အဓိကအယူဆ** — Normalize ပြီးမှ SHA-256 လုပ်တဲ့ fingerprint က whitespace ကွာခြားမှုနဲ့ duplicate နှစ်မျိုးလုံးကို တစ်ပြိုင်နက်ဖမ်းပေးတယ်။
+**အဓိကအယူအဆ** — Pre-normalization + SHA-256 fingerprinting သည် superficial whitespace differences များကို ignore လုပ်ပြီး exact duplicate contents များကို တိကျစွာ detect ပြုလုပ်နိုင်သည်။
 
-## လေ့ကျင့်ခန်း ၅ — Incremental update စစ်တယ်
+---
 
-Batch အသစ်ထဲက chunk တွေက fingerprint နဲ့ ရှေ့က မှတ်ထားတဲ့ state နဲ့ နှိုင်းပါတယ်။ State မှာမရှိရင် new၊ fingerprint မတူရင် changed၊ state မှာရှိပေမယ့် batch မှာမရှိရင် deleted ဆိုပြီး အုပ်စုသုံးမျိုးခွဲရတယ်ပါတယ်။
+## လေ့ကျင့်ခန်း ၅ — Incremental Update Diff Engine
+
+Previous state နှင့် incoming batch တို့၏ fingerprints များကို နှိုင်းယှဉ်၍ `new`, `changed`, `deleted` categories များအဖြစ် ခွဲခြား သတ်မှတ်သည်။
 
 ```python
 import hashlib
@@ -184,11 +192,13 @@ print("deleted:", deleted_ids)
 # deleted: [5]
 ```
 
-**အဓိကအယူဆ** — Fingerprint diff နဲ့ new/changed/deleted သုံးအုပ်စု ခွဲတတ်တာက full reindex မလုပ်ဘဲ incremental ingestion လုပ်တဲ့ အခြေခံပါတယ်။
+**အဓိကအယူအဆ** — Fingerprint-based state diffing သည် computational overhead မြင့်မားသော full corpus re-indexing ကို ရှောင်လွှဲနိုင်စေသည်။
 
-## လေ့ကျင့်ခန်း ၆ — Idempotent upsert နဲ့ delete pipeline
+---
 
-Batch တစ်ခုကို လက်ခံပြီး upsert (PostgreSQL မှာ `INSERT ... ON CONFLICT (doc_id) DO UPDATE SET ...` နဲ့) နဲ့ delete ကို အလုံးစုံလုပ်ပေးတဲ့ pipeline function ရေးပါတယ်။ ဒီနောက် batch တစ်ခုကို နှစ်ကြိမ်ထပ်ပြေးလိုက်ရင် state အတူတူပဲ ဖြစ်ရတာ — ဒါက idempotency ပါတယ်။ DAG scheduler (Airflow) နဲ့ ချိတ်ရင် retry တွေ ဒိုင်းတွေမှာလည်း ဒီကိုယ်ပိုင်ချက်က အဆင့်ဆင့် အလုပ်လုပ်ပေးတယ်။
+## လေ့ကျင့်ခန်း ၆ — Idempotent Upsert & Delete Pipeline
+
+Batch တစ်ခုကို ထပ်ခါတလဲလဲ execute လုပ်သော်လည်း database state သည် deterministic ဖြစ်စွာ တူညီနေစေသော idempotent update pipeline ဖြစ်သည်။
 
 ```python
 import hashlib
@@ -236,4 +246,4 @@ print("state keys        :", sorted(store))
 # state keys        : [1, 2, 3]
 ```
 
-**အဓိကအယူဆ** — Pipeline တစ်ခုက batch တစ်ခုကို ဘယ်နှစ်ခါပဲ ပြေးပြေး state တူညီအောင် upsert/delete သတ်မှတ်တတ်ရင် retry-safe idempotent ingestion ရပါတယ်။
+**အဓိကအယူအဆ** — Ingestion logic တွင် idempotent state mutation ကို enforce လုပ်ထားခြင်းဖြင့် network failure recovery နှင့် orchestrator retries များတွင် side effects မဖြစ်ပေါ်စေရန် အာမခံနိုင်သည်။

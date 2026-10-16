@@ -1,6 +1,6 @@
-## လေ့ကျင့်ခန်း ၁ — tsvector ဆောက်ခြင်း (စာလုံး အခြေခံ)
+## လေ့ကျင့်ခန်း ၁ — tsvector ဆောက်ခြင်း (အခြေခံ)
 
-PostgreSQL ရဲ့ `tsvector` က စာအပိုဒ်ထဲက စာလုံးတွေကို lexeme အဖြစ် သိမ်းပြီး အနေရာ (position) တွေနဲ့ အတူတူ မှတ်ထားတာပါ။ ဒီနေရာမှာ DB မချိတ်ဘူး၊ `to_tsvector` ရဲ့ logic အနီးစပ်ဆုံးကို Python dict နဲ့ တုပြပြထားတာပါ။
+PostgreSQL ၏ `tsvector` သည် စာအပိုဒ်အတွင်းရှိ token များကို lexeme + position အဖြစ် သိမ်းဆည်းသည်။ ဒီနေရာတွင် DB ချိတ်ဆက်မည်မဟုတ်ဘဲ `to_tsvector` ၏ logic ကို Python dict ဖြင့် simulate လုပ်ပြထားသည်။
 
 ```python
 # Simulating PostgreSQL's to_tsvector(): word -> list of positions (1-based)
@@ -26,11 +26,11 @@ for doc in docs:
 # postgres vector search guide -> {'postgres': [1], 'vector': [2], 'search': [3], 'guide': [4]}
 ```
 
-**အဓိကအယူဆ** — tsvector က စာလုံးတွေကို lexeme နဲ့ position တွေအဖြစ် သိမ်းတာမို့ နောက်ပိုင်း matching နဲ့ ranking အတွက် အခြေခံ ဖြစ်ပါတယ်။
+**အဓိကအချက်** — `tsvector` သည် lexeme နှင့် position များကို သိမ်းဆည်းထားသဖြင့် နောက်ပိုင်း matching နှင့် ranking အဆင့်များ၏ အခြေခံ input ဖြစ်သည်။
 
-## လေ့ကျင့်ခန်း ၂ — tsquery matching နဲ့ ranking (ts_rank style)
+## လေ့ကျင့်ခန်း ၂ — tsquery matching နှင့် ranking (ts_rank style)
 
-`tsquery` က query စာလုံးတွေကို document ရဲ့ lexeme တွေနဲ့ တိုက်စစ်ပြီး၊ `ts_rank` လိုမျိုး score ထုတ်ပေးပါတယ်။ ဒီနေရာမှာ matched word count လောက်ပဲ သုံးထားပြီး ရလဒ်တွေကို score အမြင့်နဲ့ စီပြပါမယ်။
+`tsquery` သည် query term များကို document ၏ lexeme များနှင့် match လုပ်ပြီး `ts_rank` ကဲ့သို့ score ထုတ်ပေးသည်။ ဒီနေရာတွင် matched word count ကိုသာ သုံးထားပြီး ရလဒ်များကို score descending ဖြင့် စီစဉ်ပြထားသည်။
 
 ```python
 # tsvector simulation (from Exercise 1) + tsquery matching -> simple rank score
@@ -72,11 +72,11 @@ print("mysql-only query on doc1:",
 # mysql-only query on doc1: 0
 ```
 
-**အဓိကအယူဆ** — ranking score ရဲ့ အရိုးရှင်းဆုံး ပုံစံက ဘယ်လောက် ကိုက်လဲ ဆိုတဲ့ အရေအတွက်ပဲ ဖြစ်ပါတယ်။
+**အဓိကအချက်** — Ranking score ၏ အရိုးရှင်းဆုံး ပုံစံသည် match ဖြစ်သော query term အရေအတွက်ပင် ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Trigram similarity (3-gram Jaccard)
 
-Trigram ဆိုတာ စာလုံး ၃ လုံးတွဲကို ဆိုပြီး၊ ရှေ့နောက် space ၂ လုံး ဖြည့်ပြီး set ဆောက်တာပါ။ PostgreSQL ရဲ့ `pg_trgm` extension က ဒီ logic နဲ့ similarity တွက်ပြီး စာလုံးပေါင်းလွဲတာတွေကို ရှာပေးပါတယ်။
+Trigram သည် စာလုံး ၃ လုံး window ဖြစ်ပြီး ရှေ့နောက် space ၂ လုံး pad လုပ်ကာ set ဆောက်သည်။ PostgreSQL ၏ `pg_trgm` extension သည် ဤ logic ဖြင့် similarity တွက်ချက်ပြီး စာလုံးပေါင်းလွဲမှားမှုများကို ဖမ်းယူပေးသည်။
 
 ```python
 # 3-gram Jaccard similarity, as pg_trgm / GiST trigram indexes approximate
@@ -111,11 +111,11 @@ for w1, w2 in pairs:
 # ---
 ```
 
-**အဓိကအယူဆ** — trigram Jaccard က စာလုံးပေါင်းလွဲတာတွေကို `postgres`/`postgresql` လို နီးစပ်တဲ့ စာလုံးတွေမှာ ကောင်းကောင်း ဖမ်းနိုင်ပါတယ်။
+**အဓိကအချက်** — Trigram Jaccard သည် `postgres`/`postgresql` ကဲ့သို့ နီးစပ်သော စကားလုံးစုံတွဲများတွင် typo ကောင်းစွာ ဖမ်းယူနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၄ — BM25 score တွက်ခြင်း
 
-**အဆင့် ၁ — corpus အချက်အလက်**
+**အဆင့် ၁ — corpus statistics**
 
 ```
 d1: tokens 4  ('the quick brown fox')
@@ -132,7 +132,7 @@ idf(quick) = ln(1 + (3 − 2 + 0.5) / (2 + 0.5)) = ln(1.6) = 0.470004
 idf(fox)   = ln(1 + (3 − 3 + 0.5) / (3 + 0.5)) = ln(1.142857) = 0.133531
 ```
 
-**အဆင့် ၃ — တစ်လုံးချင်း score** (k1 = 1.2, b = 0.75)
+**အဆင့် ၃ — Per-term score** (k1 = 1.2, b = 0.75)
 
 d1 (|D| = 4) — `quick` f=1:
 `0.470004 · (1·2.2) / (1 + 1.2·(0.25 + 0.75·4/6.3333))` = `1.034 / 1.8667` = **0.5534**
@@ -147,14 +147,13 @@ d3 (|D| = 6) — `fox` f=1:
 
 **Ranking: d1 (0.7106) > d2 (0.6917) > d3 (0.1365)**
 
-**Observation:** d2 မှာ `quick` ၂ ကြိမ် ပါပေမယ့် d1 အောက် ရောက်ပါတယ်။ အကြောင်း ၂ ချက် —
-(၁) tf saturation — `k1` ကြောင့် ၂ ကြိမ်ပါတာက ၁ ကြိမ်ပါတာထက် အများကြီး မတက်ပါဘူး
-(၂) length normalization — d2 က စကားလုံး ၉ လုံး ရှိလို့ ပျမ်းမျှ (6.3333) ထက် ရှည်ပြီး
-ပြစ်ဒဏ် (penalty) ရပါတယ်။ ဒီနှစ်ချက်ပေါင်းလို့ စာတို/ထိရောက်တဲ့ d1 က ဦးဆောင်တာပါ။
+**Observation:** d2 တွင် `quick` ၂ ကြိမ် ပါဝင်သော်လည်း d1 အောက် ရောက်သည်။ အကြောင်းရင်း နှစ်ချက် —
+(၁) tf saturation — `k1` ကြောင့် f=2 ၏ အမြတ်သည် f=1 ထက် အများကြီး မတိုးပါ
+(၂) length normalization — d2 သည် token ၉ လုံးရှိ၍ ပျမ်းမျှ (6.3333) ထက် ရှည်ပြီး penalty ရသည်။ ဤနှစ်ချက် ပေါင်းစပ်သွားသဖြင့် document တိုဖြစ်သော d1 က ဦးဆောင်သည်။
 
-## လေ့ကျင့်ခန်း ၅ — Weighted sum မှာ score normalization ရဲ့ အရေးကြီးမှု
+## လေ့ကျင့်ခန်း ၅ — Weighted sum တွင် score normalization ၏ အရေးပါမှု
 
-Vector score က 0–1 ကြားမှာ ရှိလေ့ရှိပြီး BM25 score က ၁၀ နား ရှိတတ်ပါတယ်၊ ဒါကြောင့် တိုက်ရိုက်ပေါင်းရင် BM25 က တစ်ခုတည်း လွှမ်းမိုးပါတယ်။ min-max normalize လုပ်မှ နှစ်ဖက်လုံး တန်းတန်းစားစား ပါဝင်လာပါတယ်နော်။
+Vector score သည် [0, 1] range တွင်ရှိပြီး BM25 score သည် magnitude ~10 ရှိနိုင်သဖြင့် တိုက်ရိုက်ပေါင်းပါက BM25 lane တစ်ခုတည်းက fusion ရလဒ်ကို လွှမ်းမိုးသည်။ Min-max normalize လုပ်မှသာ lane နှစ်ခုလုံး ညီမျှစွာ ပါဝင်လာသည်။
 
 ```python
 # Weighted sum: raw scores vs min-max normalized scores (0.5/0.5 weights)
@@ -189,11 +188,11 @@ print("norm sums:   ", [round(s, 4) for s in norm],     "-> ranking:", ranked(no
 # norm sums:    [0.5, 0.4833, 0.5] -> ranking: ['A', 'C', 'B']
 ```
 
-**အဓိကအယူဆ** — scale မတူတဲ့ score တွေကို ပေါင်းခင်း normalize လုပ်ဖို့ လိုပါတယ်၊ မလုပ်ရင် ကြီးတဲ့ scale က ranking ကို အလွန်လွှမ်းမိုးပါတယ်။
+**အဓိကအချက်** — Scale မတူသော score များကို ပေါင်းမီ normalize လုပ်ရန် လိုအပ်သည်။ မလုပ်ပါက scale ကြီးသော lane က ranking ကို လွှမ်းမိုးသည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Reciprocal Rank Fusion (RRF) အခြေခံ
 
-RRF က score တန်ဖိုးကို ဘယ်လိုမှ မသုံးဘဲ rank ကိုပဲ `1 / (k + rank)` နဲ့ ပြောင်းပြီး ပေါင်းတာပါ၊ ဒါကြောင့် scale ပြဿနာ အလုံးစုံ ရှောင်သွားပါတယ်။ `k = 60` က Elasticsearch/OpenSearch တို့မှာ သုံးလေ့ရှိတဲ့ တန်ဖိုးပါ။
+RRF သည် score value ကို လုံးဝမသုံးဘဲ rank ကိုသာ `1 / (k + rank)` ဖြင့် ပြောင်းလဲ၍ ပေါင်းသဖြင့် scale ပြဿနာကို အလုံးစုံ ရှောင်ရှားနိုင်သည်။ `k = 60` သည် Elasticsearch/OpenSearch တွင် သုံးလေ့ရှိသော တန်ဖိုးဖြစ်သည်။
 
 ```python
 # Reciprocal Rank Fusion: rrf_score = sum over lists of 1 / (k + rank)
@@ -226,11 +225,11 @@ print("final ranking k=60:", [doc for doc, _ in final])
 # final ranking k=60: ['B', 'A', 'C', 'D']
 ```
 
-**အဓိကအယူဆ** — RRF မှာ B က vector path မှာ အောက်ဆုံးနားကနေ keyword rank 1 ကြောင့် A နဲ့ ခပ်ဆတ်ဆတ် နီးကပ်လာပြီး၊ score scale ဘာမှ မသုံးဘဲ ranking ပေါင်းလို့ ရပါတယ်။
+**အဓိကအချက်** — RRF တွင် B သည် vector lane rank 2 နှင့် keyword lane rank 1 ပေါင်းစပ်မှုကြောင့် vector lane rank 1 ဖြစ်သော A ကို အနည်းငယ် ကျော်တက်သွားသည် — score scale မသုံးဘဲ ranking နှစ်ခု ပေါင်းစပ်နိုင်ကြောင်း ပြသသည်။
 
-## လေ့ကျင့်ခန်း ၇ — Full hybrid pipeline: နှစ်လမ်းဖြန့်ပြီး RRF နဲ့ ပေါင်းခြင်း
+## လေ့ကျင့်ခန်း ၇ — Full hybrid pipeline: နှစ်လမ်း fan-out ပြီး RRF ဖြင့် fusion
 
-နောက်ဆုံး လေ့ကျင့်ခန်းမှာ query တစ်ခုကို keyword path နဲ့ vector path နှစ်လမ်း ဖြန့်ပြီး၊ ရလာတဲ့ rank တွေကို RRF နဲ့ ပေါင်းတဲ့ hybrid search မော်ဒယ် သေးသေးလေး ရေးကြည့်ပါမယ်။ Vector path အတွက် real embedding model နေရာမှာ ကြိုသတ်မှတ်ထားတဲ့ deterministic vector တွေနဲ့ cosine similarity ကို standard library နဲ့ပဲ တွက်ပါမယ်နော်။
+နောက်ဆုံး လေ့ကျင့်ခန်းတွင် query တစ်ခုကို keyword path နှင့် vector path နှစ်လမ်းသို့ fan-out ပြီး ရလာသော rank များကို RRF ဖြင့် fuse လုပ်သော hybrid search ၏ simplified model ကို တည်ဆောက်သည်။ Vector path အတွက် real embedding model အစား ကြိုတင်သတ်မှတ်ထားသော deterministic vector များဖြင့် cosine similarity ကို standard library သုံး၍ တွက်ချက်သည်။
 
 ```python
 # Full hybrid pipeline: keyword match score + cosine similarity -> RRF fusion.
@@ -300,4 +299,4 @@ print("with k=60 only ~0.0008 -> smaller k makes top ranks dominate much harder.
 # with k=60 only ~0.0008 -> smaller k makes top ranks dominate much harder.
 ```
 
-**အဓိကအယူဆ** — နှစ်လမ်းစလုံးက အလယ်အလတ် ကောင်းတဲ့ doc (B) ကို RRF က မြှင့်တင်ပေးပြီး၊ `k` သေးသေးသုံးရင် ထိပ် rank တွေရဲ့ အလေးချိန် ပိုကြမ်းသွားပါတယ်။
+**အဓိကအချက်** — Lane နှစ်ခုလုံးတွင် အလယ်အလတ် ကောင်းမွန်သော document (B) ကို RRF က မြှင့်တင်ပေးပြီး `k` သေးသွားပါက top rank များ၏ အလေးချိန် သိသိသာသာ ပိုကြသွားသည်။

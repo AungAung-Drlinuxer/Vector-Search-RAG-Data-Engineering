@@ -1,47 +1,47 @@
 ## လေ့ကျင့်ခန်း ၁ — Memory size တွက်ခြင်း
 
-**Task:** 1,000,000 vectors, 768 dimensions, fp32 (float 32-bit) ဆိုပါစို့။ Memory size ကို bytes နှင့် GB နှစ်မျိုး တွက်ပြပါ။ ပြီးရင် int8 quantization (32-bit ကနေ 8-bit) ခံလိုက်ရင် size ဘယ်လောက် ဖြစ်မလဲ ဆက်တွက်ပါ။
+**Task:** 1,000,000 vectors, 768 dimensions, fp32 ဟု ယူဆပြီး memory footprint ကို bytes နှင့် GB နှစ်မျိုးဖြင့် တွက်ချက်ပါ။ ထို့နောက် int8 quantization (32-bit → 8-bit) ပြီးနောက် footprint မည်မျှဖြစ်မည်ကို ဆက်တွက်ပါ။
 
-**Hints:** fp32 vector တစ်ခုက dimension တစ်ခုကို 4 bytes ယူတယ်။ int8 က dimension တစ်ခုကို 1 byte ယူတယ်။ Python `**` operator နဲ့ တွက်လို့ရတယ်။
+**Hints:** fp32 vector သည် dimension တစ်ခုအတွက် 4 bytes၊ int8 သည် 1 byte ယူသည်။ ဂဏန်းပေါင်းစက်အစား Python `**` operator ဖြင့် တွက်နိုင်သည်။
 
-**Expected behavior:** fp32 အတွက် ၃၀၇၂၀၀၀၀၀၀ bytes (≈2.86 GB)၊ int8 အတွက် ၇၆၈၀၀၀၀၀၀ bytes (≈0.71 GB) ရပါမယ်။ ၄ ပုံ ၁ ပုံ လျှော့သွားတာကို မြင်ရပါမယ်။
+**Expected behavior:** fp32 အတွက် ၃၀၇၂၀၀၀၀၀၀ bytes (≈2.86 GB)၊ int8 အတွက် ၇၆၈၀၀၀၀၀၀ bytes (≈0.71 GB) ရမည်။ ၄ ဆ reduction ကို မြင်ရမည်။
 
 ## လေ့ကျင့်ခန်း ၂ — Binary quantization နဲ့ cosine
 
-**Task:** ပြီးသား cosine similarity (မတူညီမှု တိုင်းတာနည်း) function နဲ့ အသုံးပြုပြီး vector ၂ ခုကို နှိုင်းပါ။ ပြီးမှ binary quantization (vector ကို 0/1 bits လျှော့ချခြင်း) — အပေါင်း ကို 1၊ အနှုတ် ကို 0 ပြောင်း — လုပ်ပြီး dot product နဲ့ ပြန်နှိုင်းပါ။
+**Task:** ရှိပြီးသား cosine similarity function ဖြင့် vector နှစ်ခုကို နှိုင်းယှဉ်ပါ။ ထို့နောက် binary quantization — positive ကို 1၊ negative ကို 0 ပြောင်း — လုပ်ပြီး dot product ဖြင့် ပြန်နှိုင်းယှဉ်ပါ။
 
-**Hints:** `math.sqrt` နဲ့ norm တွက်ပါ။ Binary vector အတွက် `1 if x > 0 else 0` ကို list comprehension သုံးပါ။ Binary dot product က overlap အရေအတွက်ပဲ ဖြစ်ပါတယ်။
+**Hints:** `math.sqrt` ဖြင့် norm တွက်ပါ။ Binary vector အတွက် `1 if x > 0 else 0` ကို list comprehension ဖြင့် သုံးပါ။ Binary dot product သည် နှစ်ဖက်လုံး 1 ဖြစ်သော position အရေအတွက်နှင့် ညီမျှသည်။
 
-**Expected behavior:** Original cosine နဲ့ binary approximation တို့ရဲ့ ကွာခြားချက်ကို မြင်ရပါမယ်။ Binary က recall ထက် လျှော့သွားနိုင်တယ်ဆိုတဲ့ အပေးအယူကို နားလည်ရပါမယ်။
+**Expected behavior:** Original cosine နှင့် binary approximation တို့၏ ကွာခြားချက်ကို တွေ့ရမည်။ Binary quantization သည် memory သက်သာစေသော်လည်း approximation error ကြောင့် recall ကျဆင်းနိုင်သည့် trade-off ကို နားလည်ရမည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Product Quantization (PQ) အခြေခံ
 
-**Task:** 4-dim vector ကို 2-dim subvector ၂ ခုခွဲပါ။ အလွယ်အားဖြင့် PQ (vector ကို အစိတ်အပိုင်း ခွဲပြီး အုပ်စုတစ်ခုစီကို code တစ်လုံးနဲ့ ကိုယ်စားပြုခြင်း) — subvector တစ်ခုစီကို အနီးဆုံး centroid (အုပ်စုရဲ့ အလယ်ချက်) နဲ့ အစားထိုးပါ။ 8-dim vector တစ်ခုကို 4 subvector လုပ်ပြီး ခန့်မှန်း distance တွက်ပါ။
+**Task:** 4-dim vector ကို 2-dim subvector နှစ်ခု ခွဲပါ။ PQ ၏ အခြေခံ mechanism အတိုင်း subvector တစ်ခုစီကို အနီးဆုံး centroid ဖြင့် အစားထိုးပါ။ 8-dim vector တစ်ခုကို subvector ၄ ခု ခွဲပြီး approximate distance တွက်ပါ။
 
-**Hints:** Jégou et al., "Product Quantization for Nearest Neighbor Search" (arXiv:0903.2314) အရ PQ က subvector တွေကို သီးခြား quantize လုပ်တယ်။ centroid နည်းနည်း (ဥပမာ ၄ လုံး) သတ်မှတ်ပြီး Euclidean distance နဲ့ အနီးဆုံးကို ရွေးပါ။
+**Hints:** Jégou et al., "Product Quantization for Nearest Neighbor Search" (arXiv:0903.2314) အရ PQ သည် subspace တစ်ခုချင်းစီကို သီးခြား quantize လုပ်သည်။ Centroid အရေအတွက် နည်းနည်း (ဥပမာ ၄ ခု) သတ်မှတ်ပြီး Euclidean distance အနည်းဆုံး centroid ကို ရွေးပါ။
 
-**Expected behavior:** Approximate distance နဲ့ original distance ကို နှိုင်းယှဉ်နိုင်ပါမယ်။ PQ က memory သက်သာလာပြီး တိကျမှု အနည်းငယ် လျှော့တာကို မြင်ရပါမယ်။
+**Expected behavior:** Approximate distance နှင့် exact distance ကို နှိုင်းယှဉ်နိုင်မည်။ PQ သည် memory footprint သိသိသာသာ လျှော့ချပြီး precision အနည်းငယ် ဆုံးရှုံးကြောင်း တွေ့ရမည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Recall@k တိုင်းတာခြင်း
 
-**Task:** 128 vectors (random seed 42) ကို ဖန်တီးပါ။ Brute-force (အားလုံး တစ်ခုချင်း စစ်ခြင်း) top-5 ကို ground truth အဖြစ် ထားပါ။ ပြီးမှ int8 quantization လုပ်ထားတဲ့ vector တွေနဲ့ top-5 ရှေ့ရှာပါ။ Recall@5 (မှန်တဲ့ အဖြေ ဘယ်လောက် ပြန်ရလဲ) တွက်ပါ။
+**Task:** Vector 128 ခု (random seed 42) ဖန်တီးပါ။ Brute-force top-5 ကို ground truth အဖြစ် သတ်မှတ်ပါ။ ထို့နောက် int8 quantization လုပ်ထားသော vector များဖြင့် top-5 search လုပ်ပြီး recall@5 တွက်ပါ။
 
-**Hints:** `random.Random(42)` နဲ့ deterministic ဖြစ်အောင် လုပ်ပါ။ int8 အတွက် min/max scaling သုံးပါ — `round((x - mn) / (mx - mn) * 127 - 128)` ခန့်မှန်း ဖောင်မြူလာ တစ်ခု ရေးပါ။
+**Hints:** `random.Random(42)` ဖြင့် deterministic ဖြစ်အောင် လုပ်ပါ။ int8 အတွက် min/max scaling formula — `round((x - mn) / (mx - mn) * 127 - 128)` — ရေးပါ။
 
-**Expected behavior:** Recall@5 က 1.0 နဲ့ 1.0 အောက် ကြားထွက်ပါမယ်။ Quantization က recall ပေါ် သက်ရောက်မှုကို ကိန်းဂဏန်းနဲ့ မြင်ရပါမယ်။
+**Expected behavior:** Recall@5 သည် 1.0 သို့မဟုတ် 1.0 အောက် တန်ဖိုး ထွက်မည်။ Quantization ၏ recall အပေါ် သက်ရောက်မှုကို ဂဏန်းဖြင့် တိုင်းတာနိုင်မည်။
 
 ## လေ့ကျင့်ခန်း ၅ — Sharding နဲ့ distributed search
 
-**Task:** Vector 200 ခုကို shard (အချက်အလက် ခွဲဝေထားတဲ့ အပိုင်း) ၄ ပိုင်းခွဲပါ — hash-based နဲ့ dimension-based နှစ်နည်း ရေးပါ။ Query vector တစ်ခုကို တစ်ချိန်ထဲ shards အားလုံးမှာ ရှာပြီး ရလဒ်တွေကို merge လုပ်ပါ။
+**Task:** Vector 200 ခုကို shard ၄ ပိုင်း ခွဲပါ — hash-based နှင့် dimension-based နည်းလမ်းနှစ်မျိုး ရေးပါ။ Query vector တစ်ခုကို shard အားလုံး၌ search လုပ်ပြီး ရလဒ်များကို merge လုပ်ပါ။
 
-**Hints:** Hash-based က `id % 4` သုံးပါ။ Dimension-based က dimension အပိုင်းအစ တစ်ခုစီကို shard တစ်ခု ထားပါ — ဒါက Qdrant/Faiss တို့ရဲ့ sharding strategy နှစ်မျိုးနဲ့ ဆင်တယ်။ Result merge လုပ်တဲ့အခါ top-k ထပ်စစ်ပါ။
+**Hints:** Hash-based အတွက် `id % 4` သုံးပါ။ Dimension-based အတွက် dimension slice တစ်ခုစီကို shard တစ်ခု၌ ထားပါ — ဤနည်းလမ်းနှစ်မျိုးသည် Qdrant/FAISS တို့၏ sharding strategy နှစ်မျိုးနှင့် ကိုက်ညီသည်။ Merge လုပ်ပြီးနောက် global top-k ကို ထပ်ရွေးပါ။
 
-**Expected behavior:** နည်းနှစ်မျိုးလုံးနဲ့ ရလဒ်တူညီမှု ရှိမရှိ နှိုင်းယှဉ်နိုင်ပါမယ်။ Shard အရေအတွက် တိုးလို့ memory per shard လျှော့သွားတာကို မြင်ရပါမယ်။
+**Expected behavior:** နည်းလမ်းနှစ်မျိုး၏ ရလဒ် တူညီမှု ရှိ/မရှိ နှိုင်းယှဉ်နိုင်မည်။ Shard အရေအတွက် တိုးလာသည်နှင့်အမျှ memory per shard လျော့ကျသွားသည်ကို တွေ့ရမည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Bulk load နဲ့ write throughput
 
-**Task:** Vector 1000 ခုကို load ပါ။ Strategy နှစ်မျိုး နှိုင်းပါ — (၁) insert တိုင်း index တည်ဆောက်ခြင်း၊ (၂) build after load (အားလုံး load ပြီးမှ index တစ်ခါတည်း တည်ဆောက်ခြင်း)။ `time.perf_counter()` နဲ့ ချိန်ပါ။
+**Task:** Vector 1000 ခု load လုပ်ပါ။ Strategy နှစ်မျိုး နှိုင်းယှဉ်ပါ — (၁) insert တိုင်း၌ index ထိန်းသိမ်းခြင်း၊ (၂) build after load (data အားလုံး load ပြီးမှ index တစ်ကြိမ်တည်း တည်ဆောက်ခြင်း)။ `time.perf_counter()` ဖြင့် အချိန်တိုင်းတာပါ။
 
-**Hints:** pgvector README က bulk load ရာခိုင်နှုန်း မြှင့်ဖို့ index ကို load ပြီးမှ တည်ဆောက်ဖို့ ညွှန်ပါတယ်။ အလွယ်အားဖြင့် "index" က sorted array တစ်ခု ထားပါ — တစ်ခုတည်း sort လုပ်တာ vs တစ်ခုထည့်တိုင်း bisect insert လုပ်တာ နှိုင်းပါ။
+**Hints:** pgvector README သည် bulk load throughput မြှင့်တင်ရန် index ကို load ပြီးမှ တည်ဆောက်ရန် ညွှန်ကြားထားသည်။ ရိုးရှင်းသော stand-in အနေဖြင့် "index" ကို sorted array တစ်ခုအဖြစ် ထားပါ — တစ်ကြိမ်တည်း sort လုပ်ခြင်း နှင့် insert တိုင်း၌ bisect insert လုပ်ခြင်းတို့ကို နှိုင်းယှဉ်ပါ။
 
-**Expected behavior:** Build-after-load က ပိုမြန်တာကို seconds ဂဏန်းနဲ့ မြင်ရပါမယ်။ pgvector မှာ `CREATE INDEX` ကို load ပြီးမှ လုပ်သင့်တဲ့ အကြောင်းရင်းကို Burmese လေး နားလည်ရပါမယ်။
+**Expected behavior:** Build-after-load က ပိုမြန်ကြောင်း ဂဏန်းဖြင့် တွေ့ရမည်။ pgvector တွင် `CREATE INDEX` ကို load ပြီးမှသာ လုပ်သင့်သည့် အကြောင်းရင်းကို နားလည်ရမည်။

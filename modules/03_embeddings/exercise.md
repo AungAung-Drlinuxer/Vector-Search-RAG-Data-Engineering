@@ -1,47 +1,47 @@
 ## လေ့ကျင့်ခန်း ၁ — Storage တွက်ချက်ခြင်း
 
-Chunks တစ်သန်း (1,000,000)၊ dimension 768၊ fp32 (32-bit float) ဆိုပါစို့။ Vector storage အရွယ်ကို bytes နှင့် GB မှာ တွက်ပါ။ တွက်ချက်မှုအဆင့်တိုင်းကို ဖော်ပြပါ။
+Chunks တစ်သန်း (1,000,000)၊ dimension 768၊ fp32 (32-bit float) ဟု ယူဆပါ။ Vector storage ပမာဏကို bytes နှင့် GB ဖြင့် တွက်ချက်ပါ။ တွက်ချက်မှုအဆင့်တိုင်းကို ဖော်ပြပါ။
 
-**Hints:** fp32 က 4 bytes ပါ။ စုစုပေါင်း bytes = chunk အရေအတွက် × dimension × 4 ပါ။ 1 GB = 1,000,000,000 bytes လို့ ယူဆလို့ရပါတယ်။
+**Hints:** fp32 သည် 4 bytes ဖြစ်သည်။ စုစုပေါင်း bytes = chunk အရေအတွက် × dimension × 4။ 1 GB = 1,000,000,000 bytes (decimal convention) ဟု ယူဆနိုင်သည်။
 
-**Expected behavior:** 768 × 4 = 3,072 bytes per vector ရပါတယ်။ စုစုပေါင်း 3,072,000,000 bytes ≈ 3.07 GB ဆိုတဲ့ အဖြေ ရပါတယ်။
+**Expected behavior:** 768 × 4 = 3,072 bytes per vector ရရှိသည်။ စုစုပေါင်း 3,072,000,000 bytes ≈ 3.07 GB ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — L2 Normalization ရေးခြင်း
 
-standard-library Python နဲ့ `l2_normalize(v)` function ရေးပါ။ Vector တစ်ခုရဲ့ norm (အလျား) နဲ့ ပိုင်းခြားပြီး အဖြေ vector ကို ပြန်ပါ။
+Standard-library Python ဖြင့် `l2_normalize(v)` function ရေးပါ။ Vector ၏ L2 norm ဖြင့် စားပြီး ရလဒ် vector ကို ပြန်ပါ။
 
-**Hints:** norm = sqrt(sum of squared components) ပါ။ `math.sqrt` နဲ့ `math.fsum` ကိုသုံးပါ။ Norm = 0 ဖြစ်နေရင် ဘာမှမလုပ်ဘဲ vector အတိုင်းပြန်ပါ (division by zero ကို ကာကွယ်ပါ)။
+**Hints:** norm = sqrt(sum of squared components)။ `math.sqrt` နှင့် `math.fsum` ကို သုံးပါ။ Norm = 0 ဖြစ်ပါက vector ကို မပြောင်းလဲဘဲ ပြန်ပါ (division by zero ကာကွယ်ရန်)။
 
-**Expected behavior:** `l2_normalize([3.0, 4.0])` က `[0.6, 0.8]` ရပါတယ်။ Normalize ပြီးရင် norm = 1.0 ဖြစ်ပါတယ်။
+**Expected behavior:** `l2_normalize([3.0, 4.0])` သည် `[0.6, 0.8]` ပြန်သည်။ Normalize ပြီးနောက် norm = 1.0 ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Dot Product နှင့် Cosine တူညီမှု
 
-L2-normalized vectors နှစ်ခုအတွက် dot product နဲ့ cosine similarity တူညီကြောင်း စစ်ပါ။ cosine = dot(v1, v2) / (norm(v1) × norm(v2)) formula ကို ရေးပြပါ။
+L2-normalized vectors နှစ်ခုအတွက် dot product နှင့် cosine similarity တူညီကြောင်း စစ်ဆေးပါ။ cosine = dot(v1, v2) / (norm(v1) × norm(v2)) formula ကို ရေးပြပါ။
 
-**Hints:** လေ့ကျင့်ခန်း ၂ က `l2_normalize` ကို အသုံးချပါ။ Norm 1 ဖြစ်နေရင် ဘာကြောင့် cosine နဲ့ dot တူရတယ်ဆိုတာ တစ်ကြောင်းရှင်းပြပါ။
+**Hints:** လေ့ကျင့်ခန်း ၂ ၏ `l2_normalize` ကို အသုံးပြုပါ။ Norm 1 ဖြစ်နေပါက cosine နှင့် dot တူညီရသည့် အကြောင်းရင်းကို တစ်ကြောင်းတည်းဖြင့် ရှင်းပြပါ။
 
-**Expected behavior:** Normalize လုပ်ထားတဲ့ vectors နှစ်ခုမှာ dot product တန်ဖိုးနဲ့ cosine တန်ဖိုး တစ်ဝက်မှား (tolerance) အတွင်း တူညီပါတယ်။
+**Expected behavior:** Normalized vectors နှစ်ခုတွင် dot product တန်ဖိုးနှင့် cosine တန်ဖိုးသည် tolerance အတွင်း တူညီသည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Matryoshka Dimension ဖြတ်ခြင်း
 
-768-dim vector တစ်ခုကနေ ရှေ့ 256 dimensions ပဲ ယူပြီး ရှာဖွေမှု တိကျမှု (accuracy) နှိုင်းယှဉ်ပါ။ အလွယ်တကူ စမ်းသပ်ပုံစံ (a toy brute-force search) နဲ့ recall@5 တွက်ပါ။
+768-dim vector တစ်ခုမှ ရှေ့ပိုင်း 256 dimensions ကိုသာ ဖြတ်ယူပြီး retrieval accuracy ကို နှိုင်းယှဉ်ပါ။ Toy brute-force search ဖြင့် recall@5 တွက်ချက်ပါ။
 
-**Hints:** `v[:256]` နဲ့ dimension ဖြတ်ပါ။ Full 768 ရဲ့ top-5 ကို ground truth အဖြစ်ယူပါ။ Recall@5 = overlap / 5 ပါ။ Vectors ကို seed ပါတဲ့ `random.Random(42)` နဲ့ တည်ဆောက်ပါ (deterministic ဖြစ်စေဖို့)။
+**Hints:** `v[:256]` ဖြင့် dimension ဖြတ်ယူပါ။ Full 768-dim ၏ top-5 ကို ground truth အဖြစ် ယူပါ။ Recall@5 = overlap / 5။ Vectors ကို seed ပါသော `random.Random(42)` ဖြင့် တည်ဆောက်ပါ (deterministic ဖြစ်စေရန်)။
 
-**Expected behavior:** ဖြတ်ထားတဲ့ 256-dim version က 768-dim ရဲ့ top-5 ထဲက အများစု ပြန်ရပါတယ် (recall@5 < 1.0 ဒါပေမယ့် 0.5 ထက် ပိုမြင့်ပါတယ်)။ ဖြတ်လိုက်တဲ့အခါ accuracy လျော့သွားတယ်ဆိုတာ ကိန်းဂဏန်းနဲ့မြင်ရပါတယ်။
+**Expected behavior:** Truncated 256-dim version သည် 768-dim ၏ top-5 ထဲမှ အများစုကို ပြန်လည်ရရှိသည် (recall@5 < 1.0 ဖြစ်သော်လည်း 0.5 ထက် မြင့်သည်)။ Truncation ကြောင့် accuracy လျော့နည်းသွားကြောင်း ကိန်းဂဏန်းဖြင့် တွေ့ရသည်။
 
-## လေ့ကျင့်ခန်း ၅ — Text Cache နဲ့ Batch Encoding
+## လေ့ကျင့်ခန်း ၅ — Text Cache နှင့် Batch Encoding
 
-`EmbeddingCache` class ရေးပါ — dict-based cache နဲ့ `encode_batch(texts)` method ပါဝင်ရမယ်။ Encoding က `hashlib.sha256(text)` ရဲ့ hex digest ရှေ့ 16 လုံးကို stand-in vector အဖြစ်သုံးပါ (နမူနာအလွယ်တကူသုံး) — `# No real model call at runtime: deterministic stand-in` လို့ comment ထည့်ပါ။
+`EmbeddingCache` class ရေးပါ — dict-based cache နှင့် `encode_batch(texts)` method ပါဝင်ရမည်။ Encoding အတွက် `hashlib.sha256(text)` ၏ hex digest ရှေ့ 16 လုံးကို stand-in vector အဖြစ် သုံးပါ — `# No real model call at runtime: deterministic stand-in` comment ထည့်ပါ။
 
-**Hints:** Cache မှာ key က (model_name, text) tuple ဖြစ်စေပါ — version ခြားတဲ့အခါ collision မဖြစ်စေဖို့ပါ။ နှစ်ကြိမ် encoding လုပ်ရင် ဒုတိယအကြိမ်မှာ cache hit ဖြစ်ရပါတယ်။
+**Hints:** Cache key ကို (model_name, text) tuple ဖြစ်စေပါ — version ကွဲပြားသောအခါ collision မဖြစ်စေရန်။ Text တစ်ခုကို နှစ်ကြိမ် encode လုပ်ပါက ဒုတိယအကြိမ်တွင် cache hit ဖြစ်ရမည်။
 
-**Expected behavior:** Batch တစ်ခုကို နှစ်ကြိမ် encoding လုပ်ရင် ဒုတိယအကြိမ်မှာ vector တူညီပြီး cache hit အရေအတွက် တိုးလာပါတယ်။ Model name ပြောင်းလိုက်ရင် cache miss ဖြစ်ပါတယ်။
+**Expected behavior:** Batch တစ်ခုကို နှစ်ကြိမ် encode လုပ်ပါက ဒုတိယအကြိမ်တွင် vectors တူညီပြီး cache hit အရေအတွက် တိုးလာသည်။ Model name ပြောင်းလဲပါက cache miss ဖြစ်သည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Multilingual Corpus သတိထားစရာ
 
-မြန်မာစာ (Unicode) နဲ့ English ရောထားတဲ့ texts ငါးခုအတွက် character-level normalization pipeline ရေးပါ — NFC normalize (`unicodedata.normalize('NFC', ...)`)၊ whitespace ရှင်းလင်းခြင်း၊ စာကြောင်းရှည်ဖြတ်ခြင်း (character limit) လုပ်ပါ။ ပြီးရင် pipeline တစ်ဆင့်ချင်းစီ ဘာဖြစ်လဲဆိုတာ ရှင်းပြပါ။
+မြန်မာစာ (Unicode) နှင့် English ရောနှောထားသော texts ငါးခုအတွက် character-level normalization pipeline ရေးပါ — NFC normalize (`unicodedata.normalize('NFC', ...)`)၊ whitespace collapse၊ character limit truncation တို့ ပါဝင်ရမည်။ ပြီးလျှင် pipeline အဆင့်တစ်ခုစီ၏ သက်ရောက်မှုကို ရှင်းပြပါ။
 
-**Hints:** မြန်မာစာက combining marks များပါတာကြောင့် normalization အရေးကြီးပါတယ်။ `unicodedata` module က standard library ပါ။ Truncation လုပ်တဲ့အခါ စာလုံးဖြတ်မိရင် ဘာဖြစ်နိုင်လဲ ဆိုတာ သုံးပိုင်ဆိုင်ခွင့် (license) မလို မိမိကြိုတင်ယူဆချက် (assumption) အဖြစ် ဖော်ပြပါ။
+**Hints:** မြန်မာစာတွင် combining marks များပြားသဖြင့် normalization သည် အရေးကြီးသည်။ `unicodedata` module သည် standard library ဖြစ်သည်။ Truncation တွင် grapheme cluster ဖြတ်မိနိုင်ခြေကို ကြိုတင်ယူဆချက် (assumption) အဖြစ် ဖော်ပြပါ။
 
-**Expected behavior:** နှစ်မျိုးရောထားတဲ့ input တွေက NFC-normalized၊ whitespace တစ်ခုတည်းသာရှိတဲ့၊ character limit အတွင်းရောက်တဲ့ output တွေ ရပါတယ်။ တစ်ခုပြီးတစ်ခု အဆင့်ဆင့် output ကို ရှင်းလင်းစွာမြင်ရပါတယ်။
+**Expected behavior:** ရောနှောထားသော input များမှ NFC-normalized ဖြစ်ပြီး၊ whitespace တစ်ခုတည်းသာ ပါဝင်သော၊ character limit အတွင်းကျသော output များ ရရှိသည်။ အဆင့်တစ်ခုစီ၏ output ကို အစဉ်လိုက် တွေ့ရသည်။

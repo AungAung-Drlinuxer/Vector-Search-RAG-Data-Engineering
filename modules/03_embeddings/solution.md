@@ -1,6 +1,6 @@
 ## လေ့ကျင့်ခန်း ၁ — Storage တွက်ချက်ခြင်း
 
-Chunk တစ်သန်း၊ dimension 768၊ fp32 ဆိုရင် vector တစ်ခုကို bytes ဘယ်လောက်ယူလဲဆိုတာ အရင်တွက်၊ ပြီးရင် စုစုပေါင်းကို GB ပြောင်းပြတာပေါ့။ တွက်ချက်ချက်တိုင်းကို print လုပ်ပြထားတဲ့ အတွက် အဆင့်ဆင့်မြင်ရမယ်နော်။
+Chunk တစ်သန်း၊ dimension 768၊ fp32 အတွက် vector တစ်ခု၏ byte ပမာဏကို တွက်ချက်ပြီး စုစုပေါင်းကို GB သို့ ပြောင်းလဲထားသည်။ တွက်ချက်မှုအဆင့်တိုင်းကို print လုပ်ထားသဖြင့် အဆင့်ဆင့် စစ်ဆေးနိုင်သည်။
 
 ```python
 # Storage calculation for vector embeddings (no imports needed)
@@ -22,11 +22,11 @@ print("total GB:", total_gb)
 # total GB: 3.072
 ```
 
-**အဓိကအယူဆ** — Vector storage က chunks × dimension × 4 bytes နဲ့တိုက်ရိုက်တွက်လို့ရပြီး ဒီဥပမာမှာ 3.07 GB ခန့် စားသုံးမယ်ဆိုတာ ကိန်းဂဏန်းနဲ့မြင်ရပါတယ်။
+**အဓိကအယူဆ** — Vector storage ကို chunks × dimension × 4 bytes ဖြင့် တိုက်ရိုက်တွက်ချက်နိုင်ပြီး၊ ဒီဥပမာတွင် 3.07 GB ခန့် သုံးစွဲမည်ဖြစ်ကြောင်း ကိန်းဂဏန်းဖြင့် အတည်ပြုနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၂ — L2 Normalization ရေးခြင်း
 
-Norm ဆိုတာ vector ရဲ့ အလျားပါ၊ `math.sqrt` နဲ့ `math.fsum` သုံးပြီး တွက်ပြီး ပိုင်းခြားရတာပေါ့။ Norm 0 ဖြစ်နေရင် division by zero မဖြစ်စေဖို့ vector အတိုင်းပြန်တာ သတိထားရမယ်နော်။
+Norm ဆိုသည်မှာ vector ၏ magnitude ဖြစ်ပြီး `math.sqrt` နှင့် `math.fsum` ဖြင့် တွက်ချက်ကာ value တစ်ခုစီကို စားသည်။ Norm 0 ဖြစ်နေပါက division by zero မဖြစ်စေရန် vector ကို မပြောင်းလဲဘဲ ပြန်ပေးရန် အရေးကြီးသည်။
 
 ```python
 # Standard-library only: L2 normalization with zero-norm guard
@@ -53,11 +53,11 @@ print("zero vector unchanged:", l2_normalize([0.0, 0.0]))
 # zero vector unchanged: [0.0, 0.0]
 ```
 
-**အဓိကအယူဆ** — Normalize လုပ်ပြီးတဲ့ vector ရဲ့ norm ဟာ 1.0 ဖြစ်သွားပြီး zero vector ကို အတိုင်းပြန်ပေးတဲ့ သတိမှုလေးက အရေးကြီးပါတယ်။
+**အဓိကအယူဆ** — Normalize ပြုလုပ်ပြီးနောက် vector ၏ norm သည် 1.0 ဖြစ်လာပြီး၊ zero vector အတွက် input ကို မပြောင်းလဲဘဲ ပြန်ပေးသော guard သည် မရှိမဖြစ် လိုအပ်သည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Dot Product နှင့် Cosine တူညီမှု
 
-Cosine formula ကိုရေးပြီး normalized vectors နှစ်ခုမှာ dot နဲ့ တူမတူစစ်ကြည့်တာပေါ့။ Norm 1 ဖြစ်နေရင် ပိုင်းခြားတဲ့အခိုက် 1 နဲ့ ပိုင်းလိုက်တာ ဆိုတော့ dot နဲ့ cosine ချင်း တစ်ဝက်မှားထဲ တူရတာပါ။
+Cosine formula ကို ရေးသားပြီး normalized vectors နှစ်ခုအတွက် dot product နှင့် တူညီမှုကို စစ်ဆေးထားသည်။ Norm 1 ဖြစ်နေပါက cosine ၏ ပိုင်းခြားကိန်း (denominator) သည် 1 ဖြစ်သွားသဖြင့် dot product နှင့် cosine similarity တန်ဖိုး တူညီသွားသည်။
 
 ```python
 # Standard library only: cosine vs dot product on L2-normalized vectors
@@ -94,11 +94,11 @@ print("within tolerance 1e-12:", abs(d - c) < 1e-12)
 # within tolerance 1e-12: True
 ```
 
-**အဓိကအယူဆ** — Norm 1 ဖြစ်နေတဲ့ vectors မှာ cosine ရဲ့ ပိုင်းခြားကိန်းက 1 ဖြစ်နေလို့ dot product နဲ့ cosine similarity ချင်း တူတူဖြစ်နေတာပါ။
+**အဓိကအယူဆ** — Norm 1 ဖြစ်နေသော vectors များတွင် cosine ၏ denominator 1 ဖြစ်သွားသဖြင့် dot product နှင့် cosine similarity တန်ဖိုး တူညီသည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Matryoshka Dimension ဖြတ်ခြင်း
 
-768-dim ကနေ ရှေ့ 256 ပဲယူပြီး brute-force search နဲ့ recall@5 နှိုင်းကြည့်တာပေါ့။ Seed ပါတဲ့ `random.Random(42)` သုံးထားတဲ့အတွက် ရလဒ်က deterministic ဖြစ်ပြီး accuracy လျော့သွားတာကို ကိန်းဂဏန်းနဲ့မြင်ရမယ်နော်။
+768-dim vector မှ ရှေ့ပိုင်း 256 dimensions ကိုသာ ဖြတ်ယူပြီး brute-force search ဖြင့် recall@5 ကို နှိုင်းယှဉ်ထားသည်။ Seed ပါသော `random.Random(42)` ကို အသုံးပြုထားသဖြင့် ရလဒ်သည် deterministic ဖြစ်ပြီး၊ truncation ကြောင့် accuracy လျော့နည်းသွားမှုကို ကိန်းဂဏန်းဖြင့် တွေ့ရသည်။
 
 ```python
 # Standard library only: toy Matryoshka truncation vs full-dim recall@5
@@ -135,11 +135,11 @@ print("recall@5:", recall_at_5)
 # recall@5: 0.4
 ```
 
-**အဓိကအယူဆ** — Dimension ဖြတ်လိုက်တဲ့အခါ recall@5 က 0.8 အထိ လျော့သွားပြီး Matryoshka truncation က storage သက်သာပေမယ့် accuracy နည်းနည်း ဆုံးရှုံးတယ်ဆိုတာ မြင်ရပါတယ်။
+**အဓိကအယူဆ** — Dimension truncation ပြုလုပ်ပါက recall@5 က 0.8 အထိ လျော့နည်းသွားပြီး၊ Matryoshka truncation သည် storage သက်သာစေသော်လည်း accuracy အနည်းငယ် ဆုံးရှုံးစေကြောင်း တွေ့ရသည်။
 
-## လေ့ကျင့်ခန်း ၅ — Text Cache နဲ့ Batch Encoding
+## လေ့ကျင့်ခန်း ၅ — Text Cache နှင့် Batch Encoding
 
-`EmbeddingCache` class ကို dict-based cache နဲ့ ရေးပြီး sha256 hex digest ရှေ့ 16 လုံးကို stand-in vector အဖြစ်သုံးထားတာပေါ့။ Key က `(model_name, text)` tuple ဖြစ်စေတာက model version ခြားတဲ့အခါ collision မဖြစ်စေလို့ပါ၊ ဒုတိယအကြိမ်မှာ cache hit တိုးတာ မြင်ရမယ်နော်။
+`EmbeddingCache` class ကို dict-based cache ဖြင့် ရေးသားပြီး sha256 hex digest ၏ ရှေ့ 16 လုံးကို stand-in vector အဖြစ် အသုံးပြုထားသည်။ Cache key ကို `(model_name, text)` tuple ဖြင့် သတ်မှတ်ထားခြင်းသည် model version ကွဲပြားသောအခါ collision မဖြစ်စေရန် ဖြစ်ပြီး၊ ဒုတိယအကြိမ် encode တွင် cache hit တိုးလာမှုကို တွေ့ရသည်။
 
 ```python
 # BURMESE-DATA-OK: Burmese sample text used as test data.
@@ -192,11 +192,11 @@ print("after model change -> hits:", cache.hits, "misses:", cache.misses)
 # after model change -> hits: 3 misses: 6
 ```
 
-**အဓိကအယူဆ** — Cache key မှာ model name ထည့်ထားတဲ့အတွက် တစ်ကြိမ် encode ထားတဲ့ text ကို ပြန်ယူရင် hit ဖြစ်ပြီး model ပြောင်းလိုက်ရင် miss ဖြစ်တဲ့ အပြုအမူနှစ်မျိုးလုံး မြင်ရပါတယ်။
+**အဓိကအယူဆ** — Cache key တွင် model name ပါဝင်သဖြင့် ယခင် encode လုပ်ပြီးသော text ကို ပြန်လည်တောင်းဆိုပါက cache hit ဖြစ်ပြီး၊ model name ပြောင်းလဲပါက cache miss ဖြစ်သည် — အပြုအမူ နှစ်မျိုးလုံးကို စစ်ဆေးနိုင်သည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Multilingual Corpus သတိထားစရာ
 
-မြန်မာစာမှာ combining marks များတဲ့အတွက် NFC normalization က အရေးကြီးပြီး whitespace ရှင်းတာ၊ character limit ဖြတ်တာတွေကို အဆင့်ဆင့် မြင်ရအောင် ရေးထားတာပေါ့။ Truncation မှာ စာလုံးဖြတ်မိရင် စာလုံးနောက်ဆက် combining mark ဖြတ်ချင်နိုင်တဲ့ ကြိုတင်ယူဆချက်လေးကိုလည်း ဖော်ပြထားပါတယ်။
+မြန်မာစာတွင် combining marks များပြားသဖြင့် NFC normalization သည် အရေးကြီးသည်။ Whitespace collapse နှင့် character limit truncation အဆင့်များကို အစဉ်လိုက် တွေ့မြင်နိုင်အောင် ရေးသားထားသည်။ Truncation တွင် grapheme cluster ဖြတ်မိနိုင်ခြေ (ဥပမာ combining mark အနောက်ပိုင်း ကျန်ရစ်ခြင်း) ကို ကြိုတင်ယူဆချက်အဖြစ် ဖော်ပြထားသည်။
 
 ```python
 # BURMESE-DATA-OK: Burmese sample text used as test data.
@@ -243,7 +243,7 @@ for i, t in enumerate(texts, 1):
 # ws-fixed: မြိက် NFD-vs-NFC test
 # trunc30 : မြိက် NFD-vs-NFC test (len=21)
 # --- text 4 ---
-# NFC     : Unicode ကောည်  	  whitespace	test
+# NFC     : Unicode ကောည်  \t  whitespace\ttest
 # ws-fixed: Unicode ကောည် whitespace test
 # trunc30 : Unicode ကောည် whitespace test (len=29)
 # --- text 5 ---
@@ -252,4 +252,4 @@ for i, t in enumerate(texts, 1):
 # trunc30 : Final example အဆုံး သတ် စာကြော (len=30)
 ```
 
-**အဓိကအယူဆ** — မြန်မာစာ combining marks တွေကြောင့် NFC normalization က cache နဲ့ dedup အတွက် မရှိမဖြစ်လိုအပ်ပြီး character-level truncation က grapheme cluster ကို ဖြတ်ချင်နိုင်တယ်ဆိုတာ ကြိုတင်ယူဆထားရပါတယ်။
+**အဓိကအယူဆ** — မြန်မာစာ၏ combining marks ကြောင့် NFC normalization သည် cache နှင့် dedup အတွက် မရှိမဖြစ် လိုအပ်ပြီး၊ character-level truncation သည် grapheme cluster ကို ဖြတ်မိနိုင်ကြောင်း ကြိုတင်ယူဆချက်အဖြစ် မှတ်သားထားရမည်။

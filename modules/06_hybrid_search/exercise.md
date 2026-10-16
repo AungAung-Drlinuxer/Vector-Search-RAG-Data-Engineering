@@ -1,46 +1,45 @@
 # M6 — လေ့ကျင့်ခန်းများ (Hybrid Search: Full-text, Trigram နှင့် RRF)
 
-ဒီလေ့ကျင့်ခန်းတွေက M6 သင်ခန်းစာအတွက် အိမ်စာဖြစ်ပါတယ်။
-Python standard library တစ်ခုတည်းနဲ့ ရေးရပါမယ်။
-Database ချိတ်ရန် မလိုပါဘူး — SQL ကို ဖတ်ပြီး လေ့လာရုံပဲ ဖြစ်ပါတယ်။
+ဒီလေ့ကျင့်ခန်းများသည် M6 သင်ခန်းစာအတွက် အိမ်စာဖြစ်သည်။
+Python standard library တစ်ခုတည်းဖြင့် ရေးသားရမည်။
+Database ချိတ်ဆက်ရန် မလိုအပ်ပါ — SQL ကို ဖတ်ရှုလေ့လာရုံသာဖြစ်သည်။
 
-## လေ့ကျင့်ခန်း ၁ — tsvector ဆောက်ခြင်း (စာလုံး အခြေခံ)
+## လေ့ကျင့်ခန်း ၁ — tsvector ဆောက်ခြင်း (အခြေခံ)
 
-PostgreSQL မှာ full-text search (စာအပိုဒ်တစ်ခုထဲက စာလုံးတွေကို index လုပ်တဲ့ နည်း) က `tsvector` နဲ့ စတင်ပါတယ်။
+PostgreSQL full-text search သည် `tsvector` ဖြင့် စတင်သည်။
 
-**Task:** အင်္ဂလိပ်စာ ၃ ကြောင်းကို lowercase လုပ်ပြီး စာလုံးတွေခွဲပါ။ ပြီးရင် တစ်ခုစီအတွက် lexeme (အဓိပ္ပာယ်ဆောင်တဲ့ စာလုံးအခြေ) နဲ့ အနေရာ (position) ကို dict နဲ့ ပြပါ။ `tsvector` ရဲ့ logic ကို တုပြီး ရေးတာပါ — DB မချိတ်ပါဘူး။
+**Task:** အင်္ဂလိပ်စာ ၃ ကြောင်းကို lowercase ပြုလုပ်၍ token ခွဲပါ။ တစ်ခုစီအတွက် lexeme နှင့် position ကို dict ဖြင့် ထုတ်ပြပါ။ `tsvector` ၏ logic ကို simulate လုပ်ခြင်းဖြစ်ပြီး DB ချိတ်ဆက်မည် မဟုတ်ပါ။
 
-**Hints:** စာကို `.split()` နဲ့ ခွဲပါ။ position က 1 ကနေ စပါတယ်။ တူတဲ့ စာလုံး ထပ်ပေါ်ရင် position အားလုံးကို list ထဲ မှတ်ပါ။
+**Hints:** `.split()` ဖြင့် token ခွဲပါ။ Position ကို 1 မှ စတင်ရေတွက်ပါ။ Lexeme တစ်ခု ထပ်ပေါ်ပါက position အားလုံးကို list တွင် မှတ်တမ်းတင်ပါ။
 
-**Expected behavior:** `"the quick brown fox"` မှာ `the: [1], quick: [2], brown: [3], fox: [4]` ဆိုတဲ့ dict ရပါတယ်။ `"the lazy dog the"` မှာ `the` ရဲ့ value က `[1, 4]` ဖြစ်ပါတယ်။
+**Expected behavior:** `"the quick brown fox"` အတွက် `the: [1], quick: [2], brown: [3], fox: [4]` dict ရရှိမည်။ `"the lazy dog the"` အတွက် `the` ၏ value မှာ `[1, 4]` ဖြစ်မည်။
 
-## လေ့ကျင့်ခန်း ၂ — tsquery matching နဲ့ ranking (ts_rank style)
+## လေ့ကျင့်ခန်း ၂ — tsquery matching နှင့် ranking (ts_rank style)
 
-`tsvector` ကို query နဲ့ တိုက်စစ်ပြီး score ထုတ်တာက PostgreSQL ရဲ့ ranking အခြေခံပါ။
+`tsvector` ကို query ဖြင့် match လုပ်ပြီး score ထုတ်ခြင်းသည် PostgreSQL ranking ၏ အခြေခံဖြစ်သည်။
 
-**Task:** လေ့ကျင့်ခန်း ၁ ရဲ့ tsvector dict ကို ယူပါ။ query ထဲက စာလုံးတွေထဲက ဘယ်လုံးတွေ document ထဲ ရှိလဲ ရှာပါ။ match ရတဲ့ စာလုံး အရေအတွက်ကို score အဖြစ် ပြန်ပါ။
+**Task:** လေ့ကျင့်ခန်း ၁ ၏ tsvector dict ကို အသုံးပြုပါ။ Query term များအနက် မည်သည်တို့ document အတွင်း ပါဝင်သည်ကို ရှာဖွေပြီး matched word count ကို score အဖြစ် ပြန်လည်ထုတ်ပြပါ။
 
-**Hints:** set intersection (`.intersection()`) ကို သုံးလို့ ရပါတယ်။ ရှုပ်ထွေးမှု မတိုးပါနဲ့ — matched word count လောက်ပဲ လိုပါတယ်။
+**Hints:** Set intersection (`.intersection()`) အသုံးပြုနိုင်သည်။ ရှုပ်ထွေးမှု မတိုးစေရ — matched word count လောက်သာ လိုအပ်သည်။
 
-**Expected behavior:** doc `"postgres vector search guide"` မှာ query `["postgres", "search"]` က score `2` ရပါတယ်။ query `["mysql"]` က score `0` ရပါတယ်။ ရလဒ်တွေကို score အမြင့်နဲ့ စီပြပါ။
+**Expected behavior:** doc `"postgres vector search guide"` တွင် query `["postgres", "search"]` က score `2` ရရှိမည်။ Query `["mysql"]` က score `0` ရရှိမည်။ ရလဒ်များကို score descending ဖြင့် စီစဉ်ပြသပါ။
 
 ## လေ့ကျင့်ခန်း ၃ — Trigram similarity (3-gram Jaccard)
 
-Trigram (စာလုံး ၃ လုံးတွဲ) similarity က စာလုံးပေါင်းလွဲတာတွေကို ရှာပေးပါတယ်။ PostgreSQL က GiST index နဲ့ ဒီလို အလုပ်လုပ်ပါတယ်။
+Trigram similarity သည် စာလုံးပေါင်းလွဲမှားမှုများကို ဖမ်းယူပေးသည်။ PostgreSQL ၏ `pg_trgm` သည် ဤနည်းဖြင့် အလုပ်လုပ်သည်။
 
-**Task:** စကားလုံးတစ်ခုစီက trigram set ဆောက်ပါ — စာလုံး ၃ လုံးတွဲ၊ ရှေ့နောက်မှာ space ၂ လုံး ဖြည့်ပါ။ ပြီးရင် Jaccard similarity (ဘုံ set အရွယ် စား ပေါင်း set အရွယ်) နဲ့ နှစ်ခု နှစ်ခုချင်း တိုက်စစ်ပါ။
+**Task:** စကားလုံးတစ်ခုစီအတွက် trigram set ဆောက်ပါ — စာလုံး ၃ လုံး window ယူပြီး ရှေ့နောက် space ၂ လုံးစီ pad လုပ်ပါ။ ထို့နောက် Jaccard similarity (intersection size / union size) ဖြင့် စကားလုံးစုံတွဲများကို တွက်ချက်ပါ။
 
-**Hints:** `"  word  "` ဆိုပြီး space ဖြည့်ပြီးမှ trigram ခွဲပါ။ ဥပမာ `"cat"` → `{'  c', ' ca', 'cat', 'at '}` မျိုး ရပါတယ်။ ဘုံ trigram ရေကို ပေါင်း trigram ရေနဲ့ စားပါ။
+**Hints:** `"  word  "` ဟု pad လုပ်ပြီးမှ trigram ခွဲပါ။ ဥပမာ `"cat"` → `{'  c', ' ca', 'cat', 'at '}`။ Intersection size ကို union size ဖြင့် စားပါ။
 
-**Expected behavior:** `"postgres"` vs `"postgresql"` က similarity တန်ဖိုးတစ်ခု ရပါတယ် (arithmetic ကို ကိုယ်တိုင် တွက်ပြပါ)။ `"postgres"` vs `"banana"` က 0 နဲ့ နီးပါတယ်။ တွက်ချက်မှု အဆင့်ဆင့်ကို ပရင့်ထုတ်ပြပါ။
+**Expected behavior:** `"postgres"` vs `"postgresql"` သည် similarity တန်ဖိုးတစ်ခု ရရှိမည် (arithmetic ကို ကိုယ်တိုင် တွက်ချက်ပြသပါ)။ `"postgres"` vs `"banana"` သည် 0 နှင့် နီးကပ်မည်။ တွက်ချက်မှု အဆင့်ဆင့်ကို print ထုတ်ပြပါ။
 
 ## လေ့ကျင့်ခန်း ၄ — BM25 score တွက်ခြင်း
 
-BM25 က keyword search engine တွေ (Elasticsearch/OpenSearch) ရဲ့ default ranking
-ဖြစ်ပါတယ်။ ဒီလေ့ကျင့်ခန်းမှာ ပုံသေနည်းကို လက်နဲ့ တွက်ကြည့်ပါမယ်။
+BM25 သည် keyword search engine များ (Elasticsearch/OpenSearch) ၏ default ranking ဖြစ်သည်။ ဒီလေ့ကျင့်ခန်းတွင် ပုံသေနည်းကို လက်ဖြင့် တွက်ချက်မည်။
 
-**Task:** အောက်ပါ corpus အတွက် query `['quick', 'fox']` ရဲ့ BM25 score တွေ
-တွက်ပြီး document များကို အမှတ် အမြင့်စီ စီပါ — `k1=1.2`, `b=0.75` သုံးပါ။
+**Task:** အောက်ပါ corpus အတွက် query `['quick', 'fox']` ၏ BM25 score များ
+တွက်ချက်ပြီး document များကို score descending ဖြင့် စီပါ — `k1=1.2`, `b=0.75` သုံးပါ။
 
 ```
 d1: 'the quick brown fox'
@@ -48,51 +47,51 @@ d2: 'the quick quick fox sleeps in the warm sun'
 d3: 'a sleepy fox in the barn'
 ```
 
-အဆင့်များ — (၁) စကားလုံး ခွဲပြီး document အလိုက် အရှည်နဲ့ `avgdl` တွက်ပါ။
-(၂) query စကားလုံး တစ်လုံးချင်းအတွက် `df` (ပါတဲ့ document ရေ) ရှာပြီး IDF တွက်ပါ။
-(၃) ပုံသေနည်းအတိုင်း တစ်လုံးချင်း score ထုတ်ပြီး ပေါင်းပါ။
+အဆင့်များ — (၁) Token ခွဲပြီး document အလိုက် အရှည်နှင့် `avgdl` တွက်ပါ။
+(၂) Query term တစ်ခုချင်းစီအတွက် `df` (document frequency) ရှာပြီး IDF တွက်ပါ။
+(၃) ပုံသေနည်းအတိုင်း term တစ်ခုချင်းစီ score ထုတ်ပြီး ပေါင်းပါ။
 
 **Hints:** `math.log` ကို သုံးပါ — `math.log(1 + (N - df + 0.5) / (df + 0.5))`။
-`f(q, D)` က document ထဲ စကားလုံး ထပ်ပါရင် ရေတွက်ပါ (d2 မှာ `quick` ၂ ကြိမ်)။
-denominator မှာ document အလိုက် `|D| / avgdl` ပြန်တွက်ရမှာ မမေ့ပါနဲ့။
+`f(q, D)` သည် document အတွင်း term ပါဝင်မှု အကြိမ်ရေဖြစ်သည် (d2 တွင် `quick` ၂ ကြိမ်)။
+Denominator တွင် document အလိုက် `|D| / avgdl` ပြန်လည်တွက်ချက်ရန် မမေ့ပါနှင့်။
 
 **Expected behavior:**
 - `avgdl = 6.3333`၊ `df(quick) = 2`၊ `df(fox) = 3`
 - `idf(quick) = 0.470004`၊ `idf(fox) = 0.133531`
 - စုစုပေါင်း: `d1 = 0.7106`၊ `d2 = 0.6917`၊ `d3 = 0.1365` — ranking: **d1 > d2 > d3**
-- Observation တစ်ကြောင်း ရေးပါ — d2 မှာ `quick` ၂ ကြိမ် ပါပေမယ့် ဘာကြောင့်
-  d1 အောက် ရောက်သွားလဲ (saturation + length normalization)။
+- Observation တစ်ကြောင်း ရေးပါ — d2 တွင် `quick` ၂ ကြိမ် ပါဝင်သော်လည်း ဘာကြောင့်
+  d1 အောက် ရောက်သွားသနည်း (saturation + length normalization)။
 
-## လေ့ကျင့်ခန်း ၅ — Weighted sum မှာ score normalization ရဲ့ အရေးကြီးမှု
+## လေ့ကျင့်ခန်း ၅ — Weighted sum တွင် score normalization ၏ အရေးပါမှု
 
-Vector score နဲ့ BM25 score (စာလုံးရှာမှုရဲ့ ranking score) က scale မတူပါ။ normalization (အတိုင်းအတာ ညီမျှအောင်လုပ်တဲ့နည်း) မလုပ်ရင် ပေါင်းတဲ့အခါ တစ်ဖက်က အလွန်ကိုင်းပါတယ်။
+Vector score နှင့် BM25 score သည် scale မတူပါ။ Normalization မလုပ်ဘဲ ပေါင်းပါက lane တစ်ဖက်က fusion ရလဒ်ကို လွှမ်းမိုးသွားသည်။
 
-**Task:** vector score တွေက `[0.9, 0.8, 0.7]` နဲ့ BM25 score တွေက `[5.0, 12.0, 20.0]` ဆိုပါစို့။ (၁) တိုက်ရိုက်ပေါင်းပြီး rank လုပ်ပါ။ (၂) တစ်ခုစီကို min-max normalize (0–1 ဖြစ်အောင်) လုပ်ပြီးမှ 0.5/0.5 weight နဲ့ ပေါင်းပါ။ ရလဒ်နှစ်မျိုး ကွဲပုံကို ပြန်ပါ။
+**Task:** Vector score များ `[0.9, 0.8, 0.7]` နှင့် BM25 score များ `[5.0, 12.0, 20.0]` ဟု သတ်မှတ်ပါ။ (၁) တိုက်ရိုက်ပေါင်း၍ rank လုပ်ပါ။ (၂) Lane တစ်ခုစီကို min-max normalize ([0, 1]) လုပ်ပြီးမှ 0.5/0.5 weight ဖြင့် ပေါင်းပါ။ ရလဒ်နှစ်မျိုး ကွာခြားပုံကို ပြန်လည်တင်ပြပါ။
 
-**Hints:** min-max normalization က `(x - min) / (max - min)` ပါ။ rank ပြောင်းသွားတဲ့ document ရှိမရှိ စစ်ပါ။ max-min ညီတဲ့ edge case (အားလုံး တူတာ) ကို zero-division ကာဖို့ သတိထားပါ။
+**Hints:** min-max normalization မှာ `(x - min) / (max - min)` ဖြစ်သည်။ Rank ပြောင်းလဲသွားသော document ရှိ/မရှိ စစ်ဆေးပါ။ max == min ဖြစ်သော edge case (score အားလုံးတူ) တွင် zero-division ကာကွယ်ရန် သတိပြုပါ။
 
-**Expected behavior:** နည်း (၁) မှာ BM25 ကြီးတဲ့ document က ထိပ်မှာ ရောက်ပါတယ်။ နည်း (၂) မှာ ranking က ပြောင်းသွားပါတယ်။ ဒီနှိုင်းယှဉ်ချက်က normalization ဘာကြောင့် လိုအပ်တယ်ဆိုတာ ပြပါတယ်။
+**Expected behavior:** နည်း (၁) တွင် BM25 score ကြီးသော document ထိပ်ဆုံးရောက်သည်။ နည်း (၂) တွင် ranking ပြောင်းလဲသွားသည်။ ဤနှိုင်းယှဉ်ချက်က normalization ဘာကြောင့် လိုအပ်သည်ကို ပြသသည်။
 
 ## လေ့ကျင့်ခန်း ၆ — Reciprocal Rank Fusion (RRF) အခြေခံ
 
-RRF (rank အားဖြင့် ပေါင်းတဲ့နည်း) က score scale ကို မှားစရာ မရှိပါဘူး — rank ပေါ် အခြေခံပါတယ်။ Elasticsearch/OpenSearch တို့မှာ ဒီ parameter `k` နဲ့ အလုပ်လုပ်ပါတယ်။
+RRF သည် raw score ကို မသုံးဘဲ rank ပေါ်တွင်သာ အခြေခံသဖြင့် scale ပြဿနာ ကင်းဝေးသည်။ Elasticsearch/OpenSearch တွင် parameter `k` ဖြင့် အလုပ်လုပ်သည်။
 
-**Task:** `rrf_score = 1 / (k + rank)` formula ကို သုံးပါ။ rank က 1 ကနေ စပါတယ်။ vector rank list နဲ့ keyword rank list နှစ်ခု ရှိရင် တစ်ခုစီရဲ့ RRF တန်ဖိုးကို ပေါင်းပြီး နောက်ဆုံး ranking ထုတ်ပါ။ `k = 60` နဲ့ စမ်းပါ — ဒါက docs တွေမှာ သုံးလေ့ရှိတဲ့ တန်ဖိုးပါ။
+**Task:** `rrf_score = 1 / (k + rank)` formula ကို သုံးပါ။ Rank ကို 1 မှ စတင်ရေတွက်သည်။ Vector rank list နှင့် keyword rank list နှစ်ခုရှိပါက တစ်ခုစီ၏ RRF component ကို ပေါင်းပြီး final ranking ထုတ်ပါ။ `k = 60` ဖြင့် စမ်းသပ်ပါ — documentation များတွင် သုံးလေ့ရှိသော တန်ဖိုးဖြစ်သည်။
 
-**Hints:** document တစ်ခုက တစ်ဖက်လမ်းထဲမှာပဲ ရှိရင် အဲဒီဖက်ကိုလည်း ပေါင်းပါ။ rank 1 → `1/61`၊ rank 2 → `1/62` မျိုး ဖြစ်ပါတယ်။ score တွေကို float အတိအကျ ပရင့်ပါ။
+**Hints:** Document သည် lane တစ်ခုတည်းတွင်သာ ပါဝင်ပါက ထို lane ၏ component ကိုသာ ပေါင်းသည်။ rank 1 → `1/61`၊ rank 2 → `1/62`။ Score များကို float အတိအကျ print ထုတ်ပါ။
 
-**Expected behavior:** doc A က vector rank 1၊ keyword rank 3 ဖြစ်ပြီး doc B က vector rank 4၊ keyword rank 1 ဆိုရင် — `k=60` နဲ့ A ရဲ့ RRF က `1/61 + 1/63` ဖြစ်ပြီး B ရဲ့ RRF က `1/64 + 1/61` ဖြစ်ပါတယ်။ နောက်ဆုံး ranking က B ပို တက်သွားပုံ ပြပါ။
+**Expected behavior:** doc A သည် vector rank 1၊ keyword rank 3 ဖြစ်ပြီး doc B သည် vector rank 4၊ keyword rank 1 ဆိုပါက — `k=60` ဖြင့် A ၏ RRF မှာ `1/61 + 1/63` ဖြစ်ပြီး B ၏ RRF မှာ `1/64 + 1/61` ဖြစ်သည်။ Final ranking တွင် B ပိုမိုမြင့်တက်လာပုံကို ပြသပါ။
 
-## လေ့ကျင့်ခန်း ၇ — Full hybrid pipeline: နှစ်လမ်းဖြန့်ပြီး RRF နဲ့ ပေါင်းခြင်း
+## လေ့ကျင့်ခန်း ၇ — Full hybrid pipeline: နှစ်လမ်း fan-out ပြီး RRF ဖြင့် fusion
 
-ဒီနောက်ဆုံး လေ့ကျင့်ခန်းက တကယ့် hybrid search (vector နဲ့ keyword နှစ်လမ်း ပေါင်းရှာတာ) ရဲ့ သေးသေးလေး မော်ဒယ်ပါ။
+ဒီနောက်ဆုံး လေ့ကျင့်ခန်းသည် လက်တွေ့ hybrid search (vector + keyword နှစ်လမ်း) ၏ simplified model ဖြစ်သည်။
 
-**Task:** docs ၅ ခု ရှိရင် — (၁) keyword path အတွက် လေ့ကျင့်ခန်း ၂ ရဲ့ matching score နဲ့ rank ထုတ်ပါ။ (၂) vector path အတွက် cosine similarity (cos တူညီမှု အတိုင်းအတာ — standard library နဲ့ တွက်ရန်) ကို ကြိုးကြိုးသတ်မှတ်ထားတဲ့ ရိုးရိုး vector တွေနဲ့ တွက်ပါ။ (၃) နှစ်လမ်းက rank တွေကို RRF (`k=60`) နဲ့ ပေါင်းပြီး top-3 ထုတ်ပါ။
+**Task:** Document ၅ ခု ရှိပါက — (၁) keyword path အတွက် လေ့ကျင့်ခန်း ၂ ၏ matching score ဖြင့် rank ထုတ်ပါ။ (၂) vector path အတွက် cosine similarity ကို ကြိုတင်သတ်မှတ်ထားသော vector များဖြင့် standard library သုံး၍ တွက်ပါ။ (၃) Lane နှစ်ခု၏ rank များကို RRF (`k=60`) ဖြင့် fuse လုပ်ပြီး top-3 ထုတ်ပါ။
 
-**Hints:** vector တွေကို `[0.1, 0.2]` လိုမျိုး ကြို သတ်မှတ်ပါ — runtime မှာ ဘာမှ မွေးပါနဲ့၊ deterministic ဖြစ်ရပါမယ်။ cosine similarity က dot product စား norm နှစ်ခုမြှောက်ကိန်းပါ။ norm က `math.sqrt(sum(x*x for x in v))` ပါ။ rank ထုတ်တဲ့အခါ score အမြင့်ဆုံးကို sort လုပ်ပါ။
+**Hints:** Vector များကို `[0.1, 0.2]` ကဲ့သို့ ကြိုတင်သတ်မှတ်ပါ — runtime တွင် random မထုတ်ရ၊ deterministic ဖြစ်ရမည်။ Cosine similarity မှာ dot product စား norms မြှောက်လဒ်ဖြစ်ပြီး norm က `math.sqrt(sum(x*x for x in v))` ဖြစ်သည်။ Rank ထုတ်ရာတွင် score descending ဖြင့် sort လုပ်ပါ။
 
-**Expected behavior:** query တစ်ခုက နှစ်လမ်းလုံးမှာ ကွဲပြားတဲ့ docs ကို ထိပ်မှာ တင်ပါတယ်။ RRF က နှစ်လမ်းလုံးမှာ အလယ်အလတ် ကောင်းတဲ့ doc ကို မြှင့်တင်ပေးပုံကို top-3 ရလဒ်နဲ့ ပြပါ။ `k=1` နဲ့ `k=60` နှိုင်းယှဉ်ပြီး — `k` သေးရင် rank ထိပ်ကို ပိုပြင်းတယ်ဆိုတာ observation တစ်ကြောင်း ထည့်ပါ။
+**Expected behavior:** Query တစ်ခုသည် lane နှစ်ခုလုံးတွင် မတူညီသော document များကို ထိပ်ဆုံးတင်သည်။ RRF သည် lane နှစ်ခုလုံးတွင် အလယ်အလတ်ကောင်းသော document ကို မြှင့်တင်ပေးပုံကို top-3 ရလဒ်ဖြင့် ပြသပါ။ `k=1` နှင့် `k=60` ကို နှိုင်းယှဉ်ပြီး — `k` သေးလေ top rank ၏ အလေးချိန် ပိုကြလေဆိုသော observation တစ်ကြောင်း ထည့်သွင်းပါ။
 
 ---
 
-အားလုံးပြီးရင် M6 ရဲ့ ဗီဒီယို/စာအုပ်အတွက် အဖြေများကို ကြည့်ပါ။ မဖြေရသေးရင်လည်း ကိုယ်တိုင် စမ်းကြည့်တာက အကောင်းဆုံးပါ။ နောက် module M7 မှာ vector index (ANN search) အကြောင်း ဆက်ပါမယ်နော်။
+အားလုံးပြီးဆုံးပါက M6 ၏ အဖြေများကို စစ်ဆေးကြည့်ရှုပါ။ မဖြေဆိုရသေးပါက ကိုယ်တိုင် စမ်းသပ်ခြင်းသည် အကောင်းဆုံးဖြစ်သည်။ နောက် module M7 တွင် reranking နှင့် query transformation အကြောင်း ဆက်လက်လေ့လာမည်။

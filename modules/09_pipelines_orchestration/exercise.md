@@ -1,61 +1,61 @@
 ## လေ့ကျင့်ခန်း ၁ — Idempotent ပြန်လုပ်တာ စမ်းကြည့်ပါ
 
-Idempotent (တစ်ခါထက်ပိုပြီး လုပ်တဲ့အခါ ရလဒ် မပြောင်းတဲ့သဘော) ဂုဏ်သတ္တိကို Python နဲ့ ပြပါမယ်။
+Idempotent ဂုဏ်သတ္တိကို Python ဖြင့် implement လုပ်ပြမည်။
 
-**Task:** တူညီတဲ့ record နှစ်ခါ ထည့်လိုက်တာနဲ့ တစ်ခါတည်း ထည့်လိုက်တာ ရလဒ် တူမယ်လို့ သက်သေပြတဲ့ function ရေးပါ။
+**Task:** တူညီသော record ကို နှစ်ကြိမ် insert လုပ်ခြင်းနှင့် တစ်ကြိမ် insert လုပ်ခြင်း၏ ရလဒ် တူညီကြောင်း သက်သေပြသော function ရေးပါ။
 
-**Hints:** content-hash (အကြောင်းအရာရဲ့ ထပ်ခါတလဲလဲ hash) ကို key အဖြစ်သုံးပြီး dict ထဲ ထည့်ပါ။ `hashlib.sha256` နဲ့ content hash တွက်ပါ။
+**Hints:** content hash ကို key အဖြစ်သုံးပြီး dict ထဲ ထည့်ပါ။ `hashlib.sha256` ဖြင့် content hash တွက်ပါ။
 
-**Expected behavior:** ဖိုင်နှစ်ခါ run ရင် output အတူတူပါတယ်။ list ထဲ record ၁၀ ခုပဲ ရှိပြီး အရေအတွက် မတိုးဘူးဆိုတာ မြင်ရပါလိမ့်မယ်။
+**Expected behavior:** နှစ်ကြိမ် run သော်လည်း output တူညီရမည်။ Store ထဲတွင် record ၁၀ ခုသာ ရှိပြီး အရေအတွက် မတိုးကြောင်း တွေ့ရမည်။
 
 ## လေ့ကျင့်ခန်း ၂ — Backfill rate limit တွက်ပါ
 
-Backfill (အရင် data အားလုံးကို နောက်ကမှ ပြန်ထည့်တာ) မှာ rate limit အရေးကြီးပါတယ်။
+Backfill တွင် rate limit စီမံမှုသည် အရေးပါသည်။
 
-**Task:** ဒီ assumption နဲ့ အချိန်တွက်ပါ — chunk ၁,၀၀၀,၀၀၀ ခု၊ တစ်စက္ကန့်မှာ ၅,၀၀၀ chunk စီ process လုပ်လို့ရတယ်ဆိုပါ။
+**Task:** အောက်ပါ assumption ဖြင့် ကြာချိန်ကို တွက်ချက်ပါ — chunk ၁,၀၀၀,၀၀၀ ခု၊ throughput ၅,၀၀၀ chunks/sec။
 
-**Hints:** အချိန် = စုစုပေါင်းအရေအတွက် ÷ တစ်စက္ကန့် rate ဆိုတဲ formula ပြပါ။ စက္ကန့်ကနေ နာရီပြောင်းပါ။
+**Hints:** အချိန် = စုစုပေါင်းအရေအတွက် ÷ rate formula ကို ပြပါ။ စက္ကန့်မှ နာရီသို့ ပြောင်းလဲပါ။
 
-**Expected behavior:** အချိန်ပေါင်း (၂၀၀ စက္ကန့် ≈ ၀.၀၆ နာရီ) ကို တွက်ဖို့ formula နဲ့အတူ ပြပါမယ်။ ကိုယ်တွက်ထားတဲ့ ဂဏန်းနဲ့ output ကို ကိုက်ညီစေပါ။
+**Expected behavior:** စုစုပေါင်းကြာချိန် (၂၀၀ စက္ကန့် ≈ ၀.၀၆ နာရီ) ကို formula နှင့်အတူ print ထုတ်ပါ။ တွက်ချက်ထားသော တန်ဖိုးနှင့် output ကိုက်ညီရမည်။
 
 ## လေ့ကျင့်ခန်း ၃ — Dead-letter queue နဲ့ retry ရေးပါ
 
-Batch pipeline မှာ fail တဲ့ record တွေ မပျောက်သွားအောင် စီမံပါမယ်။
+Batch pipeline တွင် fail ဖြစ်သော record များ မပျောက်ဆုံးစေရန် စီမံမည်။
 
-**Task:** Record တစ်ချို့ကို process လုပ်ရင် exception ပေးမယ်ဆိုပြီး၊ retry (ပြန်စမ်းခြင်း) ၃ ကြိမ် လုပ်ပြီး မအောင်ရင် dead-letter list ထဲ ထည့်တဲ့ Python function ရေးပါ။
+**Task:** Record အချို့ process လုပ်ရာတွင် exception ပေးမည့် simulation တွင် retry ၃ ကြိမ် ပြုလုပ်ပြီး မအောင်မြင်ပါက dead-letter list ထဲ ထည့်သော Python function ရေးပါ။
 
-**Hints:** `random` သုံးတော့ မရဘူးနော် — record id အမှတ်စဉ်အရ မှတ်ချက် deterministic အရင်းပြပြီး fail အဖြစ် သတ်မှတ်ပါ။
+**Hints:** `random` မသုံးရပါ — record id အပေါ် အခြေခံသော deterministic failure rule သတ်မှတ်ပါ။
 
-**Expected behavior:** Fail တဲ့ record id တွေကို dead-letter ထဲ မြင်ရပြီး retry ၃ ကြိမ် လုပ်မှ ထည့်တယ်ဆိုတာ counter နဲ့ ပြနိုင်ပါတယ်။ Output ကို run တိုင်း တူစေပါ။
+**Expected behavior:** Fail ဖြစ်သော record id များကို dead-letter ထဲ တွေ့ရမည်။ Retry ၃ ကြိမ် ပြည့်မှသာ ထည့်ကြောင်း counter ဖြင့် ပြနိုင်ရမည်။ Output သည် run တိုင်း တူညီရမည်။
 
 ## လေ့ကျင့်ခန်း ၄ — Dual-write နဲ့ shadow index ပြောင်းကြည့်ပါ
 
-Embedding version ပြောင်းတဲ့အခါ migration အဆင့်တွေကို simulation လုပ်ပါမယ်။
+Embedding version ပြောင်းလဲချိန် migration အဆင့်များကို simulation လုပ်မည်။
 
-**Task:** Shadow index (ဟိုးအောက်မှာ အသစ် version ကို တိတ်တဆိတ် ဆောက်ထားတဲ့ index) ကို အရင် ဖြည့်ပြီး၊ cut-over (အသစ်ကို ကူးပြောင်းလိုက်တဲ့ အချက်) အချိန်မှာ read path ကို ပြောင်းတဲ့ script ရေးပါ။
+**Task:** Shadow index ကို အရင်ဖြည့်ပြီး cut-over အချိန်တွင် read path ကို ပြောင်းလဲသော script ရေးပါ။
 
-**Hints:** Version string ("v1", "v2") နဲ့ index dict နှစ်ခု ထားပါ။ Cut-over မတိုင်ခင် query ရလဒ်ကို နှိုင်းယှဉ်ပြပါ။
+**Hints:** Version string ("v1", "v2") ဖြင့် index dict နှစ်ခု ထားပါ။ Cut-over မတိုင်မီ query result ကို နှိုင်းယှဉ်ပြပါ။
 
-**Expected behavior:** Cut-over မတိုင်ခင် v1 ရလဒ်ပဲ ပြပြီး ပြီးတော့ v2 ရလဒ် ပြမယ်ဆိုတာ output မှာ မြင်ရပါလိမ့်မယ်။
+**Expected behavior:** Cut-over မတိုင်မီ v1 result သာ ပြပြီး cut-over နောက်ပိုင်းတွင် v2 result ပြကြောင်း output တွင် တွေ့ရမည်။
 
 ## လေ့ကျင့်ခန်း ၅ — DAG dependency ကို topological sort နဲ့ ဖြေရှင်းပါ
 
-Airflow နဲ့ Dagster က task တွေကို DAG (Directed Acyclic Graph — task dependency graph) အဖြစ် မှတ်ယူပါတယ်။
+Airflow နှင့် Dagster တို့သည် task များကို DAG (Directed Acyclic Graph) အဖြစ် ကိုင်တွယ်သည်။
 
-**Task:** Task dependency table တစ်ခုကနေ run order တွက်ပေးတဲ့ topological sort function ရေးပါ။
+**Task:** Task dependency table မှ run order တွက်ပေးသော topological sort function ရေးပါ။
 
-**Hints:** `graphlib.TopologicalSorter` (standard library, Python ၃.၉+) သုံးပါ။ "chunk" → "embed" → "index" → "validate" dependency ဆောက်ပါ။
+**Hints:** `graphlib.TopologicalSorter` (standard library, Python ၃.၉+) သုံးပါ။ "chunk" → "embed" → "index" → "validate" dependency တည်ဆောက်ပါ။
 
-**Expected behavior:** Task တွေကို မှီခိုမှု အစီအစဉ်အတိုင်း run မယ့် order မှာ ထွက်လာပါတယ်။ Dependency ပျက်နေရင် `CycleError` ပြမယ်လို့ စမ်းကြည့်ပါ။
+**Expected behavior:** Task များသည် dependency အစီအစဉ်အတိုင်း run order တွင် ထွက်ပေါ်ရမည်။ Dependency cycle ရှိပါက `CycleError` ထွက်ကြောင်း စမ်းသပ်ပါ။
 
 ## လေ့ကျင့်ခန်း ၆ — Streaming window နဲ့ CDC style changelog စမ်းပါ
 
-Streaming ingestion မှာ changelog ကို window ခွဲပြီး ချုပ်တာ လေ့ကျင့်ပါမယ်။
+Streaming ingestion တွင် changelog ကို window ခွဲ၍ ထုတ်ယူခြင်းကို လေ့ကျင့်မည်။
 
-**Task:** Change data capture (data ပြောင်းလဲမှုကို ဖမ်းယူတဲနည်း) သဘောနဲ့ record တစ်ခုရဲ့ version နှစ်ခုကို diff လုပ်ပြီး INSERT/UPDATE/DELETE event ထုတ်ပေးတဲ Python function ရေးပါ။
+**Task:** CDC သဘောတရားအတိုင်း record snapshot နှစ်ခုကို diff လုပ်ပြီး INSERT/UPDATE/DELETE event ထုတ်ပေးသော Python function ရေးပါ။
 
-**Hints:** Primary key နဲ့ ဟောင်း version၊ အသစ် version dict နှစ်ခု နှိုင်းယှဉ်ပါ။ Batch window ၅ ခုအတွက် event list ကို အရင် ပြပါ။
+**Hints:** Primary key ဖြင့် old version နှင့် new version dict နှစ်ခုကို နှိုင်းယှဉ်ပါ။ Batch window ၅ ခုအတွက် event list ကို အစဉ်လိုက် print ထုတ်ပါ။
 
-**Expected behavior:** ထည့်တဲ့ record တွေကို INSERT event၊ ပြောင်းတဲ့ record တွေကို UPDATE event၊ ဖျက်တဲ့ record တွေကို DELETE event အဖြစ် အတိအကျ မြင်ရပါလိမ့်မယ်။ Output ကို run တိုင်း တူညီအောင် deterministic ဖြစ်စေပါ။
+**Expected behavior:** အသစ်ထည့်သော record များကို INSERT event၊ ပြောင်းလဲသော record များကို UPDATE event၊ ဖျက်လိုက်သော record များကို DELETE event အဖြစ် အတိအကျ ထွက်ပေါ်ရမည်။ Output သည် run တိုင်း တူညီစေရန် deterministic ဖြစ်ရမည်။
 
-အားလုံးအတွက် သတိပြုရမှာက — ဒီလေ့ကျင့်ခန်းတွေက runtime မှာ database ချိတ်မထားပါဘူးနော်။ ဒါပေမယ့် exercise ၅ မှာ ပြခဲ့သလို DAG သဘောကို Airflow (https://airflow.apache.org/docs/) နဲ့ Dagster (https://docs.dagster.io/) official doc တွေမှာ ဆက်ဖတ်ပါ။ pgvector အတွက်ကတော့ https://github.com/pgvector/pgvector မှာ ရှိပါတယ်။
+အားလုံးအတွက် သတိပြုရန် — ဤလေ့ကျင့်ခန်းများသည် runtime တွင် database ချိတ်ဆက်မှု မလိုအပ်ပါ။ DAG သဘောတရားကို Airflow (https://airflow.apache.org/docs/) နှင့် Dagster (https://docs.dagster.io/) official doc များတွင် ဆက်လက်ဖတ်ရှုပါ။ pgvector အတွက် https://github.com/pgvector/pgvector တွင် ရှိသည်။
