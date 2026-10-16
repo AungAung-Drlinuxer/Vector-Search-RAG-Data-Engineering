@@ -1,0 +1,41 @@
+# M14 — Knowledge Graph RAG (GraphRAG) with Neo4j
+
+Unstructured text chunk များအပေါ် အခြေခံသော vector search ၏ multi-hop reasoning အားနည်းချက်များကို ကျော်လွှားရန် Knowledge Graph (Entities, Relationships, Triples) နှင့် Vector Search ကို ပေါင်းစပ်တည်ဆောက်သော GraphRAG architecture ကို လေ့လာသည့် module ဖြစ်သည်။
+
+## သင်ယူလေ့လာမည့် အကြောင်းအရာများ
+
+- Property Graph Model (Nodes, Labels, Relationships, Properties) နှင့် Cypher query language fundamentals
+- Unstructured text မှ Subject-Predicate-Object (SPO) triples extraction နှင့် entity resolution/normalization
+- 1-hop နှင့် 2-hop graph neighborhood traversal ဖြင့် multi-hop factual reasoning ပြုလုပ်ခြင်း
+- Hybrid Graph + Vector Search architecture (Dual-lane retrieval fan-out နှင့် context fusion)
+- Text-to-Cypher translation vs Vector-to-Graph semantic neighborhood traversal
+- Community detection algorithms (Hierarchical GraphRAG) ဖြင့် global corpus summarization ပြုလုပ်ခြင်း
+
+## Module အစိတ်အပိုင်းများ
+
+1. `lessons/lesson_01_property_graph_cypher.md` — Labeled Property Graph schema နှင့် Cypher statements
+2. `lessons/lesson_02_triples_extraction.md` — Text chunks မှ entity/relation extraction နှင့် graph mapping
+3. `lessons/lesson_03_multi_hop_traversal.md` — Multi-hop graph traversal algorithms (BFS, Cypher pattern matching)
+4. `lessons/lesson_04_hybrid_graph_vector.md` — Dense text chunks နှင့် graph triples ပေါင်းစပ် retrieval pipeline
+5. `lessons/lesson_05_text_to_cypher.md` — Text-to-Cypher generation, schema prompt guardrails နှင့် validation
+6. `lessons/lesson_06_community_graphrag.md` — Graph community clustering နှင့် hierarchical summary synthesis
+
+## Prerequisites
+
+- Modules M00 (Architecture), M02 (Chunking), M05 (pgvector), M06 (Hybrid Search)
+- Python 3 standard library
+- Graph database fundamentals (Neo4j / Property Graph concepts)
+- External database မလိုအပ်ပါ — Graph data structures, traversal algorithms, Cypher generator နှင့် RRF fusion များကို deterministic pure Python ဖြင့် programmatic simulation ပြုလုပ်ထားသည်။ (Optional: Docker ဖြင့် Neo4j container ထောင်၍ စမ်းသပ်နိုင်သည်)
+
+## Production Use Cases
+
+- Entity dependency အလွန်များပြားသော Cloud Infrastructure / DevOps architecture Q&A
+- Legal contracts, compliance frameworks နှင့် biomedical literature များတွင် multi-hop deduction ပြုလုပ်ခြင်း
+- Vector similarity ဖြင့် fragment ဖြစ်သွားသော global themes များကို community summary ဖြင့် ဖြေကြားခြင်း
+
+## References
+
+- Neo4j Official Documentation: https://neo4j.com/docs/
+- Cypher Query Language Reference: https://neo4j.com/docs/cypher-manual/current/
+- Microsoft GraphRAG Paper & Architecture: https://arxiv.org/abs/2404.16130
+- LangChain / LlamaIndex Neo4j GraphRAG integration guides

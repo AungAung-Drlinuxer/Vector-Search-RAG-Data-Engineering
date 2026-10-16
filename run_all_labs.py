@@ -30,6 +30,7 @@ MODULE_DESCRIPTIONS = {
     "11_scale_performance": "Quantization (INT8/Binary/PQ) & Sharding",
     "12_governance_security": "PII Redaction, RLS Policies & Audit Logs",
     "13_capstone": "End-to-End Design & Capacity Sizing Engine",
+    "14_graph_rag_neo4j": "Knowledge Graph RAG (GraphRAG) with Neo4j",
 }
 
 def main():

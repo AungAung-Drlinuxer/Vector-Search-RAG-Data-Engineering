@@ -43,6 +43,7 @@ Lab များအားလုံးသည် deterministic ဖြစ်ပြ�
 | M11 | `11_scale_performance/` | Scalar/binary/product quantization၊ dimension reduction၊ sharding၊ index rebuild၊ write throughput |
 | M12 | `12_governance_security/` | PII redaction၊ Row-Level Security၊ ACL၊ multi-tenancy isolation၊ audit log၊ retention |
 | M13 | `13_capstone/` | End-to-end design consolidation၊ storage/index memory/QPS capacity planning |
+| M14 | `14_graph_rag_neo4j/` | Knowledge Graph RAG (GraphRAG)၊ Neo4j Property Graph၊ Triples extraction၊ 2-hop BFS၊ Text-to-Cypher၊ Community Detection |
 
 ## Database ဦးတည်ချက်
 

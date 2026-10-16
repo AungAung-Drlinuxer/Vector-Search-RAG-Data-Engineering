@@ -93,6 +93,7 @@ docker compose down
 | M11 | Scale | `modules/11_scale_performance/lab.py` | Scalar Quantization (INT8)၊ Binary Quantization၊ Product Quantization (PQ)၊ Sharding |
 | M12 | Governance | `modules/12_governance_security/lab.py` | Ingestion regex PII redaction၊ In-query ACL filter၊ Multi-tenant isolation၊ Cascade delete |
 | M13 | Capstone | `modules/13_capstone/lab.py` | Sizing calculator၊ Proximity graph benchmark၊ QPS & p95 latency၊ Unified end-to-end pipeline |
+| M14 | GraphRAG | `modules/14_graph_rag_neo4j/lab.py` | Property Graph Cypher၊ Triples extraction & resolution၊ 2-hop BFS၊ Hybrid retrieval၊ Community detection |
 
 ---
 

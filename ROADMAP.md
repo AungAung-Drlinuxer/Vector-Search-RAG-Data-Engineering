@@ -158,6 +158,17 @@ Checkpoint questions —
 - QPS estimation တွင် cache hit ratio ထည့်သွင်းပုံ
 - Capstone design ဆုံးဖြတ်ချက်များအနက် assumption-dependent ဖြစ်သော အစိတ်အပိုင်းများ
 
+## M14 — `14_graph_rag_neo4j/` — Knowledge Graph RAG (GraphRAG) with Neo4j
+
+Property Graph model (Nodes, Labels, Relationships, Properties) နှင့် Cypher language ကို လေ့လာသည်။ Text chunk များမှ Subject-Predicate-Object (SPO) triples extraction၊ entity resolution/normalization၊ 1-hop နှင့် 2-hop BFS neighborhood traversal၊ dense vector နှင့် graph subgraph triples ကို dual-lane hybrid retrieval ဖြင့် ပေါင်းစပ်ခြင်း၊ Text-to-Cypher guardrails နှင့် Graph Community Clustering (Hierarchical GraphRAG) တို့ ပါဝင်သည်။
+
+**Learning outcome** — Property Graph Cypher generator ရေးသားနိုင်ပြီး multi-hop graph traversal နှင့် dual-lane hybrid retrieval pipeline ကို standard library ဖြင့် တည်ဆောက်နိုင်ရမည်။
+
+Checkpoint questions —
+- Plain Vector RAG နှင့် နှိုင်းယှဉ်ပါက GraphRAG က multi-hop queries များတွင် အဘယ်ကြောင့် hallucination လျော့နည်းသနည်း
+- Entity resolution မပါဝင်ပါက knowledge graph တွင် မည်သည့် data degradation ဖြစ်ပေါ်နိုင်သနည်း
+- Dual-lane hybrid retrieval တွင် dense text passages နှင့် graph relational triples များကို context ပေါင်းစပ်ပုံ
+
 ## ၆ ပတ် လေ့လာမှု အစီအစဉ်
 
 | ပတ် | Modules | အလေးထား |
