@@ -13,19 +13,23 @@ Document များကို chunk များအဖြစ် ခွဲခြ
 - Chunk metadata (source၊ section၊ page၊ permission) ဒီဇိုင်း
 - Tokenization အခြေခံ (Hugging Face tokenizers docs အရ)
 
-## သင်ခန်းစာများ
+## Module အစိတ်အပိုင်းများ
 
-| သင်ခန်းစာ | ဖော်ပြချက် |
+| File | အကြောင်းအရာ |
 |---|---|
-| `lessons/01_fixed_size_chunking.py` | Fixed-size chunking နှင့် ၎င်း၏ ကန့်သတ်ချက်များ |
-| `lessons/02_recursive_chunking.py` | Paragraph → sentence → word အဆင့်ဆင့် ခွဲခြမ်းခြင်း |
-| `lessons/03_token_based_chunking.py` | Token count အလိုက် chunking နှင့် token counter |
-| `lessons/04_semantic_chunking.py` | Semantic boundary ရှာဖွေခြင်း (scripted embedder ဖြင့်) |
-| `lessons/05_overlap_tradeoff.py` | Overlap size နှင့် recall@k ဆက်စပ်မှု (offline test) |
-| `lessons/06_structure_aware_chunking.py` | Markdown heading structure ထိန်းသိမ်းခြင်း |
-| `lessons/07_parent_child_small_to_big.py` | Small-to-big retrieval ကို standard library ဖြင့် တည်ဆောက်ခြင်း |
-| `lessons/08_metadata_design.py` | Metadata schema ဒီဇိုင်းနှင့် filtering |
-| `lessons/09_lab_document_pipeline.py` | ပေါင်းစပ် lab — end-to-end document pipeline |
+| `README.md` | Module scope နှင့် learning objectives |
+| `explanation.md` | Subtopic ၅ ခု၏ သဘောတရားရှင်းလင်းချက်၊ splitter architecture နှင့် deterministic code example |
+| `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း ၆ ခု |
+| `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
+| `lab.py` | Standard library သာ သုံး၍ local တွင် ချက်ချင်း run နိုင်သော executable lab |
+
+### `explanation.md` — Subtopic ဖွဲ့စည်းပုံ
+
+1. Chunking ဆိုတာ ဘာလဲ နှင့် ဘာကြောင့် လိုအပ်လဲ
+2. Splitter အမျိုးအစားများ — fixed-size၊ recursive၊ token-based၊ semantic
+3. Overlap ရွေးချယ်မှုနှင့် chunk အရွယ် အပေးအယူ
+4. Heading/structure ထိန်းသိမ်းခြင်းနှင့် parent-child၊ small-to-big retrieval
+5. Chunk metadata ဒီဇိုင်း — source၊ section၊ page၊ permission
 
 ## လိုအပ်ချက်များ (Prerequisites)
 

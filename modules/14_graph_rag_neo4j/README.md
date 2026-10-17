@@ -13,12 +13,22 @@ Unstructured text chunk များအပေါ် အခြေခံသော 
 
 ## Module အစိတ်အပိုင်းများ
 
-1. `lessons/lesson_01_property_graph_cypher.md` — Labeled Property Graph schema နှင့် Cypher statements
-2. `lessons/lesson_02_triples_extraction.md` — Text chunks မှ entity/relation extraction နှင့် graph mapping
-3. `lessons/lesson_03_multi_hop_traversal.md` — Multi-hop graph traversal algorithms (BFS, Cypher pattern matching)
-4. `lessons/lesson_04_hybrid_graph_vector.md` — Dense text chunks နှင့် graph triples ပေါင်းစပ် retrieval pipeline
-5. `lessons/lesson_05_text_to_cypher.md` — Text-to-Cypher generation, schema prompt guardrails နှင့် validation
-6. `lessons/lesson_06_community_graphrag.md` — Graph community clustering နှင့် hierarchical summary synthesis
+| File | အကြောင်းအရာ |
+|---|---|
+| `README.md` | Module scope နှင့် learning objectives |
+| `explanation.md` | Subtopic ၆ ခု၏ သဘောတရားရှင်းလင်းချက်၊ Cypher pattern နှင့် deterministic code example |
+| `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း ၆ ခု |
+| `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
+| `lab.py` | Standard library သာ သုံး၍ local တွင် ချက်ချင်း run နိုင်သော executable lab |
+
+### `explanation.md` — Subtopic ဖွဲ့စည်းပုံ
+
+1. Property Graph Model နှင့် Cypher Language Fundamentals
+2. Unstructured Text မှ Triples Extraction နှင့် Entity Resolution
+3. Multi-Hop Graph Traversal Engine (1-Hop & 2-Hop Reasoning)
+4. Dual-Lane Hybrid Retrieval (Dense Vector + Graph Triples Fusion)
+5. Text-to-Cypher vs Vector-to-Graph
+6. Graph Community Detection နှင့် Global Summarization (Hierarchical GraphRAG)
 
 ## Prerequisites
 

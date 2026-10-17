@@ -15,10 +15,21 @@ RAG system အတွက် source document များမှ clean text ထု�
 
 ## Module အစိတ်အပိုင်းများ
 
-1. `lessons/lesson_01_sources.md` — Source formats နှင့် structured JSON conversion patterns
-2. `lessons/lesson_02_extraction.md` — Text extraction နှင့် targeted boilerplate removal
-3. `lessons/lesson_03_normalisation.md` — Unicode normalization (NFC) နှင့် hash-based duplicate detection
-4. `lessons/lesson_04_upsert_delete.md` — Incremental updates၊ deletion semantics နှင့် pipeline idempotency
+| File | အကြောင်းအရာ |
+|---|---|
+| `README.md` | Module scope နှင့် learning objectives |
+| `explanation.md` | Subtopic ၅ ခု၏ သဘောတရားရှင်းလင်းချက်၊ engineering rationale နှင့် deterministic code example |
+| `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း ၆ ခု |
+| `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
+| `lab.py` | Standard library သာ သုံး၍ local တွင် ချက်ချင်း run နိုင်သော executable lab |
+
+### `explanation.md` — Subtopic ဖွဲ့စည်းပုံ
+
+1. Source Formats နှင့် Text Extraction Architecture
+2. Unicode Normalization (NFC)
+3. Content Fingerprinting ဖြင့် Duplicate Detection
+4. Incremental Update နှင့် Deletion Semantics
+5. Pipeline Idempotency Design
 
 ## Prerequisites
 

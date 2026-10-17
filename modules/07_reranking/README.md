@@ -13,13 +13,21 @@ First-stage retrieval ၏ candidate list အား downstream LLM context အတ
 
 ## Module အစိတ်အပိုင်းများ
 
-1. `lessons/lesson_01_bi_vs_cross.md` — Bi-encoder vs Cross-encoder representation
-2. `lessons/lesson_02_latency_cost.md` — Reranking latency profiling နှင့် candidate count
-3. `lessons/lesson_03_top_k.md` — Recall vs cost trade-off တွင် top-k sizing
-4. `lessons/lesson_04_hyde.md` — Hypothetical document generation နှင့် embedding alignment
-5. `lessons/lesson_05_multiquery_fusion.md` — Paraphrase generation နှင့် RRF ranking fusion
-6. `lessons/lesson_06_query_decomposition.md` — Multi-hop queries များကို sub-queries အဖြစ် decompose လုပ်ခြင်း
-7. `lessons/lesson_07_mmr.md` — MMR formulation ဖြင့် redundant candidates များကို penalize လုပ်ခြင်း
+| File | အကြောင်းအရာ |
+|---|---|
+| `README.md` | Module scope နှင့် learning objectives |
+| `explanation.md` | Subtopic ၅ ခု၏ သဘောတရားရှင်းလင်းချက်၊ formula နှင့် deterministic code example |
+| `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း ၆ ခု |
+| `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
+| `lab.py` | Standard library သာ သုံး၍ local တွင် ချက်ချင်း run နိုင်သော executable lab |
+
+### `explanation.md` — Subtopic ဖွဲ့စည်းပုံ
+
+1. Bi-encoder နှင့် Cross-encoder Architecture
+2. Reranking Latency Cost Modeling နှင့် Top-k Budgeting
+3. HyDE — Hypothetical Document Embeddings
+4. Multi-Query Expansion နှင့် Reciprocal Rank Fusion (RRF)
+5. MMR (Maximal Marginal Relevance) ဖြင့် Diversity Optimization
 
 ## Prerequisites
 

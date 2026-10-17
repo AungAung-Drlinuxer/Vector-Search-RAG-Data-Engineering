@@ -13,12 +13,21 @@ Enterprise RAG နှင့် vector search စနစ်များတွင�
 
 ## Module အစိတ်အပိုင်းများ
 
-1. `lessons/lesson_01_pii_persistence.md` — Ingestion gate တွင် PII detection နှင့် automated redaction
-2. `lessons/lesson_02_rls_acl.md` — PostgreSQL Row-Level Security policies ဖြင့် query-level authorization
-3. `lessons/lesson_03_multi_tenancy.md` — Multi-tenant architecture နှိုင်းယှဉ်ချက်နှင့် cross-tenant leak prevention
-4. `lessons/lesson_04_audit_logging.md` — Retrieval access logs နှင့် compliance audit trails
-5. `lessons/lesson_05_retention_provenance.md` — Data retention periods, cascade delete နှင့် source licensing metadata
-6. `lessons/lesson_06_lab.md` — ACL-filtered retrieval, audit logging နှင့် cascade purge implementation
+| File | အကြောင်းအရာ |
+|---|---|
+| `README.md` | Module scope နှင့် learning objectives |
+| `explanation.md` | Subtopic ၅ ခု၏ သဘောတရားရှင်းလင်းချက်၊ RLS/redaction pattern နှင့် deterministic example |
+| `exercise.md` | ကိုယ်တိုင် implement လုပ်ရမည့် လေ့ကျင့်ခန်း ၆ ခု |
+| `solution.md` | Reference implementation နှင့် ရှင်းလင်းချက် |
+| `lab.py` | Standard library သာ သုံး၍ local တွင် ချက်ချင်း run နိုင်သော executable lab |
+
+### `explanation.md` — Subtopic ဖွဲ့စည်းပုံ
+
+1. Embedding Layer PII Persistence Risk နှင့် Automated Redaction
+2. Database Row-Level Security (RLS) ဖြင့် Document ACL Enforcement
+3. Multi-Tenant Isolation Architectures
+4. Immutable Audit Logging နှင့် Retention Deletion Policies
+5. Data Provenance, Source Licensing နှင့် Quality Verification
 
 ## Prerequisites
 
